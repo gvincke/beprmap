@@ -143,7 +143,38 @@ shinyServer(function(input, output, session) {
     
     #cv$datas<-subset(data,data$Nat==1)#& data$Km<=800  & (data$Andenne==1 | data$Perso==1) data,data$Pays=="B"
     cv$coords<-coords
-    cv$datatoshow<-subset(coords,select=c())
+    #compute WGS84 coordinates Dms.toDMS = function(deg, format, dp) from http://www.movable-type.co.uk/scripts/latlong.html
+
+    coords <- transform(coords, LatSign = ifelse(Lat < 0, "-", ""))
+    coords <- transform(coords, LonSign = ifelse(Lon < 0, "-", ""))
+    
+    coords <- transform(coords, LatAbs = abs(Lat))
+    coords <- transform(coords, LatSec = LatAbs*3600)
+    coords <- transform(coords, Latd = floor(LatSec/3600))
+    coords <- transform(coords, Latm = floor((LatSec/60) %% 60))
+    coords <- transform(coords, Latm = sprintf( "%02d",Latm))
+    coords <- transform(coords, Lats = round(LatSec %% 60,1))
+    coords <- transform(coords, Latsf = formatC(Lats, width = 4, format = "f", flag = "0",digits=1))
+    coords <- transform(coords, LatWSG84 = paste(LatSign,Latd,Latm,Latsf,sep=""))
+    
+    coords <- transform(coords, LonAbs = abs(Lon))
+    coords <- transform(coords, LonSec = LonAbs*3600)
+    coords <- transform(coords, Lond = floor(LonSec/3600))
+    coords <- transform(coords, Lonm = floor((LonSec/60) %% 60))
+    coords <- transform(coords, Lonm = sprintf( "%02d",Lonm))
+    coords <- transform(coords, Lons = round(LonSec %% 60,1))
+    coords <- transform(coords, Lonsf = formatC(Lons, width = 4, format = "f", flag = "0",digits=1))
+    coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,Lonsf,sep=""))
+        
+    if(v$Lat!="" & v$Lon!=""){
+      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Km))
+    } else {
+      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon))
+    }
+    names(cv$datatoshow)[3]<-paste("Lat WSG84")#change LatWSG84 to Lat WSG84
+    names(cv$datatoshow)[4]<-paste("Lon WSG84")#change LonWSG84 to Lon WSG84
+    names(cv$datatoshow)[5]<-paste("Lat DD")#change Lat to LatDD
+    names(cv$datatoshow)[6]<-paste("Lon DD")#Change Lon to LonDD
     
     #Set zone of plotting
     #default
@@ -342,7 +373,7 @@ shinyServer(function(input, output, session) {
 output$Datas = renderDataTable({
   v<-getInputValues()
   cv<-getComputedValues()
-  cv$coords
+  cv$datatoshow
 })
 
 })
