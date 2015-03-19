@@ -1,0 +1,349 @@
+## beprmap (Belgium Pigeon Racing Map) Shiny/R app server.R                                           
+##                                                                      
+## Author(s) :
+## -----------
+## Grégoire Vincke http://www.gregoirevincke.be            
+##                                                                      
+## Licences : 
+## ---------
+## CC-BY for the web page http://sparks.rstudio.org/gvincke/beprmap/
+## See http://creativecommons.org/licenses/by/2.0/be/ for more informations       
+##
+## GPLv2 for source code on https://github.com/gvincke/beprmap 
+## See LICENCE.tx or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
+
+# Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
+
+library(shiny)
+library(maps)
+library(mapproj)
+library(mapdata)
+library(png)
+
+cc <- readPNG("www/img/cc_by_320x60.png")
+
+shinyServer(function(input, output, session) {
+  
+  data <- read.csv("data/coordonnees_rfcb.csv", sep=";", dec=",", quote="")
+  maintowns <- read.csv("data/coordonnees_principales_villes.csv", sep=";", dec=".", quote="")
+  perso <- read.csv("data/coordonnees_perso.csv", sep=";", dec=",", quote="")
+  
+  observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
+    v<-sort(as.vector(data$Villes)) 
+    v<-c("Toutes",v)
+    updateSelectInput(#http://www.inside-r.org/packages/cran/shiny/docs/updateSelectInput
+      session,
+      "towns",
+      choices=v)
+  })
+ 
+  getInputValues<-reactive({
+    return(input)#collect all inputs
+  })
+
+  getComputedValues<-reactive({
+    v<-getInputValues() # get all values of input list
+    cv<-list()#created empty computed values list
+    
+    if(v$Lat!="" & v$Lon!=""){
+      cv$Lat<-as.numeric(v$Lat)
+      cv$Lon<-as.numeric(v$Lon)
+
+      #From Sexagésimal to decimal coordinates
+      LatFact<-1
+      if(cv$Lat<0){
+        LatFact<-LatFact*-1
+      }
+      cv$LatDeg<-floor(cv$Lat/10000)*LatFact
+      cv$LatMin<-((floor(cv$Lat/100)/100-floor(floor(cv$Lat/100)/100))*100)*LatFact
+      cv$LatSec<-((cv$Lat/100-floor(cv$Lat/100))*100)*LatFact 
+      cv$LatDec<-cv$LatDeg+(cv$LatMin/60)+(cv$LatSec/3600)
+      cv$LatRad<-cv$LatDec*pi/180
+      
+      LonFact<-1
+      if(v$Lon<0){
+        LonFact<-LonFact*-1
+      }
+      cv$LonDeg<-floor(cv$Lon/10000)*LonFact 
+      cv$LonMin<-((floor(cv$Lon/100)/100-floor(floor(cv$Lon/100)/100))*100)*LonFact 
+      cv$LonSec<-((cv$Lon/100-floor(cv$Lon/100))*100)*LonFact
+      cv$LonDec<-cv$LonDeg+(cv$LonMin/60)+(cv$LonSec/3600)
+      cv$LonRad<-cv$LonDec*pi/180
+      
+      #Calculation of distances in Km
+      cons1<-0.99664718933525
+      cons2<-6378137
+      
+      data$LatRad<-as.numeric(data$Lat)*pi/180
+      data$LonRad<-as.numeric(data$Lon)*pi/180
+      data$BHO<-(cv$LatRad+data$LatRad)/2
+      data$IHO<-data$LonRad-cv$LonRad
+      data$NU2<-0.0067394967422767*cos(data$BHO)^2
+      data$VHO<-sqrt(1+data$NU2)
+      data$LAHO<-data$IHO*data$VHO
+      data$OM1<-atan(cons1*tan(cv$LatRad))
+      data$OM2<-atan(cons1*tan(data$LatRad))
+      data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
+      data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
+      data$Km=round(data$AFSTG/1000,2)
+      
+      maintowns$LatRad<-as.numeric(maintowns$Lat)*pi/180
+      maintowns$LonRad<-as.numeric(maintowns$Lon)*pi/180
+      maintowns$BHO<-(cv$LatRad+maintowns$LatRad)/2
+      maintowns$IHO<-maintowns$LonRad-cv$LonRad
+      maintowns$NU2<-0.0067394967422767*cos(maintowns$BHO)^2
+      maintowns$VHO<-sqrt(1+maintowns$NU2)
+      maintowns$LAHO<-maintowns$IHO*maintowns$VHO
+      maintowns$OM1<-atan(cons1*tan(cv$LatRad))
+      maintowns$OM2<-atan(cons1*tan(maintowns$LatRad))
+      maintowns$XHO<-sin(maintowns$OM1)*sin(maintowns$OM2)+cos(maintowns$OM1)*cos(maintowns$OM2)*cos(maintowns$LAHO)
+      maintowns$AFSTG=(cons2/maintowns$VHO)*(atan(-maintowns$XHO/sqrt(1-maintowns$XHO^2))+2*atan(1))
+      maintowns$Km=round(maintowns$AFSTG/1000,2)
+      cv$maintowns<-maintowns
+      
+      perso$LatRad<-as.numeric(perso$Lat)*pi/180
+      perso$LonRad<-as.numeric(perso$Lon)*pi/180
+      perso$BHO<-(cv$LatRad+perso$LatRad)/2
+      perso$IHO<-perso$LonRad-cv$LonRad
+      perso$NU2<-0.0067394967422767*cos(perso$BHO)^2
+      perso$VHO<-sqrt(1+perso$NU2)
+      perso$LAHO<-perso$IHO*perso$VHO
+      perso$OM1<-atan(cons1*tan(cv$LatRad))
+      perso$OM2<-atan(cons1*tan(perso$LatRad))
+      perso$XHO<-sin(perso$OM1)*sin(perso$OM2)+cos(perso$OM1)*cos(perso$OM2)*cos(perso$LAHO)
+      perso$AFSTG=(cons2/perso$VHO)*(atan(-perso$XHO/sqrt(1-perso$XHO^2))+2*atan(1))
+      perso$Km=round(perso$AFSTG/1000,2)
+      cv$perso<-perso
+    }
+    
+    #Data selection : must be after distance computation because some filters are based on distance
+    coords<-data
+    if(v$selection=="none"){coords<-subset(coords,Id %in% c())}
+    if(v$selection=="linew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
+    if(v$selection=="linec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
+    if(v$selection=="linee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
+    if(v$selection=="vr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
+    if(v$selection=="natint"){coords<-subset(coords,coords$Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="beloff"){coords<-subset(coords,coords$Id %in% c(79,59,139,140,55))}
+    if(v$selection=="beltour"){coords<-subset(coords,coords$Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
+    if(v$selection=="divers"){coords<-subset(coords,coords$Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
+    
+    if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167))}
+    if(v$itin=="centand"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    
+    #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
+    
+    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250)}
+    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250 & coords$Km<=425)}
+    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425 & coords$Km<=600)}
+    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600 & coords$Km<=800)}
+    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800)}
+    
+    if(v$towns!="Toutes"){coords<-subset(coords,coords$Villes==v$towns)}
+    
+    #cv$datas<-subset(data,data$Nat==1)#& data$Km<=800  & (data$Andenne==1 | data$Perso==1) data,data$Pays=="B"
+    cv$coords<-coords
+    cv$datatoshow<-subset(coords,select=c())
+    
+    #Set zone of plotting
+    #default
+    cv$ymin<-c(42.25)
+    cv$ymax<-c(51.5)
+    cv$xmin<-c(-3)
+    cv$xmax<-c(8)
+    
+    if(v$mapzones=="rw"){
+      cv$ymin<-c(49.5)
+      cv$ymax<-c(51)
+      cv$xmin<-c(4)
+      cv$xmax<-c(5.5)
+    }
+    if(v$mapzones=="bel"){
+      cv$ymin<-c(49.5)
+      cv$ymax<-c(51.5)
+      cv$xmin<-c(2)
+      cv$xmax<-c(7)
+    }
+    if(v$mapzones=="fra"){
+      cv$ymin<-c(42.25)
+      cv$ymax<-c(51.05)
+      cv$xmin<-c(-3)
+      cv$xmax<-c(8)
+    }
+    if(v$mapzones=="befr"){#| v$mapzones=="ger" | v$mapzones=="esp"
+      cv$ymin<-c(42.25)
+      cv$ymax<-c(51.5)
+      cv$xmin<-c(-3)
+      cv$xmax<-c(8)
+    }
+    if(v$mapzones=="dyn" & nrow(cv$coords)>0){
+      if(v$Lat!="" & v$Lon!=""){
+        cv$ymin<-c(min(as.numeric(cv$coords$Lat),cv$LatDec))
+        cv$ymax<-c(max(as.numeric(cv$coords$Lat),cv$LatDec))
+        cv$ymin<-cv$ymin-((cv$ymax-cv$ymin)*0.05)
+        cv$ymax<-cv$ymax+((cv$ymax-cv$ymin)*0.05) 
+        
+        cv$xmin<-c(min(as.numeric(cv$coords$Lon),cv$LonDec))
+        cv$xmax<-c(max(as.numeric(cv$coords$Lon),cv$LonDec))
+        cv$xmin<-cv$xmin-((cv$xmax-cv$xmin)*0.05)
+        cv$xmax<-cv$xmax+((cv$xmax-cv$xmin)*0.20)
+      } else {
+        cv$ymin<-min(as.numeric(cv$coords$Lat))
+        cv$ymax<-max(as.numeric(cv$coords$Lat))
+        cv$ymin<-cv$ymin-((cv$ymax-cv$ymin)*0.05)
+        cv$ymax<-cv$ymax+((cv$ymax-cv$ymin)*0.05) 
+        
+        cv$xmin<-min(as.numeric(cv$coords$Lon))
+        cv$xmax<-max(as.numeric(cv$coords$Lon))
+        cv$xmin<-cv$xmin-((cv$xmax-cv$xmin)*0.05)
+        cv$xmax<-cv$xmax+((cv$xmax-cv$xmin)*0.20)
+      }
+    }
+
+    #Map should be 2 times more larger than higher
+    cv$mapheight<-cv$ymax-cv$ymin
+    cv$mapwidthmin<-cv$mapheight*2
+    mapwidht<-cv$xmax-cv$xmin
+    if(mapwidht<cv$mapwidthmin){
+      cv$mapwidth<-cv$mapwidthmin
+      mapxmiddle<-(cv$xmin+((cv$xmax-cv$xmin)/2))
+      cv$xmax<-mapxmiddle+cv$mapwidth*0.48
+      cv$xmin<-mapxmiddle-cv$mapwidth*0.48
+    } 
+    
+    return(cv)
+  })
+  
+  output$map <- renderPlot({
+  
+    plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
+      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      AngDeg <- seq(1:360)
+      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
+      AngRad <- AngDeg*(pi/180)
+      for(i in 1:length(Km)){
+        Lat2Rad <-asin(sin(Lat1Rad)*cos(Km[i]/ER)+cos(Lat1Rad)*sin(Km[i]/ER)*cos(AngRad))  #Latitude of each point of the circle rearding to distance and to angle in radians
+        Lon2Rad <- Lon1Rad+atan2(sin(AngRad)*sin(Km[i]/ER)*cos(Lat1Rad),cos(Km[i]/ER)-sin(Lat1Rad)*sin(Lat2Rad)) #Longitude of each point of the circle rearding to distance and to angle in radians
+        Lat2Deg <- Lat2Rad*(180/pi)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+        Lon2Deg <- Lon2Rad*(180/pi)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+        polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
+        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
+#         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
+        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)
+      }
+    }
+
+    plotZones <- function(LatDec, LonDec, Km) {
+      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      
+      #Plot of lines
+      AngDeg <- c(24.8144,29.9559,34.0166,38.9018,43.9448)#Angles in radians defining zones relatively to Chastres
+      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
+      AngRad <- AngDeg*(pi/180)
+      for(i in 1:5){
+        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
+        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+        
+        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
+        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        
+        Lat2Deg1 <-Lat2Rad1*(180/pi)
+        Lon2Deg1 <-Lon2Rad1*(180/pi)
+        
+        Lat2Deg2 <-Lat2Rad2*(180/pi)
+        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        if(i %in% c(1,3,5)){
+          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2)
+        } else {
+          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2))
+        }
+      }
+      
+      #Plot labels
+      AngDeg <- c(24.8144-2.5,29.9559-(29.9559-24.8144)*0.5,34.0166-(34.0166-29.9559)*0.5,38.9018-(38.9018-34.0166)*0.5,43.9448-(43.9448-38.9018)*0.5,43.9448+2.5)#Angles in radians defining zones relatively to Chastres
+      labels<-c("A1","A2","B1","B2","C1","C2")
+      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
+      AngRad <- AngDeg*(pi/180)
+      for(i in 1:6){
+        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
+        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+        
+        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
+        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        
+        Lat2Deg1 <-Lat2Rad1*(180/pi)
+        Lon2Deg1 <-Lon2Rad1*(180/pi)
+        
+        Lat2Deg2 <-Lat2Rad2*(180/pi)
+        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        
+        text(Lon2Deg1,Lat2Deg1,labels= labels[i])
+        text(Lon2Deg2,Lat2Deg2,labels= labels[i])
+      }
+      
+    }
+    
+    v<-getInputValues()
+    cv<-getComputedValues()
+    par(xaxt="n",yaxt="n")
+    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0))
+    map.axes() 
+    if(v$Lon!="" & v$Lat!=""){
+      mycoord<-mapproject(cv$LonDec,cv$LatDec)
+      points(mycoord,pch=18,col='blue',cex=2)
+      if(v$circles){
+        plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800))
+      }
+      if(v$zones){
+        plotZones(48.4297221876,1.5213888709,c(250,450))
+      }
+    }
+    if(nrow(cv$coords)>0){
+      show<-as.integer(row.names(cv$coords))
+      for(i in 1:nrow(cv$coords)){
+        coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
+        points(coords,pch=20,col='red',cex=1)
+        labels<-paste("")
+        if(v$labels){labels<-paste(labels,as.character(cv$coords$Ville[i]),collapse = NULL,sep=' ')}
+        if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
+        text(coords,labels,cex=1,pos=4)
+      }
+
+    }
+  if(v$maintowns){
+    maintownscoords<-mapproject(maintowns$Lon,maintowns$Lat)
+    points(maintownscoords,pch=20,col='green',cex=2)
+    
+    #Labels of main towns
+    maintownslabels<-paste("",sep="")
+    if(v$labels){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Ville),collapse = NULL,sep=' ')}
+    if(v$kms){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Km),collapse = NULL,sep=' ')}
+    text(maintownscoords,maintownslabels,cex=1,pos=4)
+  }
+  if(v$perso){
+    persocoords<-mapproject(perso$Lon,perso$Lat)
+    points(persocoords,pch=20,col='blue',cex=1)
+    
+    #Labels of perso locations
+    persolabels<-paste("",sep="")
+    if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
+    if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
+    text(persocoords,persolabels,cex=1,pos=4)
+  }
+    #Add licence
+    rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
+    text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke 2015",sep=""),pos=4,cex=1)
+    map.scale(x=cv$xmin, y=(cv$ymax-((cv$ymax-cv$ymin)*0.03)*0.5))
+    })#,height =600,width=800
+
+output$Datas = renderDataTable({
+  v<-getInputValues()
+  cv<-getComputedValues()
+  cv$coords
+})
+
+})
+
