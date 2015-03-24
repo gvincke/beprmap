@@ -6,11 +6,11 @@
 ##                                                                      
 ## Licences : 
 ## ---------
-## CC-BY for the web page http://sparks.rstudio.org/gvincke/beprmap/
+## CC-BY for the web page http://sparks.rstudio.com/gvincke/beprmap/
 ## See http://creativecommons.org/licenses/by/2.0/be/ for more informations       
 ##
 ## GPLv2 for source code on https://github.com/gvincke/beprmap 
-## See LICENCE.tx or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
+## See LICENCE.txt or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
 
 # Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
 
@@ -30,7 +30,7 @@ shinyServer(function(input, output, session) {
   
   observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
     v<-sort(as.vector(data$Villes)) 
-    v<-c("Toutes",v)
+    v<-c("Tous",v)
     updateSelectInput(#http://www.inside-r.org/packages/cran/shiny/docs/updateSelectInput
       session,
       "towns",
@@ -128,7 +128,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="beltour"){coords<-subset(coords,coords$Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
     if(v$selection=="divers"){coords<-subset(coords,coords$Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
     
-    if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167))}
+    if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$itin=="centand"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106))}
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
@@ -139,7 +139,13 @@ shinyServer(function(input, output, session) {
     if(v$racedist=="F"){coords<-subset(coords,coords$Km>600 & coords$Km<=800)}
     if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800)}
     
-    if(v$towns!="Toutes"){coords<-subset(coords,coords$Villes==v$towns)}
+    if(length(v$towns)>0 ){
+      if("Tous" %in% v$towns){
+        #no more subset is done
+        }else {
+          coords<-subset(coords,coords$Villes %in% v$towns)
+        }
+    }
     
     #cv$datas<-subset(data,data$Nat==1)#& data$Km<=800  & (data$Andenne==1 | data$Perso==1) data,data$Pays=="B"
     cv$coords<-coords
@@ -154,22 +160,27 @@ shinyServer(function(input, output, session) {
     coords <- transform(coords, Latm = floor((LatSec/60) %% 60))
     coords <- transform(coords, Latm = sprintf( "%02d",Latm))
     coords <- transform(coords, Lats = round(LatSec %% 60,1))
-    coords <- transform(coords, Latsf = formatC(Lats, width = 4, format = "f", flag = "0",digits=1))
-    coords <- transform(coords, LatWSG84 = paste(LatSign,Latd,Latm,Latsf,sep=""))
-    
+    coords <- transform(coords, Latsf = floor(Lats))
+    coords <- transform(coords, Latsd = round((Lats-Latsf)*10,0))
+    coords <- transform(coords, Latsf = sprintf( "%02d",Latsf))
+    coords <- transform(coords, LatWSG84 = paste(LatSign,Latd,Latm,paste(Latsf,Latsd,sep="."),sep=""))
+
+
     coords <- transform(coords, LonAbs = abs(Lon))
     coords <- transform(coords, LonSec = LonAbs*3600)
     coords <- transform(coords, Lond = floor(LonSec/3600))
     coords <- transform(coords, Lonm = floor((LonSec/60) %% 60))
     coords <- transform(coords, Lonm = sprintf( "%02d",Lonm))
     coords <- transform(coords, Lons = round(LonSec %% 60,1))
-    coords <- transform(coords, Lonsf = formatC(Lons, width = 4, format = "f", flag = "0",digits=1))
-    coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,Lonsf,sep=""))
-        
+    coords <- transform(coords, Lonsf = floor(Lons))
+    coords <- transform(coords, Lonsd = round((Lons-Lonsf)*10,0))
+    coords <- transform(coords, Lonsf = sprintf( "%02d",Lonsf))
+    coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,paste(Lonsf,Lonsd,sep="."),sep=""))
+  
     if(v$Lat!="" & v$Lon!=""){
-      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Km))
+      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Km,Pays))
     } else {
-      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon))
+      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Pays))
     }
     names(cv$datatoshow)[3]<-paste("Lat WSG84")#change LatWSG84 to Lat WSG84
     names(cv$datatoshow)[4]<-paste("Lon WSG84")#change LonWSG84 to Lon WSG84
