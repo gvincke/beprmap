@@ -6,11 +6,11 @@
 ##                                                                      
 ## Licences : 
 ## ---------
-## CC-BY for the web page http://sparks.rstudio.org/gvincke/beprmap/
+## CC-BY for the web page http://sparks.rstudio.com/gvincke/beprmap/
 ## See http://creativecommons.org/licenses/by/2.0/be/ for more informations       
 ##
 ## GPLv2 for source code on https://github.com/gvincke/beprmap 
-## See LICENCE.tx or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
+## See LICENCE.txt or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
 
 Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
 
@@ -61,7 +61,7 @@ shinyUI(pageWithSidebar(
                 ),
                 selected="all",
                 selectize=FALSE),br(),
-    selectInput("towns",strong(HTML("Lieux :")),"",selected="all",selectize=FALSE),br(),
+    selectInput("towns",strong(HTML("Lieux :")),"",selectize=FALSE,multiple=TRUE),br(),
     selectInput("mapzones", strong(HTML("Limiter la carte :")),
                 list("En fonction des données" = "dyn",
                      "à la Wallonie" = "rw",
