@@ -126,8 +126,8 @@ shinyUI(pageWithSidebar(
 	  h4(HTML("Calcul des distances :")),
 	  p(HTML("Les coordonnées qui sont chargées par défaut comme ''coordonnées de référence'' sont celle du <a href='http://www.walhain.be/Loisirs/office-du-tourisme/les-curiosites-touristiques/le-centre-geographique-de-la-belgique' target=_blank'>centre géographique de la Belgique</a>. ")),
 	  p(HTML("Remplacez les par celles de votre propre colombier et vous bénéficierez d'un calcul de distance adapté à votre localisation personnelle. ")),
-	  p(HTML("Le format à utiliser dans les champs ''lat'' (latitude) et ''Lon'' (longitude) est le format <a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84</a>, avec un <strong>point comme symbole décimal</strong>,et non une virgule.")),
-	  p(HTML("<strong>Rappel :</strong> Vos coordonnées figurent au format WGS84 sur votre carte de membre Royale Fédération Colombophile Belge.")),
+	  p(HTML("Le format à utiliser dans les champs ''Lat'' (latitude) et ''Lon'' (longitude) est le format <a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84</a>, avec un <strong>point comme symbole décimal</strong>, et non une virgule.")),
+	  p(HTML("<strong>Rappel :</strong> Vos coordonnées figurent au format WGS84 sur votre carte de membre de la Royale Fédération Colombophile Belge.")),
 	  
 	  value=3
 	),
