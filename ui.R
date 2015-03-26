@@ -57,7 +57,8 @@ shinyUI(pageWithSidebar(
                 list("Tous" = "all",
                      "Aucun"="none",
                      "Le Centre Andenne" = "centand", 
-                     "Fédération de l'Espoir" = "fedesp"
+                     "Fédération de l'Espoir" = "fedesp",
+                     "Union Wallonne Ramillies" = "uwr"
                 ),
                 selected="all",
                 selectize=FALSE),br(),
@@ -89,13 +90,19 @@ shinyUI(pageWithSidebar(
     textInput("Lat", "Lat","503828.0" ),
     textInput("Lon", "Lon","044005.0" ),br(),
     checkboxInput("kms", label = "Afficher pour chaque lieux sa distance en km ", value = FALSE),br(),
-    selectInput("racedist", h6(HTML("Type de concours selon la distance")),
+radioButtons("round", HTML("Arrondir au"),
+              list("km"="0",
+                   "hm"="1", 
+                   "dm"="2",
+                   "m"="3"
+              ),selected="0"),
+    selectInput("racedist", strong(HTML("Type de concours selon la distance")),
             list("Tous" = "all",
                  "Vitesse (0-250Km)" = "V", 
                  "Petit Demi-Fond (250-425Km)" = "PDF",
                  "Demi-Fond (425-600Km)" = "DF",
                  "Fond (600-800Km)" = "F",
-                 "Grand Fond (>8000Km)"="GF"
+                 "Grand Fond (>800Km)"="GF"
             ),selectize=FALSE,selected="all"),br(),
     checkboxInput("circles", label = "Afficher les limites des catégories de distance", value = FALSE),br(),
     
