@@ -36,19 +36,21 @@ shinyServer(function(input, output, session) {
       "towns",
       choices=v)
   })
- 
+  
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
-
+  
   getComputedValues<-reactive({
     v<-getInputValues() # get all values of input list
     cv<-list()#created empty computed values list
     
+    cv$round<-as.integer(v$round)
+    
     if(v$Lat!="" & v$Lon!=""){
       cv$Lat<-as.numeric(v$Lat)
       cv$Lon<-as.numeric(v$Lon)
-
+      
       #From Sexagésimal to decimal coordinates
       LatFact<-1
       if(cv$Lat<0){
@@ -85,7 +87,8 @@ shinyServer(function(input, output, session) {
       data$OM2<-atan(cons1*tan(data$LatRad))
       data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
       data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
-      data$Km=round(data$AFSTG/1000,2)
+      data$M=round(data$AFSTG,0)
+      data$Km=round(data$M/1000,cv$round)
       
       maintowns$LatRad<-as.numeric(maintowns$Lat)*pi/180
       maintowns$LonRad<-as.numeric(maintowns$Lon)*pi/180
@@ -98,7 +101,8 @@ shinyServer(function(input, output, session) {
       maintowns$OM2<-atan(cons1*tan(maintowns$LatRad))
       maintowns$XHO<-sin(maintowns$OM1)*sin(maintowns$OM2)+cos(maintowns$OM1)*cos(maintowns$OM2)*cos(maintowns$LAHO)
       maintowns$AFSTG=(cons2/maintowns$VHO)*(atan(-maintowns$XHO/sqrt(1-maintowns$XHO^2))+2*atan(1))
-      maintowns$Km=round(maintowns$AFSTG/1000,2)
+      maintowns$M=round(maintowns$AFSTG,0)
+      maintowns$Km=round(maintowns$M/1000,cv$round)
       cv$maintowns<-maintowns
       
       perso$LatRad<-as.numeric(perso$Lat)*pi/180
@@ -112,7 +116,8 @@ shinyServer(function(input, output, session) {
       perso$OM2<-atan(cons1*tan(perso$LatRad))
       perso$XHO<-sin(perso$OM1)*sin(perso$OM2)+cos(perso$OM1)*cos(perso$OM2)*cos(perso$LAHO)
       perso$AFSTG=(cons2/perso$VHO)*(atan(-perso$XHO/sqrt(1-perso$XHO^2))+2*atan(1))
-      perso$Km=round(perso$AFSTG/1000,2)
+      perso$M=round(perso$AFSTG,0)
+      perso$Km=round(perso$M/1000,cv$round)
       cv$perso<-perso
     }
     
@@ -130,6 +135,7 @@ shinyServer(function(input, output, session) {
     
     if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$itin=="centand"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    if(v$itin=="uwr"){coords<-subset(coords,coords$Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76))}
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
     
@@ -142,15 +148,15 @@ shinyServer(function(input, output, session) {
     if(length(v$towns)>0 ){
       if("Tous" %in% v$towns){
         #no more subset is done
-        }else {
-          coords<-subset(coords,coords$Villes %in% v$towns)
-        }
+      }else {
+        coords<-subset(coords,coords$Villes %in% v$towns)
+      }
     }
     
     #cv$datas<-subset(data,data$Nat==1)#& data$Km<=800  & (data$Andenne==1 | data$Perso==1) data,data$Pays=="B"
     cv$coords<-coords
     #compute WGS84 coordinates Dms.toDMS = function(deg, format, dp) from http://www.movable-type.co.uk/scripts/latlong.html
-
+    
     coords <- transform(coords, LatSign = ifelse(Lat < 0, "-", ""))
     coords <- transform(coords, LonSign = ifelse(Lon < 0, "-", ""))
     
@@ -164,8 +170,8 @@ shinyServer(function(input, output, session) {
     coords <- transform(coords, Latsd = round((Lats-Latsf)*10,0))
     coords <- transform(coords, Latsf = sprintf( "%02d",Latsf))
     coords <- transform(coords, LatWSG84 = paste(LatSign,Latd,Latm,paste(Latsf,Latsd,sep="."),sep=""))
-
-
+    
+    
     coords <- transform(coords, LonAbs = abs(Lon))
     coords <- transform(coords, LonSec = LonAbs*3600)
     coords <- transform(coords, Lond = floor(LonSec/3600))
@@ -176,9 +182,11 @@ shinyServer(function(input, output, session) {
     coords <- transform(coords, Lonsd = round((Lons-Lonsf)*10,0))
     coords <- transform(coords, Lonsf = sprintf( "%02d",Lonsf))
     coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,paste(Lonsf,Lonsd,sep="."),sep=""))
-  
+    
     if(v$Lat!="" & v$Lon!=""){
-      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Km,Pays))
+      cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
+      names(cv$datatoshow)[7]<-paste("Dist (m)")#change Lat to LatDD
+      names(cv$datatoshow)[8]<-paste("Dist (km)")#Change Lon to LonDD
     } else {
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Pays))
     }
@@ -186,6 +194,7 @@ shinyServer(function(input, output, session) {
     names(cv$datatoshow)[4]<-paste("Lon WSG84")#change LonWSG84 to Lon WSG84
     names(cv$datatoshow)[5]<-paste("Lat DD")#change Lat to LatDD
     names(cv$datatoshow)[6]<-paste("Lon DD")#Change Lon to LonDD
+    
     
     #Set zone of plotting
     #default
@@ -241,7 +250,7 @@ shinyServer(function(input, output, session) {
         cv$xmax<-cv$xmax+((cv$xmax-cv$xmin)*0.20)
       }
     }
-
+    
     #Map should be 2 times more larger than higher
     cv$mapheight<-cv$ymax-cv$ymin
     cv$mapwidthmin<-cv$mapheight*2
@@ -257,7 +266,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$map <- renderPlot({
-  
+    
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       AngDeg <- seq(1:360)
@@ -271,11 +280,11 @@ shinyServer(function(input, output, session) {
         Lon2Deg <- Lon2Rad*(180/pi)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
         text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
-#         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
+        #         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
         text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)
       }
     }
-
+    
     plotZones <- function(LatDec, LonDec, Km) {
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       
@@ -353,39 +362,38 @@ shinyServer(function(input, output, session) {
         if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
         text(coords,labels,cex=1,pos=4)
       }
-
+      
     }
-  if(v$maintowns){
-    maintownscoords<-mapproject(maintowns$Lon,maintowns$Lat)
-    points(maintownscoords,pch=20,col='green',cex=2)
-    
-    #Labels of main towns
-    maintownslabels<-paste("",sep="")
-    if(v$labels){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Ville),collapse = NULL,sep=' ')}
-    if(v$kms){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Km),collapse = NULL,sep=' ')}
-    text(maintownscoords,maintownslabels,cex=1,pos=4)
-  }
-  if(v$perso){
-    persocoords<-mapproject(perso$Lon,perso$Lat)
-    points(persocoords,pch=20,col='blue',cex=1)
-    
-    #Labels of perso locations
-    persolabels<-paste("",sep="")
-    if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
-    if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
-    text(persocoords,persolabels,cex=1,pos=4)
-  }
+    if(v$maintowns){
+      maintownscoords<-mapproject(maintowns$Lon,maintowns$Lat)
+      points(maintownscoords,pch=20,col='green',cex=2)
+      
+      #Labels of main towns
+      maintownslabels<-paste("",sep="")
+      if(v$labels){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Ville),collapse = NULL,sep=' ')}
+      if(v$kms){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Km),collapse = NULL,sep=' ')}
+      text(maintownscoords,maintownslabels,cex=1,pos=4)
+    }
+    if(v$perso){
+      persocoords<-mapproject(perso$Lon,perso$Lat)
+      points(persocoords,pch=20,col='blue',cex=1)
+      
+      #Labels of perso locations
+      persolabels<-paste("",sep="")
+      if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
+      if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
+      text(persocoords,persolabels,cex=1,pos=4)
+    }
     #Add licence
     rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
     text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke 2015",sep=""),pos=4,cex=1)
     map.scale(x=cv$xmin, y=(cv$ymax-((cv$ymax-cv$ymin)*0.03)*0.5))
-    })#,height =600,width=800
-
-output$Datas = renderDataTable({
-  v<-getInputValues()
-  cv<-getComputedValues()
-  cv$datatoshow
+  })#,height =600,width=800
+  
+  output$Datas = renderDataTable({
+    v<-getInputValues()
+    cv<-getComputedValues()
+    cv$datatoshow
+  })
+  
 })
-
-})
-
