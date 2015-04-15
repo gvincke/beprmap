@@ -346,124 +346,7 @@ shinyServer(function(input, output, session) {
         text(Lon2Deg2,Lat2Deg2,labels= labels[i])
       }
     }
-    
-    
-    plotZones2015 <-function(LatDec, LonDec, Km){
-      
-      #Zones 2015
-#       lines(c(LonDec,3.2810555556),c(LatDec,51.3508888889),lty=2) 
-#       lines(c(LonDec,3.9889444444),c(LatDec,51.2348055556)) 
-#       lines(c(LonDec,4.9106944444),c(LatDec,51.4081111111),lty=2) 
-#       lines(c(LonDec,5.6214722222),c(LatDec,51.20725)) 
-#       lines(c(LonDec,6.0445555556),c(LatDec,50.7285277778),lty=2) 
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      #Plot of lines
-#       a1 <- angleDeg(1.2052777778,45.5191666667,3.2810555556,51.3508888889)
-      a1 <- angleDeg(LonDec,LatDec,3.2810555556,51.3508888889)
-      a2 <- angleDeg(LonDec,LatDec,3.9889444444,51.2348055556)
-      a3 <- angleDeg(LonDec,LatDec,4.9106944444,51.4081111111)
-      a4 <- angleDeg(LonDec,LatDec,5.6214722222,51.20725)
-      a5 <- angleDeg(LonDec,LatDec,6.0445555556,50.7285277778)
-      AngDeg <- c(a1,a2,a3,a4,a5)#Angles in degrees defining zones relatively to Limoges
-      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
-      for(i in 1:5){
-        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
-        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
-        
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
-        
-        Lat2Deg1 <-Lat2Rad1*(180/pi)
-        Lon2Deg1 <-Lon2Rad1*(180/pi)
-        
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
-        if(i %in% c(1,3,5)){
-          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2)
-        } else {
-          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2))
-        }
-      }
-      
-      #Plot labels
-      AngDeg <- c(a1-2.5,a2-(a2-a1)*0.5,a3-(a3-a2)*0.5,a4-(a4-a3)*0.5,a5-(a5-a4)*0.5,a5+2.5)#Angles in radians defining zones relatively to Chastres
-      labels<-c("A1","A2","B1","B2","C1","C2")
-      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
-      for(i in 1:6){
-        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
-        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
-        
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
-        
-        Lat2Deg1 <-Lat2Rad1*(180/pi)
-        Lon2Deg1 <-Lon2Rad1*(180/pi)
-        
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
-        
-        text(Lon2Deg1,Lat2Deg1,labels= labels[i])
-        text(Lon2Deg2,Lat2Deg2,labels= labels[i])
-      }
-    }
-    
-    plotZones2014 <- function(LatDec, LonDec, Km) {      
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      
-      #Plot of lines
-      AngDeg <- c(24.8144,29.9559,34.0166,38.9018,43.9448)#Angles in degrees defining zones relatively to Chastres
-      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
-      for(i in 1:5){
-        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
-        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
-        
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
-        
-        Lat2Deg1 <-Lat2Rad1*(180/pi)
-        Lon2Deg1 <-Lon2Rad1*(180/pi)
-        
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
-        if(i %in% c(1,3,5)){
-          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2)
-        } else {
-          lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2))
-        }
-      }
-      
-      #Plot labels
-      AngDeg <- c(24.8144-2.5,29.9559-(29.9559-24.8144)*0.5,34.0166-(34.0166-29.9559)*0.5,38.9018-(38.9018-34.0166)*0.5,43.9448-(43.9448-38.9018)*0.5,43.9448+2.5)#Angles in radians defining zones relatively to Chastres
-      labels<-c("A1","A2","B1","B2","C1","C2")
-      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
-      for(i in 1:6){
-        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
-        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
-        
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
-        
-        Lat2Deg1 <-Lat2Rad1*(180/pi)
-        Lon2Deg1 <-Lon2Rad1*(180/pi)
-        
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
-        
-        text(Lon2Deg1,Lat2Deg1,labels= labels[i])
-        text(Lon2Deg2,Lat2Deg2,labels= labels[i])
-      }
 
-
-    }
-    
     v<-getInputValues()
     cv<-getComputedValues()
     par(xaxt="n",yaxt="n")
@@ -476,11 +359,9 @@ shinyServer(function(input, output, session) {
         plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800))
       }
       if(v$zones2014){
-        #plotZones2014(48.4297221876,1.5213888709,c(250,450))
         plotZonesRFCB(c(48.4297221876,1.5213888709),c(24.8144,29.9559,34.0166,38.9018,43.9448),c(250,450),50)
       }
       if(v$zones2015){
-        #plotZones2015(45.5191666667,1.2052777778,c(535,725))
         #Angles in degrees defining zones relatively to Limoges
         a1 <- angleDeg(1.2052777778,45.5191666667,3.2810555556,51.3508888889)
         a2 <- angleDeg(1.2052777778,45.5191666667,3.9889444444,51.2348055556)
