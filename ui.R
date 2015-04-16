@@ -20,7 +20,7 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   # Application title
-  headerPanel("Localisation des lieux de lâchers RFCB et calcul de distance"),
+  headerPanel("Localisation des lieux de lâchers RFCB et AWC et calcul de distance"),
 
   sidebarPanel(
   
@@ -29,7 +29,7 @@ shinyUI(pageWithSidebar(
         #tags$script(type="text/javascript",src="js/scripts.js"),
         tags$style(type="text/css", "label { display: inline; }"),
         tags$style(type="text/css", '.checkbox input[type="checkbox"],.radio input[type="radio"] { float: none; }'),
-        tags$style(type='text/css', "select#selection { width: 150px; }"),
+        tags$style(type='text/css', "select#selection, select#awc { width: 150px; }"),
         tags$style(type="text/css", 'input[type="number"] { width: 50px; }'),
         tags$style(type="text/css", ".jslider { max-width: 350px; }"),
         tags$style(type='text/css', ".well { max-width: 400px; }"),#class of the from inside sidebarPanel
@@ -53,6 +53,17 @@ shinyUI(pageWithSidebar(
                      "Concours (inter)nationaux (Fond)" = "natintf",
                      "Concours (inter)nationaux (Grand-Fond)" = "natintgf",
                      "Divers" = "divers"
+                ),
+                selected="all",
+                selectize=FALSE),br(),
+    selectInput("awc", strong(HTML("Classification AWC :")),
+                list("Tous" = "all",
+                     "Aucun"="none",
+                     "Province du Hainaut"="h",
+                     "Province du Brabant-Wallon"="bw",
+                     "Province de Namur"="n",
+                     "Province de Liège"="lg",
+                     "Province du Luxembourg"="lx"
                 ),
                 selected="all",
                 selectize=FALSE),br(),

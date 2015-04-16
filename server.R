@@ -136,6 +136,13 @@ shinyServer(function(input, output, session) {
     if(v$selection=="beltour"){coords<-subset(coords,coords$Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
     if(v$selection=="divers"){coords<-subset(coords,coords$Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
     
+    if(v$awc=="h"){coords<-subset(coords,coords$Id %in% c(79,182,183,59))}
+    if(v$awc=="bw"){coords<-subset(coords,coords$Id %in% c(184))}
+    if(v$awc=="n"){coords<-subset(coords,coords$Id %in% c(185,168,95,37))}
+    if(v$awc=="lg"){coords<-subset(coords,coords$Id %in% c(186,187,188,189))}
+    if(v$awc=="lx"){coords<-subset(coords,coords$Id %in% c(190,191,7,109))}
+    if(v$awc=="all"){coords<-subset(coords,coords$Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
+    
     if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$itin=="centand"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106))}
     if(v$itin=="uwr"){coords<-subset(coords,coords$Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76))}
