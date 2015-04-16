@@ -122,44 +122,45 @@ shinyServer(function(input, output, session) {
     }
     
     #Data selection : must be after distance computation because some filters are based on distance
-    coords<-data
-    if(v$selection=="none"){coords<-subset(coords,Id %in% c())}
-    if(v$selection=="linew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
-    if(v$selection=="linec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
-    if(v$selection=="linee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
-    if(v$selection=="vr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
-    if(v$selection=="natint"){coords<-subset(coords,coords$Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$selection=="natintdf"){coords<-subset(coords,coords$Id %in% c(13,22,39,64,6,49,42))}
-    if(v$selection=="natintf"){coords<-subset(coords,coords$Id %in% c(53,102,17,63,61,16,43,101,52))}
-    if(v$selection=="natintgf"){coords<-subset(coords,coords$Id %in% c(74,2,10,94,57,70,76))}
-    if(v$selection=="beloff"){coords<-subset(coords,coords$Id %in% c(79,59,139,140,55))}
-    if(v$selection=="beltour"){coords<-subset(coords,coords$Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
-    if(v$selection=="divers"){coords<-subset(coords,coords$Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
+    datadist<-data
     
-    if(v$awc=="h"){coords<-subset(coords,coords$Id %in% c(79,182,183,59))}
-    if(v$awc=="bw"){coords<-subset(coords,coords$Id %in% c(184))}
-    if(v$awc=="n"){coords<-subset(coords,coords$Id %in% c(185,168,95,37))}
-    if(v$awc=="lg"){coords<-subset(coords,coords$Id %in% c(186,187,188,189))}
-    if(v$awc=="lx"){coords<-subset(coords,coords$Id %in% c(190,191,7,109))}
-    if(v$awc=="all"){coords<-subset(coords,coords$Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
+    if(v$selection=="unselected"){coords<-subset(datadist,Id %in% c())}
+    if(v$selection=="linew"){coords<-subset(datadist,Id %in% c(112,113,114,115,116,117,118,119))}
+    if(v$selection=="linec"){coords<-subset(datadist,Id %in% c(120,121,122,123,34))}
+    if(v$selection=="linee"){coords<-subset(datadist,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
+    if(v$selection=="vr"){coords<-subset(datadist,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
+    if(v$selection=="natint"){coords<-subset(datadist,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="natintdf"){coords<-subset(datadist,Id %in% c(13,22,39,64,6,49,42))}
+    if(v$selection=="natintf"){coords<-subset(datadist,Id %in% c(53,102,17,63,61,16,43,101,52))}
+    if(v$selection=="natintgf"){coords<-subset(datadist,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="beloff"){coords<-subset(datadist,Id %in% c(79,59,139,140,55))}
+    if(v$selection=="beltour"){coords<-subset(datadist,Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
+    if(v$selection=="divers"){coords<-subset(datadist,Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
     
-    if(v$itin=="fedesp"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$itin=="centand"){coords<-subset(coords,coords$Id %in% c(15,25,31,59,80,85,90,91,99,106))}
-    if(v$itin=="uwr"){coords<-subset(coords,coords$Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76))}
+    if(v$selection=="h"){coords<-subset(datadist,Id %in% c(79,182,183,59))}
+    if(v$selection=="bw"){coords<-subset(datadist,Id %in% c(184))}
+    if(v$selection=="n"){coords<-subset(datadist,Id %in% c(185,168,95,37))}
+    if(v$selection=="lg"){coords<-subset(datadist,Id %in% c(186,187,188,189))}
+    if(v$selection=="lx"){coords<-subset(datadist,Id %in% c(190,191,7,109))}
+    if(v$selection=="awc"){coords<-subset(datadist,Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
+    
+    if(v$selection=="fedesp"){coords<-subset(datadist,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="centand"){coords<-subset(datadist,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    if(v$selection=="uwr"){coords<-subset(datadist,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76))}
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
     
-    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250)}
-    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250 & coords$Km<=425)}
-    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425 & coords$Km<=600)}
-    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600 & coords$Km<=800)}
-    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800)}
+    if(v$racedist=="V"){coords<-subset(datadist,Km<=250)}
+    if(v$racedist=="PDF"){coords<-subset(datadist,Km>250 & Km<=425)}
+    if(v$racedist=="DF"){coords<-subset(datadist,Km>425 & Km<=600)}
+    if(v$racedist=="F"){coords<-subset(datadist,Km>600 & Km<=800)}
+    if(v$racedist=="GF"){coords<-subset(datadist,Km>800)}
     
     if(length(v$towns)>0 ){
       if("Tous" %in% v$towns){
         #no more subset is done
       }else {
-        coords<-subset(coords,coords$Villes %in% v$towns)
+        coords<-subset(datadist,Villes %in% v$towns)
       }
     }
     
