@@ -129,6 +129,9 @@ shinyServer(function(input, output, session) {
     if(v$selection=="linee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
     if(v$selection=="vr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
     if(v$selection=="natint"){coords<-subset(coords,coords$Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="natintdf"){coords<-subset(coords,coords$Id %in% c(13,22,39,64,6,49,42))}
+    if(v$selection=="natintf"){coords<-subset(coords,coords$Id %in% c(53,102,17,63,61,16,43,101,52))}
+    if(v$selection=="natintgf"){coords<-subset(coords,coords$Id %in% c(74,2,10,94,57,70,76))}
     if(v$selection=="beloff"){coords<-subset(coords,coords$Id %in% c(79,59,139,140,55))}
     if(v$selection=="beltour"){coords<-subset(coords,coords$Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
     if(v$selection=="divers"){coords<-subset(coords,coords$Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
