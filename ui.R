@@ -26,7 +26,7 @@ shinyUI(pageWithSidebar(
   
     tags$head(
         tags$head(includeScript("www/js/google-analytics.js")),
-        #tags$script(type="text/javascript",src="js/scripts.js"),
+        tags$script(type="text/javascript",src="js/scripts.js"),
         tags$style(type="text/css", "label { display: inline; }"),
         tags$style(type="text/css", '.checkbox input[type="checkbox"],.radio input[type="radio"] { float: none; }'),
         #tags$style(type='text/css', "select#selection, select#awc { width: 250px; }"),

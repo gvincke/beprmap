@@ -1,4 +1,14 @@
 $(document).ready(function(){
+    var adaptTownsSelectivity = function () {
+    if ($("#selection").val()=="unselected")  {/*|| $("#selection").val()=="all"*/
+        $('#towns').prop('disabled', false);
+    }
+    else {
+        $('#towns').prop('disabled', 'disabled');
+    }
+  };
+  $(adaptTownsSelectivity);
+  $("#selection").change(adaptTownsSelectivity);
   
   function adaptDisplay(){
     if($("#display").val() == '1024' || $("#display").val() == '800'){
