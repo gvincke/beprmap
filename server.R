@@ -156,6 +156,13 @@ shinyServer(function(input, output, session) {
     if(v$selection=="uwrgdf"){coords<-subset(coords,Id %in% c(105,19,13,22,39,64,6,49,26,42))}
     if(v$selection=="uwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}#Bergerac ?
     if(v$selection=="uwri"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="gcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26))}#Bergerac ?
+    if(v$selection=="ham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="mef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="hav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
+    if(v$selection=="cin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26))}#Bergerac ?
+    if(v$selection=="flo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     
     if(v$selection=="all"){coords<-coords}
     
