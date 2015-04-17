@@ -225,11 +225,17 @@ shinyServer(function(input, output, session) {
     cv$xmin<-c(-3)
     cv$xmax<-c(8)
     
+    if(v$mapzones=="rf"){
+      cv$ymin<-c(50.25)
+      cv$ymax<-c(51.5)
+      cv$xmin<-c(2.5)
+      cv$xmax<-c(6)
+    }
     if(v$mapzones=="rw"){
       cv$ymin<-c(49.5)
       cv$ymax<-c(51)
       cv$xmin<-c(4)
-      cv$xmax<-c(5.5)
+      cv$xmax<-c(6)
     }
     if(v$mapzones=="bel"){
       cv$ymin<-c(49.5)
@@ -245,6 +251,12 @@ shinyServer(function(input, output, session) {
     }
     if(v$mapzones=="befr"){#| v$mapzones=="ger" | v$mapzones=="esp"
       cv$ymin<-c(42.25)
+      cv$ymax<-c(51.5)
+      cv$xmin<-c(-3)
+      cv$xmax<-c(8)
+    }
+    if(v$mapzones=="befres"){
+      cv$ymin<-c(41)
       cv$ymax<-c(51.5)
       cv$xmin<-c(-3)
       cv$xmax<-c(8)
