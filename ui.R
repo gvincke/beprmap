@@ -78,6 +78,7 @@ shinyUI(pageWithSidebar(
 #                      "Itinéraire : Union Wallonne Ramillies (Grand Demi-Fond)" = "uwrgdf",
 #                      "Itinéraire : Union Wallonne Ramillies (Fond)" = "uwrf",
 #                      "Itinéraire : Union Wallonne Ramillies (Internationnaux)" = "uwri",
+                     "Championnat : Route du Rhône" = "rdr",
                      "Tous" = "all"
                 ),
                 selected="unselected",

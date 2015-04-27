@@ -167,6 +167,8 @@ shinyServer(function(input, output, session) {
     if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
     if(v$selection=="flo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     
+    if(v$selection=="rdr"){coords<-subset(coords,Id %in% c(102,63,57))}
+    
     if(v$selection=="all"){coords<-coords}
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
