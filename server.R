@@ -14,6 +14,9 @@
 
 # Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
 
+# library(shinyapps)
+# shinyapps::deployApp('datas/perso/pigeons/ShinyApps/beprmap')
+
 library(shiny)
 library(maps)
 library(mapproj)
@@ -150,18 +153,18 @@ shinyServer(function(input, output, session) {
     if(v$selection=="afv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
     if(v$selection=="afdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
     if(v$selection=="aff"){coords<-subset(coords,Id %in% c(53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
-    if(v$selection=="uwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76))}
+    if(v$selection=="uwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
     if(v$selection=="uwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
     if(v$selection=="uwrdf"){coords<-subset(coords,Id %in% c(98,48))}
     if(v$selection=="uwrgdf"){coords<-subset(coords,Id %in% c(105,19,13,22,39,64,6,49,26,42))}
-    if(v$selection=="uwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}#Bergerac ?
+    if(v$selection=="uwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52,192))}
     if(v$selection=="uwri"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
-    if(v$selection=="gcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26))}#Bergerac ?
+    if(v$selection=="gcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26,192))}
     if(v$selection=="ham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="mef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="hav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
     if(v$selection=="cin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26))}#Bergerac ?
+    if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
     if(v$selection=="flo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     
     if(v$selection=="all"){coords<-coords}
