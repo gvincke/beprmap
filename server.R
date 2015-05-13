@@ -6,16 +6,13 @@
 ##                                                                      
 ## Licences : 
 ## ---------
-## CC-BY for the web page http://sparks.rstudio.com/gvincke/beprmap/
+## CC-BY for the web page http://www.yapluka.be/sapps/beprmap/
 ## See http://creativecommons.org/licenses/by/2.0/be/ for more informations       
 ##
 ## GPLv2 for source code on https://github.com/gvincke/beprmap 
 ## See LICENCE.txt or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
 
 # Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
-
-# library(shinyapps)
-# shinyapps::deployApp('datas/perso/pigeons/ShinyApps/beprmap')
 
 library(shiny)
 library(maps)
@@ -146,6 +143,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="lg"){coords<-subset(coords,Id %in% c(186,187,188,189))}
     if(v$selection=="lx"){coords<-subset(coords,Id %in% c(190,191,7,109))}
     if(v$selection=="awc"){coords<-subset(coords,Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
+    if(v$selection=="cfwawc"){coords<-subset(coords,Id %in% c(14,46,105))}
     
     if(v$selection=="fedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="centand"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
@@ -166,6 +164,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="cin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
     if(v$selection=="flo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="dh"){coords<-subset(coords,Id %in% c(105,19,53,13,102,22,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,42))}
     
     if(v$selection=="rdr"){coords<-subset(coords,Id %in% c(102,63,57))}
     

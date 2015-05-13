@@ -6,7 +6,7 @@ Grégoire Vincke http://www.gregoirevincke.be
                                                                      
 Licences : 
 ---------
-CC-BY for the web page http://spark.rstudio.com/gvincke/beprmap/ and all it's content
+CC-BY for the web page http://www.yapluka.be/sapps/beprmap/ and all it's content
 See http://creativecommons.org/licenses/by/2.0/be/ for more informations       
 
 GPLv2 for source code on https://github.com/gvincke/beprmap 
