@@ -345,7 +345,7 @@ shinyServer(function(input, output, session) {
       return((atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))))*180/pi)
     }
     
-    plotZonesRFCB <- function(Coords,AngDeg,Km,DKm){
+    plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Coords[2]*(pi/180)#Longitude of the center of the circle in radians
@@ -368,9 +368,9 @@ shinyServer(function(input, output, session) {
           Lat2Deg2 <-Lat2Rad2*(180/pi)
           Lon2Deg2 <-Lon2Rad2*(180/pi)
           if(i %in% c(1,3,5)){
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2)
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
           } else {
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2))
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
           }
         }
       }
@@ -393,11 +393,11 @@ shinyServer(function(input, output, session) {
         Lat2Deg2 <-Lat2Rad2*(180/pi)
         Lon2Deg2 <-Lon2Rad2*(180/pi)
         
-        text(Lon2Deg1,Lat2Deg1,labels= labels[i])
-        text(Lon2Deg2,Lat2Deg2,labels= labels[i])
+        text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
+        text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
       }
     }
-
+    
     v<-getInputValues()
     cv<-getComputedValues()
     par(xaxt="n",yaxt="n")
@@ -410,7 +410,7 @@ shinyServer(function(input, output, session) {
         plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800))
       }
       if(v$zones2014){
-        plotZonesRFCB(c(48.4297221876,1.5213888709),c(24.8144,29.9559,34.0166,38.9018,43.9448),c(250,450),20)
+        plotZonesRFCB(c(48.4297221876,1.5213888709),c(24.8144,29.9559,34.0166,38.9018,43.9448),c(250,450),20,"#999999")
       }
       if(v$zones2015){
         #Angles in degrees defining zones relatively to Limoges
@@ -419,7 +419,7 @@ shinyServer(function(input, output, session) {
         a3 <- angleDeg(1.2052777778,45.5191666667,4.9106944444,51.4081111111)
         a4 <- angleDeg(1.2052777778,45.5191666667,5.6214722222,51.20725)
         a5 <- angleDeg(1.2052777778,45.5191666667,6.0445555556,50.7285277778)
-        plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20)
+        plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20,"black")
       }
     }
     if(nrow(cv$coords)>0){
