@@ -161,7 +161,7 @@ shinyUI(fluidPage(
       checkboxInput("zones2015", label = "Zones pour le demi-fond et le fond 2015", value = FALSE),
       checkboxInput("zones2014", label = "Zones pour le demi-fond et le fond 2014", value = FALSE),
       checkboxInput("maintowns", label = "Principales villes du pays", value = FALSE),
-      checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
+      #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
       HTML('<hr style="border:1px solid #ccc;"/>'),
       HTML("<a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a> Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence.")
   ),

@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
   
   data <- read.csv("data/coordonnees_rfcb.csv", sep=";", dec=",", quote="")
   maintowns <- read.csv("data/coordonnees_principales_villes.csv", sep=";", dec=".", quote="")
-  perso <- read.csv("data/coordonnees_perso.csv", sep=";", dec=",", quote="")
+#   perso <- read.csv("data/coordonnees_perso.csv", sep=";", dec=",", quote="")
   
   observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
     v<-sort(as.vector(data$Villes)) 
@@ -105,20 +105,20 @@ shinyServer(function(input, output, session) {
       maintowns$Km=round(maintowns$M/1000,cv$round)
       cv$maintowns<-maintowns
       
-      perso$LatRad<-as.numeric(perso$Lat)*pi/180
-      perso$LonRad<-as.numeric(perso$Lon)*pi/180
-      perso$BHO<-(cv$LatRad+perso$LatRad)/2
-      perso$IHO<-perso$LonRad-cv$LonRad
-      perso$NU2<-0.0067394967422767*cos(perso$BHO)^2
-      perso$VHO<-sqrt(1+perso$NU2)
-      perso$LAHO<-perso$IHO*perso$VHO
-      perso$OM1<-atan(cons1*tan(cv$LatRad))
-      perso$OM2<-atan(cons1*tan(perso$LatRad))
-      perso$XHO<-sin(perso$OM1)*sin(perso$OM2)+cos(perso$OM1)*cos(perso$OM2)*cos(perso$LAHO)
-      perso$AFSTG=(cons2/perso$VHO)*(atan(-perso$XHO/sqrt(1-perso$XHO^2))+2*atan(1))
-      perso$M=round(perso$AFSTG,0)
-      perso$Km=round(perso$M/1000,cv$round)
-      cv$perso<-perso
+#       perso$LatRad<-as.numeric(perso$Lat)*pi/180
+#       perso$LonRad<-as.numeric(perso$Lon)*pi/180
+#       perso$BHO<-(cv$LatRad+perso$LatRad)/2
+#       perso$IHO<-perso$LonRad-cv$LonRad
+#       perso$NU2<-0.0067394967422767*cos(perso$BHO)^2
+#       perso$VHO<-sqrt(1+perso$NU2)
+#       perso$LAHO<-perso$IHO*perso$VHO
+#       perso$OM1<-atan(cons1*tan(cv$LatRad))
+#       perso$OM2<-atan(cons1*tan(perso$LatRad))
+#       perso$XHO<-sin(perso$OM1)*sin(perso$OM2)+cos(perso$OM1)*cos(perso$OM2)*cos(perso$LAHO)
+#       perso$AFSTG=(cons2/perso$VHO)*(atan(-perso$XHO/sqrt(1-perso$XHO^2))+2*atan(1))
+#       perso$M=round(perso$AFSTG,0)
+#       perso$Km=round(perso$M/1000,cv$round)
+#       cv$perso<-perso
     }
     
     #Data selection : must be after distance computation because some filters are based on distance
@@ -444,16 +444,16 @@ shinyServer(function(input, output, session) {
       if(v$kms){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Km),collapse = NULL,sep=' ')}
       text(maintownscoords,maintownslabels,cex=1,pos=4)
     }
-    if(v$perso){
-      persocoords<-mapproject(perso$Lon,perso$Lat)
-      points(persocoords,pch=20,col='blue',cex=1)
-      
-      #Labels of perso locations
-      persolabels<-paste("",sep="")
-      if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
-      if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
-      text(persocoords,persolabels,cex=1,pos=4)
-    }
+#     if(v$perso){
+#       persocoords<-mapproject(perso$Lon,perso$Lat)
+#       points(persocoords,pch=20,col='blue',cex=1)
+#       
+#       #Labels of perso locations
+#       persolabels<-paste("",sep="")
+#       if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
+#       if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
+#       text(persocoords,persolabels,cex=1,pos=4)
+#     }
     #Add licence
     rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
     text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke 2015",sep=""),pos=4,cex=1)
