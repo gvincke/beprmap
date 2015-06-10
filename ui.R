@@ -49,6 +49,7 @@ shinyUI(fluidPage(
       HTML('<hr style="border:1px solid #ccc;"/>'),
       uiOutput("uiSBReleaseLocations"),
       uiOutput("uiSBTowns"),
+      selectInput("towns","","",selectize=FALSE,multiple=TRUE),
       
       selectInput("selection", strong(HTML("Classification :")),
                   list(" "="unselected",

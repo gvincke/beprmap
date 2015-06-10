@@ -489,7 +489,7 @@ output$uiSBReleaseLocations <- renderUI({
 })
 
 output$uiSBTowns <- renderUI({
-  selectInput("towns",strong(HTML(paste(tr("Towns"),":",sep=" "))),"",selectize=FALSE,multiple=TRUE)
+  strong(HTML(paste(tr("Towns"),":",sep=" ")))
 })
 
 
