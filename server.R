@@ -21,17 +21,10 @@ library(mapdata)
 library(png)
 
 cc <- readPNG("www/img/cc_by_320x60.png")
-load("translation.bin") # contains the dictionary, parsed as a double list
 
 shinyServer(function(input, output, session) {
   
-  tr <- function(text){ # translates text into current language
-    sapply(text,function(s) translation[[s]][[input$language]], USE.NAMES=FALSE)
-  }
-  
   data <- read.csv("data/coordonnees_rfcb.csv", sep=";", dec=",", quote="")
-  maintowns <- read.csv("data/coordonnees_principales_villes.csv", sep=";", dec=".", quote="")
-#   perso <- read.csv("data/coordonnees_perso.csv", sep=";", dec=",", quote="")
   
   observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
     v<-sort(as.vector(data$Villes)) 
@@ -42,6 +35,36 @@ shinyServer(function(input, output, session) {
       choices=v)
   })
   
+  maintowns <- read.csv("data/coordonnees_principales_villes.csv", sep=";", dec=".", quote="")
+  
+  lang <- read.delim("data/lang.csv", header = TRUE, sep = "\t", as.is = TRUE,row.names=1) 
+  tr <- function(text){ # translates text into current language
+    return(sapply(text,function(s) lang[s,input$language], USE.NAMES=FALSE))
+  }
+  
+  langSelection <- read.delim("data/lang-selection.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langSelection)<-langSelection$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
+    l<-list()
+    l<-c(" "="unselected",l)
+    for(i in 1:nrow(langSelection)){
+      l[[langSelection[[input$language]][i]]]<-langSelection$key[i]
+    }
+    updateSelectInput(#http://www.inside-r.org/packages/cran/shiny/docs/updateSelectInput
+      session,
+      "selection",
+      choices=l)
+  })
+  
+  langmappedzone <- read.delim("data/lang-mappedzone.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langmappedzone)<-langmappedzone$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getMappedzones<-reactive({
+    l<-list()
+    for(i in 1:nrow(langmappedzone)){
+      l[[langmappedzone[[input$language]][i]]]<-langmappedzone$key[i]
+    }
+  return(l)
+  })
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
@@ -130,46 +153,46 @@ shinyServer(function(input, output, session) {
     coords<-data
     #coords<-c()
     if(v$selection=="unselected"){coords<-subset(coords,Id %in% c())}
-    if(v$selection=="linew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
-    if(v$selection=="linec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
-    if(v$selection=="linee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
-    if(v$selection=="vr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
-    if(v$selection=="natint"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$selection=="natintdf"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
-    if(v$selection=="natintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
-    if(v$selection=="natintgf"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
-    if(v$selection=="beloff"){coords<-subset(coords,Id %in% c(79,59,139,140,55))}
-    if(v$selection=="beltour"){coords<-subset(coords,Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
-    if(v$selection=="divers"){coords<-subset(coords,Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
+    if(v$selection=="rfcblinew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
+    if(v$selection=="rfcblinec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
+    if(v$selection=="rfcblinee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
+    if(v$selection=="rfcbvr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
+    if(v$selection=="rfcbnatint"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="rfcbnatintdf"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
+    if(v$selection=="rfcbnatintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
+    if(v$selection=="rfcbnatintgf"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="rfcbbeloff"){coords<-subset(coords,Id %in% c(79,59,139,140,55))}
+    if(v$selection=="rfcbbeltour"){coords<-subset(coords,Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
+    if(v$selection=="rfcbdivers"){coords<-subset(coords,Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
     
-    if(v$selection=="h"){coords<-subset(coords,Id %in% c(79,182,183,59))}
-    if(v$selection=="bw"){coords<-subset(coords,Id %in% c(184))}
-    if(v$selection=="n"){coords<-subset(coords,Id %in% c(185,168,95,37))}
-    if(v$selection=="lg"){coords<-subset(coords,Id %in% c(186,187,188,189))}
-    if(v$selection=="lx"){coords<-subset(coords,Id %in% c(190,191,7,109))}
+    if(v$selection=="awch"){coords<-subset(coords,Id %in% c(79,182,183,59))}
+    if(v$selection=="awcbw"){coords<-subset(coords,Id %in% c(184))}
+    if(v$selection=="awcn"){coords<-subset(coords,Id %in% c(185,168,95,37))}
+    if(v$selection=="awclg"){coords<-subset(coords,Id %in% c(186,187,188,189))}
+    if(v$selection=="awclx"){coords<-subset(coords,Id %in% c(190,191,7,109))}
     if(v$selection=="awc"){coords<-subset(coords,Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
-    if(v$selection=="cfwawc"){coords<-subset(coords,Id %in% c(14,46,105))}
+    if(v$selection=="itawc"){coords<-subset(coords,Id %in% c(14,46,105))}
     
-    if(v$selection=="fedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$selection=="centand"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
-    if(v$selection=="af"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
-    if(v$selection=="afv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
-    if(v$selection=="afdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
-    if(v$selection=="aff"){coords<-subset(coords,Id %in% c(53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
-    if(v$selection=="uwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
-    if(v$selection=="uwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
-    if(v$selection=="uwrdf"){coords<-subset(coords,Id %in% c(98,48))}
-    if(v$selection=="uwrgdf"){coords<-subset(coords,Id %in% c(105,19,13,22,39,64,6,49,26,42))}
-    if(v$selection=="uwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52,192))}
-    if(v$selection=="uwri"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
-    if(v$selection=="gcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26,192))}
-    if(v$selection=="ham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="mef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="hav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
-    if(v$selection=="cin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="din"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
-    if(v$selection=="flo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="dh"){coords<-subset(coords,Id %in% c(105,19,53,13,102,22,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,42))}
+    if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
+    if(v$selection=="itcentand"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    if(v$selection=="itaf"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
+    if(v$selection=="itafv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
+    if(v$selection=="itafdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
+    if(v$selection=="itaff"){coords<-subset(coords,Id %in% c(53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
+    if(v$selection=="ituwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
+    if(v$selection=="ituwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
+    if(v$selection=="ituwrdf"){coords<-subset(coords,Id %in% c(98,48))}
+    if(v$selection=="ituwrgdf"){coords<-subset(coords,Id %in% c(105,19,13,22,39,64,6,49,26,42))}
+    if(v$selection=="ituwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52,192))}
+    if(v$selection=="ituwri"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="itgcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26,192))}
+    if(v$selection=="itham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="itmef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="ithav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
+    if(v$selection=="itcin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="itdin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
+    if(v$selection=="itflo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
+    if(v$selection=="itdh"){coords<-subset(coords,Id %in% c(105,19,53,13,102,22,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,42))}
     
     if(v$selection=="rdr"){coords<-subset(coords,Id %in% c(102,63,57))}
     
@@ -317,7 +340,7 @@ shinyServer(function(input, output, session) {
       cv$xmax<-mapxmiddle+cv$mapwidth*0.48
       cv$xmin<-mapxmiddle-cv$mapwidth*0.48
     } 
-    
+
     return(cv)
   })
   
@@ -472,26 +495,86 @@ shinyServer(function(input, output, session) {
   })
 
 #UI
-output$uiTitle <- renderUI({tr("Title")})
+output$uiTitle <- renderUI({
+    titlePanel(tr("Title"))
+})#TitlePanel must be set inside renderUI() and not in ui.R titlePanel(uiOutput("uiTitle")) to avoid that html tags are included in the HTML title of the page
 
-output$uiSBlanguage <- renderUI({
-  selectInput("language","",
-              list("English" = "en","Français" = "fr", "Nederlands" ="nl"),
-              selected = "fr",selectize=FALSE)
+output$uiCaution <- renderUI({
+  fluidRow(column(12,"",
+                  HTML(paste("<span id='note'>",tr("Caution"),"</span>",sep=""))
+  ))
 })
 
-output$uiSBcaution <- renderUI({
-  HTML(paste("<span id='note'>",tr("Caution"),"</span>",sep=""))
-})
-
-output$uiSBReleaseLocations <- renderUI({
+output$uiSBtop <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+  HTML(paste("<span id='note'>",tr("Caution"),"</span>",sep="")),#Soit on met un ensemble prévu pour contenir plusieurs output comme sidebarPanel() ou mainPanel() et tout peut être dedant, soit c'est une portion dans un ensemble comme ça et tout doit être séparé.
+  HTML('<hr style="border:1px solid #ccc;"/>'),
   h4(HTML(tr("ReleaseLocations")))
+  ))
 })
 
 output$uiSBTowns <- renderUI({
   strong(HTML(paste(tr("Towns"),":",sep=" ")))
 })
 
+output$uiSBSelection <- renderUI({
+  strong(HTML(paste(tr("Classification"),":",sep=" ")))
+})
+
+output$uiSBlocationsbottom <- renderUI({
+  fluidRow(column(12,NULL,#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+  selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
+  #     h5(HTML("Type de pigeons concernés")),
+  #     selectInput("pigeons", "",
+  #                 list("Tous" = "all",
+  #                      "Pigeonneaux" = "P", 
+  #                      "Yearlings" = "Y",
+  #                      "Vieux" = "V",
+  #                      "Vieux & Yearlings"="VY"
+  #                 )),
+  
+  checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
+  HTML('<hr style="border:1px solid #ccc;"/>')
+  ))
+})
+
+output$uiSBdistances <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+  h4(HTML("Calcul des distances")),
+  HTML("Coordonn&eacute;es de r&eacute;f&eacute;rence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)"),
+  HTML("<span id='note'>Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.</span>"),
+  tags$table(tags$tr(tags$td(textInput("Lat", "Lat","503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", "Lon","044005.0" )))),
+  checkboxInput("kms", label = "Afficher pour chaque lieux sa distance en km ", value = FALSE),
+  radioButtons("round", HTML("Arrondir au"),
+               list("km"="0",
+                    "hm"="1", 
+                    "dm"="2",
+                    "m"="3"
+               ),selected="0"),
+  selectInput("racedist", strong(HTML("Type de concours selon la distance")),
+              list("Tous" = "all",
+                   "Vitesse (0-250Km)" = "V", 
+                   "Petit Demi-Fond (250-425Km)" = "PDF",
+                   "Demi-Fond (425-600Km)" = "DF",
+                   "Fond (600-800Km)" = "F",
+                   "Grand Fond (>800Km)"="GF"
+              ),selectize=FALSE,selected="all"),
+  checkboxInput("circles", label = "Afficher les limites des catégories de distance", value = FALSE),
+  
+  HTML('<hr style="border:1px solid #ccc;"/>')
+  ))
+})
+
+output$uiSBshow <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+    h4(HTML("Afficher")),
+    checkboxInput("zones2015", label = "Zones pour le demi-fond et le fond 2015", value = FALSE),
+    checkboxInput("zones2014", label = "Zones pour le demi-fond et le fond 2014", value = FALSE),
+    checkboxInput("maintowns", label = "Principales villes du pays", value = FALSE),
+    #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
+    HTML('<hr style="border:1px solid #ccc;"/>')   
+  ))
+})
 
 output$uiMain <- renderUI({
   tabsetPanel(id="Tabset",selected=1,

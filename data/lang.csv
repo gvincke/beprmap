@@ -3,7 +3,10 @@ Map	Carte	Map	Kaart
 Datas	Données	Datas	Datas
 Help	Aide	Help	Help
 Credits	Crédits	Credits	Credits
-Title	Localisation des lieux de lâchers RFCB et AWC avec calcul de distance de vol	Localisation of RFCB and AWC liberation spots with computation of flight distance	Lokaliseren releases plaatsen van KBDB en AWC met berekening vliegafstand
-Caution	ATTENTION : Si vous désirez simplement connaître vos distances sans vous intéresser à la géolocalisation des lieux de lâchers, préférez le <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>fichier excel mis à votre disposition par la RFCB</a>.	CAUTION : If you just wanted to compute your flight distances without maping liberation spots, please use instead the <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'> excel file available on the KBDB-RFCB website</a>.	LET OP : Als je gewoon wilt weten uw afstanden zonder rente die u geolocatie plaatsen van releases, liever <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>excel-bestand beschikbaar gesteld door de KBDB</a>.
+Title	Localisation des lieux de lâchers RFCB et AWC avec calcul de distance de vol	Localisation of RFCB and AWC liberation spots with flight distance computation	Lokaliseren releases plaatsen van KBDB en AWC met vliegafstand berekening
+Caution	ATTENTION : Si vous désirez simplement connaître vos distances sans vous intéresser à la géolocalisation des lieux de lâchers, préférez le <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>fichier excel mis à votre disposition par la RFCB</a>.	CAUTION : If you just want to compute your flight distances without maping liberation spots, please use the <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'> excel file available on the KBDB-RFCB website</a>.	LET OP : Als je gewoon wilt weten uw afstanden zonder rente die u geolocatie plaatsen van releases, liever <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>excel-bestand beschikbaar gesteld door de KBDB</a>.
 ReleaseLocations	Lieux de lâchers	Release locations	Releases locaties
 Towns	Villes	Towns	Steden
+Classification	Classification	Classification	Classificatie
+MappedZone	Zone cartographiée	Mapped zone	Toegewezen zone
+ShowNames	Afficher le nom des lieux de lâchers	Show names of release locations	Toon namen van de release locaties

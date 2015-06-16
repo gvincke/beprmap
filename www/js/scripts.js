@@ -9,6 +9,4 @@ $(document).ready(function(){
   };
   $(adaptTownsSelectivity);
   $("#selection").change(adaptTownsSelectivity);
-
 });
-

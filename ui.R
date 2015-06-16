@@ -37,122 +37,25 @@ shinyUI(fluidPage(
     tags$style(type='text/css', "#note { color:#ff0000;font-size:xx-small; }"),
     tags$style(type="text/css", "h1,h2,h3,h4,h5,h6 {color:#317EAC;}"),
     tags$style(type="text/css", "hr {margin-bottom:8px; margin-top:8px;}")
-    
   ),
   
-  # Application title
-  titlePanel(uiOutput("uiTitle")),
-  sidebarLayout(
-    sidebarPanel(
-      uiOutput("uiSBlanguage"),
-      uiOutput("uiSBcaution"),
-      HTML('<hr style="border:1px solid #ccc;"/>'),
-      uiOutput("uiSBReleaseLocations"),
-      uiOutput("uiSBTowns"),
-      selectInput("towns","","",selectize=FALSE,multiple=TRUE),
-      
-      selectInput("selection", strong(HTML("Classification :")),
-                  list(" "="unselected",
-                       "RFCB : Belgique lieux officiels"="beloff",
-                       "RFCB : Tour de Belgique"="beltour",
-                       "RFCB : Ligne de l'Ouest"="linew",
-                       "RFCB : Ligne du Centre"="linec",
-                       "RFCB : Ligne de l'Est"="linee",
-                       "RFCB : Vallée du Rhône"="vr",
-                       "RFCB : Concours (inter)nationaux" = "natint",
-                       "RFCB : Concours (inter)nationaux (Demi-Fond)" = "natintdf",
-                       "RFCB : Concours (inter)nationaux (Fond)" = "natintf",
-                       "RFCB : Concours (inter)nationaux (Grand-Fond)" = "natintgf",
-                       "RFCB : Divers" = "divers",
-                       "AWC : Province du Hainaut"="h",
-                       "AWC : Province du Brabant-Wallon"="bw",
-                       "AWC : Province de Namur"="n",
-                       "AWC : Province de Liège"="lg",
-                       "AWC : Province du Luxembourg"="lx",
-                       "AWC : Tous les lieux de lâcher en Wallonie"="awc",
-                       "Itinéraire : AWC" = "cfwawc",
-                       "Itinéraire : Andenne" = "centand", 
-                       "Itinéraire : Ciney" = "cin",
-                       "Itinéraire : Dinant" = "din",
-                       "Itinéraire : Floreffe" = "flo",
-                       "Itinéraire : Forville"="af",
-                       #                      "Itinéraire : L'Avenir de Forville (Vitesse)"="afv",
-                       #                      "Itinéraire : L'Avenir de Forville (Demi-Fond)"="afdf",
-                       #                      "Itinéraire : L'Avenir de Forville (Fond)"="aff",
-                       "Itinéraire : Hamoir" = "ham",
-                       "Itinéraire : Havelange" = "hav",
-                       "Itinéraire : Marche en Famenne" = "mef",
-                       "Itinéraire : Derby Hainaut" = "dh",
-                       "Itinéraire : Fédération de l'Espoir" = "fedesp",
-                       "Itinéraire : Groupement Condroz - Famenne" = "gcf",
-                       "Itinéraire : Union Wallonne Ramillies" = "uwr",
-                       #                      "Itinéraire : Union Wallonne Ramillies (Vitesse)" = "uwrv",
-                       #                      "Itinéraire : Union Wallonne Ramillies (Demi-Fond)" = "uwrdf",
-                       #                      "Itinéraire : Union Wallonne Ramillies (Grand Demi-Fond)" = "uwrgdf",
-                       #                      "Itinéraire : Union Wallonne Ramillies (Fond)" = "uwrf",
-                       #                      "Itinéraire : Union Wallonne Ramillies (Internationnaux)" = "uwri",
-                       "Championnat : Route du Rhône" = "rdr",
-                       "Tous" = "all"
-                  ),
-                  selected="unselected",
-                  selectize=FALSE),
-      
-      selectInput("mapzones", strong(HTML("Limiter la carte :")),
-                  list("En fonction des données" = "dyn",
-                       "à la Flandre" = "rf",
-                       "à la Wallonie" = "rw",
-                       "à la Belgique" = "bel",
-                       "à la France" = "fra",
-                       "à la Belgique et à la France" = "befr",
-                       "à la Belgique, la France, et le Nord de l'Espagne" = "befres"),
-                  selected="befres",
-                  selectize=FALSE),
-  
-  #     h5(HTML("Type de pigeons concernés")),
-  #     selectInput("pigeons", "",
-  #                 list("Tous" = "all",
-  #                      "Pigeonneaux" = "P", 
-  #                      "Yearlings" = "Y",
-  #                      "Vieux" = "V",
-  #                      "Vieux & Yearlings"="VY"
-  #                 )),
-  
-      checkboxInput("labels", label = "Afficher le nom des lieux de lâchers", value = TRUE),
-      HTML('<hr style="border:1px solid #ccc;"/>'),
-  
-      h4(HTML("Calcul des distances")),
-     HTML("Coordonn&eacute;es de r&eacute;f&eacute;rence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)"),
-      HTML("<span id='note'>Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.</span>"),
-  tags$table(tags$tr(tags$td(textInput("Lat", "Lat","503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", "Lon","044005.0" )))),
-      checkboxInput("kms", label = "Afficher pour chaque lieux sa distance en km ", value = FALSE),
-  radioButtons("round", HTML("Arrondir au"),
-                list("km"="0",
-                     "hm"="1", 
-                     "dm"="2",
-                     "m"="3"
-                ),selected="0"),
-      selectInput("racedist", strong(HTML("Type de concours selon la distance")),
-              list("Tous" = "all",
-                   "Vitesse (0-250Km)" = "V", 
-                   "Petit Demi-Fond (250-425Km)" = "PDF",
-                   "Demi-Fond (425-600Km)" = "DF",
-                   "Fond (600-800Km)" = "F",
-                   "Grand Fond (>800Km)"="GF"
-              ),selectize=FALSE,selected="all"),
-      checkboxInput("circles", label = "Afficher les limites des catégories de distance", value = FALSE),
-      
-      HTML('<hr style="border:1px solid #ccc;"/>'),
-      h4(HTML("Afficher")),
-      checkboxInput("zones2015", label = "Zones pour le demi-fond et le fond 2015", value = FALSE),
-      checkboxInput("zones2014", label = "Zones pour le demi-fond et le fond 2014", value = FALSE),
-      checkboxInput("maintowns", label = "Principales villes du pays", value = FALSE),
-      #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
-      HTML('<hr style="border:1px solid #ccc;"/>'),
-      HTML("<a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a> Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence.")
-  ),
-  
-    mainPanel(
+  # Application title with language selector
+ # uiOutput("uiCaution"),
+  uiOutput("uiTitle"),
+
+  sidebarPanel(
+    selectInput("language","",
+                list("English" = "en","Français" = "fr", "Nederlands" ="nl"),
+                selected = "fr",selectize=FALSE),#Must be defined in UI.R instead of server.R to avoid error of type "trying to select more than one value because input$language is only set after server.R load
+    uiOutput('uiSBtop'),
+    selectInput(inputId="towns",label=uiOutput("uiSBTowns"),choices="",selectize=FALSE,multiple=TRUE),#Label is translated, so have to be set in server.R, but the list must be set in UI.R to be setted before of server.R computation to be filled by Towns values : soit un select est défini ici avec choices ="" et un observe dans server.R le rempli par après; soit le select est directement défini dans server.R mais du coup ne peut être exploité par un script js
+    selectInput(inputId="selection",label=uiOutput("uiSBSelection"),choices="",selected="itawc",selectize=FALSE),#selection must be define in UI.R to be reactive to script.js -> create emty select here, use observe to load it with translated content, and uiOutput to have translated label
+    uiOutput('uiSBlocationsbottom'),
+    uiOutput('uiSBdistances'),
+    uiOutput('uiSBshow'),
+    HTML("<a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a> Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence.")
+  ),  
+  mainPanel(
       uiOutput("uiMain")
-    )
   )
 ))
