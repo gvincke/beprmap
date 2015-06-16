@@ -65,6 +65,17 @@ shinyServer(function(input, output, session) {
     }
   return(l)
   })
+  
+  langracedist <- read.delim("data/lang-racedist.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langracedist)<-langracedist$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getRacedistances<-reactive({
+    l<-list()
+    for(i in 1:nrow(langracedist)){
+      l[[langracedist[[input$language]][i]]]<-langracedist$key[i]
+    }
+    return(l)
+  })
+  
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
@@ -540,26 +551,19 @@ output$uiSBlocationsbottom <- renderUI({
 
 output$uiSBdistances <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-  h4(HTML("Calcul des distances")),
-  HTML("Coordonn&eacute;es de r&eacute;f&eacute;rence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)"),
-  HTML("<span id='note'>Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.</span>"),
+  h4(HTML(tr("CalculDist"))),
+  HTML(tr("RefCoords")),
+  HTML(paste("<span id='note'>",tr("RefCoordsNote"),"</span>",sep="")),
   tags$table(tags$tr(tags$td(textInput("Lat", "Lat","503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", "Lon","044005.0" )))),
-  checkboxInput("kms", label = "Afficher pour chaque lieux sa distance en km ", value = FALSE),
-  radioButtons("round", HTML("Arrondir au"),
+  checkboxInput("kms", label = tr("ShowDist"), value = FALSE),
+  radioButtons("round", tr("RoundTo"),
                list("km"="0",
                     "hm"="1", 
                     "dm"="2",
                     "m"="3"
                ),selected="0"),
-  selectInput("racedist", strong(HTML("Type de concours selon la distance")),
-              list("Tous" = "all",
-                   "Vitesse (0-250Km)" = "V", 
-                   "Petit Demi-Fond (250-425Km)" = "PDF",
-                   "Demi-Fond (425-600Km)" = "DF",
-                   "Fond (600-800Km)" = "F",
-                   "Grand Fond (>800Km)"="GF"
-              ),selectize=FALSE,selected="all"),
-  checkboxInput("circles", label = "Afficher les limites des catégories de distance", value = FALSE),
+  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all"),
+  checkboxInput("circles", label = tr("ShowCircles"), value = FALSE),
   
   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
@@ -567,13 +571,17 @@ output$uiSBdistances <- renderUI({
 
 output$uiSBshow <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-    h4(HTML("Afficher")),
-    checkboxInput("zones2015", label = "Zones pour le demi-fond et le fond 2015", value = FALSE),
-    checkboxInput("zones2014", label = "Zones pour le demi-fond et le fond 2014", value = FALSE),
-    checkboxInput("maintowns", label = "Principales villes du pays", value = FALSE),
-    #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
-    HTML('<hr style="border:1px solid #ccc;"/>')   
+                  h4(tr("Display")),
+                  checkboxInput("zones2015", label = tr("Zones2015"), value = FALSE),
+                  checkboxInput("zones2014", label = tr("Zones2014"), value = FALSE),
+                  checkboxInput("maintowns", label = tr("MainTowns"), value = FALSE),
+                  #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
+                  HTML('<hr style="border:1px solid #ccc;"/>')   
   ))
+})
+
+output$uiSBlicence <- renderUI({
+  HTML(paste("<a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a>&nbsp;",tr("LicenceSeeCredits"),sep=""))
 })
 
 output$uiMain <- renderUI({

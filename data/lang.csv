@@ -10,3 +10,16 @@ Towns	Villes	Towns	Steden
 Classification	Classification	Classification	Classificatie
 MappedZone	Zone cartographiée	Mapped zone	Toegewezen zone
 ShowNames	Afficher le nom des lieux de lâchers	Show names of release locations	Toon namen van de release locaties
+CalculDist	Calcul des distances	Calculation of distances	Berekening van afstanden
+RefCoords	Coordonnées de référence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)	Reference coordinates (<a href='https://en.wikipedia.org/wiki/World_Geodetic_System' target='_blank'>WGS84 format</a>)	Referentiecoördinaten (<a href='https://nl.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84 format </a>)
+RefCoordsNote	Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.	Replace these coordinates by yours! See Help.	Vervang deze coördinaten door van u! Zie Help.
+ShowDist	Afficher pour chaque lieux sa distance en km	Display each location distance in kilometers	Toon elke locatie afstand in kilometers
+RoundTo	Arrondir au	Round to	Afronden op
+SortDist	Trier selon le type de concours	Sort by type of race	Sorteren op type van ras
+ShowCircles	Afficher les limites des catégories de distance	Show limits of distance categories	Show grenzen van de categorieën op afstand
+Display	Afficher	Display	Tonen
+Zones2015	Zones pour le demi-fond et le fond 2015	Zones for middle and long distances 2015	Zones voor halve fond en fond 2015
+Zones2014	Zones pour le demi-fond et le fond 2014	Zones for middle and long distances 2014	Zones voor halve fond en fond 2014
+MainTowns	Principales villes du pays	Main cities	Belangrijkste steden
+LicenceSeeCredits	Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence	See <strong>Credits</strong> tab for licence mention	Zie tab <strong>Credits</strong> voor licentie vermelding
+

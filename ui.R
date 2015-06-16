@@ -53,7 +53,7 @@ shinyUI(fluidPage(
     uiOutput('uiSBlocationsbottom'),
     uiOutput('uiSBdistances'),
     uiOutput('uiSBshow'),
-    HTML("<a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a> Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence.")
+    uiOutput('uiSBlicence')
   ),  
   mainPanel(
       uiOutput("uiMain")
