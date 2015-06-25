@@ -3,7 +3,7 @@ Map	Carte	Map	Kaart
 Datas	Données	Datas	Datas
 Help	Aide	Help	Help
 Credits	Crédits	Credits	Credits
-Title	Localisation des lieux de lâchers RFCB et AWC avec calcul de distance de vol	Localisation of RFCB and AWC liberation spots with flight distance computation	Lokaliseren releases plaatsen van KBDB en AWC met vliegafstand berekening
+Title	Localisation des lieux de lâchers RFCB et AWC avec calcul de distance de vol	Localisation of KBDB-RFCB and AWC liberation spots with flight distance computation	Lokaliseren releases plaatsen van KBDB en AWC met vliegafstand berekening
 Caution	ATTENTION : Si vous désirez simplement connaître vos distances sans vous intéresser à la géolocalisation des lieux de lâchers, préférez le <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>fichier excel mis à votre disposition par la RFCB</a>.	CAUTION : If you just want to compute your flight distances without maping liberation spots, please use the <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'> excel file available on the KBDB-RFCB website</a>.	LET OP : Als je gewoon wilt weten uw afstanden zonder rente die u geolocatie plaatsen van releases, liever <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>excel-bestand beschikbaar gesteld door de KBDB</a>.
 ReleaseLocations	Lieux de lâchers	Release locations	Releases locaties
 Towns	Villes	Towns	Steden
@@ -22,4 +22,38 @@ Zones2015	Zones pour le demi-fond et le fond 2015	Zones for middle and long dist
 Zones2014	Zones pour le demi-fond et le fond 2014	Zones for middle and long distances 2014	Zones voor halve fond en fond 2014
 MainTowns	Principales villes du pays	Main cities	Belangrijkste steden
 LicenceSeeCredits	Consultez l'onglet <strong>Crédits</strong> pour les mentions de licence	See <strong>Credits</strong> tab for licence mention	Zie tab <strong>Credits</strong> voor licentie vermelding
+North	Nord	North	Noorden
+South	Sud	South	Zuiden
+East	Est	East	Oosten
+West	Ouest	West	Westen
+NorthN	N	N	N
+SouthS	S	S	Z
+EastE	E	E	O
+WestW	O	W	W
+Latitude	Latitude	Latitude	Breedtegraad
+Longitude	Longitude	Longitude	Lengtegraad
+Lat	Lat	Lat	Breed
+Lon	Lon	Lon	Leng
+Country	Pays	Country	Land
+Countries	Pays	Coutries	Landen
+Distance	Distance	Distance	Afstand
+Dist	Dist	Dist	Afst
+Decimal degrees	Degrés décimaux	Decimal degrees	Decimale graden
+DD	DD	DD	DG
+HelpSent1	Les coordonnées qui sont chargées par défaut comme ''coordonnées de référence'' sont celle du <a href='http://www.walhain.be/Loisirs/office-du-tourisme/les-curiosites-touristiques/le-centre-geographique-de-la-belgique' target=_blank'>centre géographique de la Belgique</a>.	The geographical coordinates loaded by default as 'reference coordinates' are those of the <a href='http://www.walhain.be/Loisirs/office-du-tourisme/les-curiosites-touristiques/le-centre-geographique-de-la-belgique' target=_blank'>geographical center of Belgium</a>.	De geografische coördinaten standaard als 'referentie-coördinaten' geladen zijn die van het <a href='http://www.walhain.be/Loisirs/office-du-tourisme/les-curiosites-touristiques/le-centre-geographique-de-la-belgique' target=_blank'>geografische centrum van België</a>.
+HelpSent2	Remplacez les par celles de votre propre colombier et vous bénéficierez d'un calcul de distance adapté à votre localisation personnelle.	Replace them with those of your own loft and you will enjoy a distance calculation suited to your personal location.	Vervang ze met die van uw eigen hok en u zult genieten van een berekening afstand aangepast aan uw persoonlijke locatie.
+HelpSent3	Le format à utiliser dans les champs ''Lat'' (latitude) et ''Lon'' (longitude) est le format <a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84</a>, avec un <strong>point comme symbole décimal</strong>, et non une virgule.	The format to use in ''N'' (latitude) and ''E'' (longitude) fields is <a href='https://en.wikipedia.org/wiki/World_Geodetic_System#A_new_World_Geodetic_System:_WGS_84' target='_blank'>WGS84</a>, with a <strong>point as decimal point</strong>, not comma.	Het formaat om te gebruiken in "N" (breedtegraad) en "O" (lengtegraad) velden is <a href='https://nl.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84</a>, met een <strong>punt als decimaalteken</strong>, geen komma.
+HelpSent4	<strong>Rappel :</strong> Vos coordonnées figurent au format WGS84 sur votre carte de membre de la Royale Fédération Colombophile Belge.	<strong>Reminder:</strong> Your geographical coordinates are in WGS84 format on your membership card of the Royal Belgian Pigeon racing Federation.	<strong>Herinnering:</strong> Uw geografische coördinaten in WGS84 formaat op uw lidkaart van de Koninklijke Belgische DuivenliefhebbersBond.
+Author	Auteur	Author	Auteur
+March	Mars	March	Maart
+CreditsLicence	Cette animation, ainsi que tout ce qu'elle produit, est mise à votre disposition selon les termes de la <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/' target='_blank'>licence Creative Commons Attribution 2.0 Belgique</a>. Cela signifie que vous pouvez non seulement l'utiliser, mais également copier gratuitement et légalement les images créés par l'animation, les éditer, les modifier, les copier, les réutiliser pour toute utilisation, y compris commerciale, pour autant que vous me créditiez toujours en tant qu'auteur original. Bref que vous spécifiez que c'est moi, et non vous, qui avez créé la version originale, et que c'est depuis cette animation que vous l'avez téléchargée (citer l'URL http://www.yapluka.be/sapps/beprmap/).	This animation, and all that it produces, is put available to you under the terms of the <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/' target='_blank'>Creative Commons Attribution 2.0 license Belgium</a>. This means you can not only use it, but also copy free and legally images created by this animation, edit, modify, copy, reuse them for any use, including commercial, as long as you always credit me as original author. In short you specify that I have created the original version, not you, and that you have downloaded it from this animation (cite the URL http://www.yapluka.be/sapps/beprmap/).	Deze animatie, en alles wat het produceert, wordt ter beschikking gesteld aan u onder de voorwaarden van de <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/' target='_blank'>Creative Commons Attribution 2.0-licentie België</a>. Dit betekent dat u niet alleen gebruiken, maar ook kopiëren gratis en legaal beelden die door deze animatie, bewerken, wijzigen, kopiëren, hergebruiken voor het gebruik, met inbegrip van commerciële, zolang je me altijd crediteren als de originele auteur. Kortom u opgeeft dat ik de originele versie, niet u hebt gemaakt, en dat je het uit deze animatie hebt gedownload (citeren de URL http://www.yapluka.be/sapps/beprmap/).
+SourceCodeLocation	Le code source de cette animation est disponible sur <a href='https://github.com/gvincke/beprmap' target='_blank'>Github.com</a> sous licence <a href='http://www.gnu.org/licenses/old-licenses/gpl-2.0.html' target='_blank'>GPLv2</a>.	The source code for this animation is available on <a href='https://github.com/gvincke/beprmap' target='_blank'>Github.com</a> under <a href='http://www.gnu.org/licenses/old-licenses/gpl-2.0.html' target='_blank'>GPLv2</a> license.	De broncode voor deze animatie is beschikbaar <a href='https://github.com/gvincke/beprmap' target='_blank'>Github.com</a> onder <a href='http://www.gnu.org/licenses/old-licenses/gpl-2.0.html' target='_blank'>GPLv2</a> licentie.
+Softwares	Logiciels	Softwares	Softwares
+SoftwaresIUsed	Pour réaliser cette animation, j'ai utilisé les logiciels suivants	To achieve this animation, I used the following softwares	Om deze animatie te bereiken, gebruikte ik de volgende software
+SourcesiUsed	Pour réaliser cette animation, j'ai récolté des données, et des idées, depuis les sources suivantes	To achieve this animation, I have collected some data and ideas from the following sources	Om deze animatie te bereiken, heb ik een aantal gegevens en ideeën uit de volgende bronnen verzameld
+Sources	Sources	Sources	Bronnen
+Translations	Traductions	Translations	Vertaalwerk
+TranslationsHowTo	Cette animation a été crée en français. Les traductions dans d'autre langues ont été réalisée avec <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Merci de <a href='http://yapluka.be/contact' target='_blank'>me contacter</a> si vous constatez des erreurs de traduction. Merci !	This animation was created in French. Translations into other languages have been made with <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Thank you to <a href='http://yapluka.be/contact' target='_blank'>contact me</a> if you find translation errors. Thank you!	Deze animatie is gemaakt in het Frans. Vertalingen in andere talen zijn gemaakt met <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Bedankt om me <a href='http://yapluka.be/contact' target='_blank'>te contacteren</a> als je vertaalfouten. Dankjewel!
+
+
 

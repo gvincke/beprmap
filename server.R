@@ -263,15 +263,17 @@ shinyServer(function(input, output, session) {
     
     if(v$Lat!="" & v$Lon!=""){
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
-      names(cv$datatoshow)[7]<-paste("Dist (m)")#change Lat to LatDD
-      names(cv$datatoshow)[8]<-paste("Dist (km)")#Change Lon to LonDD
+      names(cv$datatoshow)[7]<-paste(tr("Dist"),"(m)",sep=" ")#change Lat to LatDD
+      names(cv$datatoshow)[8]<-paste(tr("Dist"),"(km)",sep=" ")#Change Lon to LonDD
     } else {
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Pays))
     }
-    names(cv$datatoshow)[3]<-paste("Lat WSG84")#change LatWSG84 to Lat WSG84
-    names(cv$datatoshow)[4]<-paste("Lon WSG84")#change LonWSG84 to Lon WSG84
-    names(cv$datatoshow)[5]<-paste("Lat DD")#change Lat to LatDD
-    names(cv$datatoshow)[6]<-paste("Lon DD")#Change Lon to LonDD
+    names(cv$datatoshow)[2]<-paste(tr("Towns"))
+    names(cv$datatoshow)[3]<-paste(tr("NorthN"),"WSG84",sep=" ")#change LatWSG84 to Lat WSG84
+    names(cv$datatoshow)[4]<-paste(tr("EastE"),"WSG84",sep=" ")#change LonWSG84 to Lon WSG84
+    names(cv$datatoshow)[5]<-paste(tr("NorthN"),tr("DD"),sep=" ")#change Lat to LatDD
+    names(cv$datatoshow)[6]<-paste(tr("EastE"),tr("DD"),sep=" ")#Change Lon to LonDD
+    names(cv$datatoshow)[9]<-paste(tr("Country"),sep="")#Change Lon to LonDD
     
     
     #Set zone of plotting
@@ -554,7 +556,7 @@ output$uiSBdistances <- renderUI({
   h4(HTML(tr("CalculDist"))),
   HTML(tr("RefCoords")),
   HTML(paste("<span id='note'>",tr("RefCoordsNote"),"</span>",sep="")),
-  tags$table(tags$tr(tags$td(textInput("Lat", "Lat","503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", "Lon","044005.0" )))),
+  tags$table(tags$tr(tags$td(textInput("Lat", tr("NorthN"),"503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", tr("EastE"),"044005.0" )))),
   checkboxInput("kms", label = tr("ShowDist"), value = FALSE),
   radioButtons("round", tr("RoundTo"),
                list("km"="0",
@@ -598,19 +600,20 @@ output$uiMain <- renderUI({
               ),
               tabPanel(
                 tr("Help"),
-                h4(HTML("Calcul des distances :")),
-                p(HTML("Les coordonnées qui sont chargées par défaut comme ''coordonnées de référence'' sont celle du <a href='http://www.walhain.be/Loisirs/office-du-tourisme/les-curiosites-touristiques/le-centre-geographique-de-la-belgique' target=_blank'>centre géographique de la Belgique</a>. ")),
-                p(HTML("Remplacez les par celles de votre propre colombier et vous bénéficierez d'un calcul de distance adapté à votre localisation personnelle. ")),
-                p(HTML("Le format à utiliser dans les champs ''Lat'' (latitude) et ''Lon'' (longitude) est le format <a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84</a>, avec un <strong>point comme symbole décimal</strong>, et non une virgule.")),
-                p(HTML("<strong>Rappel :</strong> Vos coordonnées figurent au format WGS84 sur votre carte de membre de la Royale Fédération Colombophile Belge.")),
+                h4(paste(tr("CalculDist"),":",sep=" ")),
+                p(HTML(tr("HelpSent1"))),
+                p(HTML(tr("HelpSent2"))),
+                p(HTML(tr("HelpSent3"))),
+                p(HTML(tr("HelpSent4"))),
                 
                 value=3
               ),
               tabPanel(
                 tr("Credits"),
-                p(HTML("<strong>Auteur :</strong> Grégoire Vincke - <a href='http://www.gregoirevincke.be' target='_blank'>http://www.gregoirevincke.be</a> - Mars 2015")),
-                p(HTML("<strong>Licences :</strong> <ul><li><strong>Animation :</strong> <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a> Cette animation, ainsi que tout ce qu'elle produit, est mise à votre disposition selon les termes de la <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'>licence Creative Commons Attribution 2.0 Belgique</a>. Cela signifie que vous pouvez non seulement l'utiliser, mais également copier gratuitement et légalement les images créés par l'animation, les éditer, les modifier, les copier, les réutiliser pour toute utilisation, y compris commerciale, pour autant que vous me créditiez toujours en tant qu'auteur original. Bref que vous spécifiez que c'est moi, et non vous, qui avez créé la version originale, et que c'est depuis cette animation (citer l'URL) que vous l'avez téléchargée.</li><li><strong>Code :</strong> Le code source de cette animation est disponible sur <a href='https://github.com/gvincke/beprmap' target='_blank'>Github.com</a> sous licence <a href='http://www.gnu.org/licenses/old-licenses/gpl-2.0.html' target='_blank'>GPLv2</a>.</li></ul>")),
-                p(HTML("<strong>Logiciels :</strong> Pour réaliser cette animation, j'ai utilisé les logiciels suivants :")),
+                p(HTML(paste("<strong>",tr("Author"),":</strong> Grégoire Vincke - <a href='http://www.gregoirevincke.be' target='_blank'>http://www.gregoirevincke.be</a> - ",tr("March")," 2015",sep=""))),
+                p(HTML(paste("<strong>",tr("Translations")," :</strong> ",tr("TranslationsHowTo"),sep=""))),
+                p(HTML(paste("<strong>Licences :</strong> <ul><li><strong>Animation :</strong> <a rel='license' href='http://creativecommons.org/licenses/by/2.0/be/'><img alt='Licence Creative Commons' style='border-width:0' src='img/cc_by_80x15.png' /></a>",tr("CreditsLicence"),"</li><li><strong>Code :</strong> ",tr("SourceCodeLocation"),"</li></ul>",sep=""))),
+                p(HTML(paste("<strong>",tr("Softwares")," :</strong> ",tr("SoftwaresIUsed")," :"))),
                 HTML("<ul>"),
                 HTML('<li><strong>R</strong> : R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL <a href="http://www.R-project.org/" target=_blank">http://www.R-project.org/</a>.</li>'),
                 HTML('<li><strong>RStudio</strong> : RStudio Team (2012). RStudio: Integrated Development for R. RStudio, Inc., Boston, MA URL <a href="http://www.rstudio.com/" target=_blank">http://www.rstudio.com/</a>.</li>'),
@@ -620,7 +623,7 @@ output$uiMain <- renderUI({
                 HTML('<li><strong>mapproj</strong> : Doug McIlroy. Packaged for R by Ray Brownrigg, Thomas P Minka and transition to Plan 9 codebase by Roger Bivand. (2014). mapproj: Map Projections. R package version 1.2-2. <a href="http://CRAN.R-project.org/package=mapproj" target=_blank">http://CRAN.R-project.org/package=mapproj</a>.</li>'),
                 HTML('<li><strong>png</strong> : Simon Urbanek (2013). png: Read and write PNG images. R package version 0.1-7. <a href="http://CRAN.R-project.org/package=png" target=_blank">http://CRAN.R-project.org/package=png</a>.</li>'),
                 HTML("</ul>"),
-                p(HTML("<strong>Sources :</strong> Pour réaliser cette animation, j'ai récolté des données, et des idées, depuis les sources suivantes :")),
+                p(HTML(paste("<strong>",tr("Sources")," :</strong> ",tr("SourcesiUsed")," :",sep=""))),
                 HTML("<ul>"),
                 HTML('<li><a href="http://rfcb.be/fr/vluchten-2/cooerdinaten" target="_blank">http://rfcb.be/fr/vluchten-2/cooerdinaten</a> : lieux de lâchers publiés par la Royale Fédération Colombophile Belge.</li>'),
                 HTML('<li><a href="http://rfcb.be/fr/vluchten-2/vluchtprogramma" target="_blank">http://rfcb.be/fr/vluchten-2/vluchtprogramma</a> : catégorisation par la Royale Fédération Colombophile Belge des concours nationaux et internationaux en demi-fond, fond et grand-fond.</li>'),
