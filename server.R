@@ -20,9 +20,30 @@ library(mapproj)
 library(mapdata)
 library(png)
 
+# Create a reactive object here that we can share between all the sessions.
+SRV <- reactiveValues(count=0)#Session reactive values
 cc <- readPNG("www/img/cc_by_320x60.png")
 
 shinyServer(function(input, output, session) {
+  # https://gist.github.com/trestletech/9926129
+  # Increment the number of sessions when one is opened.
+  # We use isolate() here to:
+  #  a.) Provide a reactive context
+  #  b.) Ensure that this expression doesn't take a reactive dependency on
+  #      SRV$count -- if it did, every time SRV$count changed, this expression
+  #      would run, leading to an infinite loop.
+  isolate(SRV$count <- SRV$count + 1)
+  
+  # When a session ends, decrement the counter.
+  session$onSessionEnded(function(){
+    # We use isolate() here for the same reasons as above.
+    isolate(SRV$count <- SRV$count - 1)
+  })
+  
+  # Reactively update the client. : non necessary here as the UI is defined in server for translation
+  #output$count <- renderText({
+  #  SRV$count
+  #})
   
   data <- read.csv("data/coordonnees_rfcb.csv", sep=";", dec=",", quote="")
   
@@ -605,6 +626,8 @@ output$uiMain <- renderUI({
                 p(HTML(tr("HelpSent2"))),
                 p(HTML(tr("HelpSent3"))),
                 p(HTML(tr("HelpSent4"))),
+                h4(paste(tr("TechnicalInformations"),":",sep=" ")),
+                p(HTML(tr("SessionCounter")," :",SRV$count)),
                 
                 value=3
               ),
