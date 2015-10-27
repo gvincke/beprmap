@@ -29,6 +29,8 @@ shinyUI(fluidPage(
     tags$style(type="text/css", 'input[type="text"] { float: none; display : inline;}'),
     tags$style(type="text/css", '.checkbox,.radio { float: none; display:inline; margin-top:5px; margin-bottom:5px;line-height:15px;}'),
     tags$style(type='text/css', "select#selection,select#mapzones,select#racedist { width: 200px; display : inline; }"),
+    tags$style(type='text/css', "select#distunit { width: 65px; display : inline; }"),
+    tags$style(type='text/css', "input#round { display : inline; }"),
     tags$style(type="text/css", 'input[type="number"] { width: 50px; }'),
     tags$style(type="text/css", ".jslider { max-width: 350px; }"),
     tags$style(type='text/css', ".well { max-width: 400px; }"),#class of the from inside sidebarPanel
@@ -52,6 +54,8 @@ shinyUI(fluidPage(
     selectInput(inputId="selection",label=uiOutput("uiSBSelection"),choices="",selected="itawc",selectize=FALSE),#selection must be define in UI.R to be reactive to script.js -> create emty select here, use observe to load it with translated content, and uiOutput to have translated label
     uiOutput('uiSBlocationsbottom'),
     uiOutput('uiSBdistances'),
+    tags$table(tags$tr(tags$td(uiOutput('uiSBunit')),tags$td(selectInput("distunit","",choices=c("km","mi"),selectize=FALSE)),tags$td(HTML("&nbsp;")),tags$td(uiOutput('uiSBround')))),#input$distunit must be define in ui.R, but it's label must be define in server;R to be translated, as round level. So i cut the distance ui in pieces to allow each element to be define in ui.R or server.R depending it's caracteristics
+    uiOutput('uiSBdistancesb'),
     uiOutput('uiSBshow'),
     uiOutput('uiSBlicence')
   ),  

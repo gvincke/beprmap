@@ -13,8 +13,10 @@ ShowNames	Afficher le nom des lieux de lâchers	Show names of release locations	
 CalculDist	Calcul des distances	Calculation of distances	Berekening van afstanden
 RefCoords	Coordonnées de référence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)	Reference coordinates (<a href='https://en.wikipedia.org/wiki/World_Geodetic_System' target='_blank'>WGS84 format</a>)	Referentiecoördinaten (<a href='https://nl.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84 format </a>)
 RefCoordsNote	Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.	Replace these coordinates by yours! See Help.	Vervang deze coördinaten door van u! Zie Help.
-ShowDist	Afficher pour chaque lieux sa distance en km	Display each location distance in kilometers	Toon elke locatie afstand in kilometers
+ShowDist	Afficher pour chaque lieux sa distance	Display each location distance	Toon elke locatie afstand
 RoundTo	Arrondir au	Round to	Afronden op
+Decimales	Décimales	Decimals	Decimalen
+DistUnit	Unité&nbsp;	Unit&nbsp;	Eenheid&nbsp;
 SortDist	Trier selon le type de concours	Sort by type of race	Sorteren op type van ras
 ShowCircles	Afficher les limites des catégories de distance	Show limits of distance categories	Show grenzen van de categorieën op afstand
 Display	Afficher	Display	Tonen

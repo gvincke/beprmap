@@ -87,9 +87,9 @@ shinyServer(function(input, output, session) {
   return(l)
   })
   
-  langracedist <- read.delim("data/lang-racedist.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+getRacedistances<-reactive({
+  langracedist <- read.delim(paste("data/lang-racedist-",input$distunit,".csv",sep=""), header = TRUE, sep = "\t", as.is = TRUE) 
   row.names(langracedist)<-langracedist$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
-  getRacedistances<-reactive({
     l<-list()
     for(i in 1:nrow(langracedist)){
       l[[langracedist[[input$language]][i]]]<-langracedist$key[i]
@@ -136,6 +136,9 @@ shinyServer(function(input, output, session) {
       cons1<-0.99664718933525
       cons2<-6378137
       
+      DistFact<-1
+      if(v$distunit=='mi'){DistFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
+      
       data$LatRad<-as.numeric(data$Lat)*pi/180
       data$LonRad<-as.numeric(data$Lon)*pi/180
       data$BHO<-(cv$LatRad+data$LatRad)/2
@@ -148,7 +151,7 @@ shinyServer(function(input, output, session) {
       data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
       data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
       data$M=round(data$AFSTG,0)
-      data$Km=round(data$M/1000,cv$round)
+      data$Km=round(data$M/1000*DistFact,cv$round)
       
       maintowns$LatRad<-as.numeric(maintowns$Lat)*pi/180
       maintowns$LonRad<-as.numeric(maintowns$Lon)*pi/180
@@ -162,7 +165,7 @@ shinyServer(function(input, output, session) {
       maintowns$XHO<-sin(maintowns$OM1)*sin(maintowns$OM2)+cos(maintowns$OM1)*cos(maintowns$OM2)*cos(maintowns$LAHO)
       maintowns$AFSTG=(cons2/maintowns$VHO)*(atan(-maintowns$XHO/sqrt(1-maintowns$XHO^2))+2*atan(1))
       maintowns$M=round(maintowns$AFSTG,0)
-      maintowns$Km=round(maintowns$M/1000,cv$round)
+      maintowns$Km=round(maintowns$M/1000*DistFact,cv$round)
       cv$maintowns<-maintowns
       
 #       perso$LatRad<-as.numeric(perso$Lat)*pi/180
@@ -206,7 +209,8 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itawc"){coords<-subset(coords,Id %in% c(14,46,105))}
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$selection=="itcentand"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
+    if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,44,54,38,193))}
     if(v$selection=="itaf"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
     if(v$selection=="itafv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
     if(v$selection=="itafdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
@@ -232,11 +236,11 @@ shinyServer(function(input, output, session) {
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
     
-    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250)}
-    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250 & Km<=425)}
-    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425 & Km<=600)}
-    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600 & Km<=800)}
-    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800)}
+    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250*DistFact)}
+    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250*DistFact & Km<=425*DistFact)}
+    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425*DistFact & Km<=600*DistFact)}
+    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600*DistFact & Km<=800*DistFact)}
+    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800*DistFact)}
     
     if(length(v$towns)>0 ){
       if(v$selection=="unselected"){
@@ -283,9 +287,10 @@ shinyServer(function(input, output, session) {
     coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,paste(Lonsf,Lonsd,sep="."),sep=""))
     
     if(v$Lat!="" & v$Lon!=""){
+#       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       names(cv$datatoshow)[7]<-paste(tr("Dist"),"(m)",sep=" ")#change Lat to LatDD
-      names(cv$datatoshow)[8]<-paste(tr("Dist"),"(km)",sep=" ")#Change Lon to LonDD
+      names(cv$datatoshow)[8]<-paste(tr("Dist"),"(",v$distunit,")",sep=" ")#Change Lon to LonDD
     } else {
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,Pays))
     }
@@ -382,6 +387,8 @@ shinyServer(function(input, output, session) {
     
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      DistFact<-1
+      if(v$distunit=='mi'){DistFact<-3959/6371}
       AngDeg <- seq(1,360)
       Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
@@ -392,9 +399,9 @@ shinyServer(function(input, output, session) {
         Lat2Deg <- Lat2Rad*(180/pi)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Lon2Rad*(180/pi)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
-        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
+        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
         #         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
-        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(Km[i],"km",sep=" "), pos=3,cex=0.8)
+        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistFact,0),v$distunit,sep=" "), pos=3,cex=0.8)
       }
     }
 
@@ -578,18 +585,30 @@ output$uiSBdistances <- renderUI({
   HTML(tr("RefCoords")),
   HTML(paste("<span id='note'>",tr("RefCoordsNote"),"</span>",sep="")),
   tags$table(tags$tr(tags$td(textInput("Lat", tr("NorthN"),"503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", tr("EastE"),"044005.0" )))),
-  checkboxInput("kms", label = tr("ShowDist"), value = FALSE),
-  radioButtons("round", tr("RoundTo"),
-               list("km"="0",
-                    "hm"="1", 
-                    "dm"="2",
-                    "m"="3"
-               ),selected="0"),
-  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all"),
-  checkboxInput("circles", label = tr("ShowCircles"), value = FALSE),
-  
-  HTML('<hr style="border:1px solid #ccc;"/>')
+  checkboxInput("kms", label = tr("ShowDist"), value = FALSE)
+  #radioButtons("round", tr("RoundTo"),
+   #            list("km"="0",
+   #                 "hm"="1", 
+   #                 "dm"="2",
+   #                 "m"="3"
+   #            ),selected="0"),
   ))
+})
+
+output$uiSBdistancesb <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                 
+                  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all"),
+                  checkboxInput("circles", label = tr("ShowCircles"), value = FALSE),
+                  
+                  HTML('<hr style="border:1px solid #ccc;"/>')
+  ))
+})
+output$uiSBunit <- renderUI({
+  strong(HTML(tr("DistUnit")))
+})
+output$uiSBround <- renderUI({
+  numericInput("round", tr("Decimales"), 0,min = 0, max = 3, step=1)
 })
 
 output$uiSBshow <- renderUI({

@@ -1,4 +1,5 @@
 key	fr	en	nl
+all	Tous les lieux de lâcher	All release places	Alle plaatsen van het vrijgeven
 rfcbbeloff	RFCB : Belgique lieux officiels	RFCB : Belgium official locations	KBDB : België officiële plaatsen
 rfcbbeltour	RFCB : Tour de Belgique	RFCB : Tour of Belgium	KBDB : Ronde van België
 rfcblinew	RFCB : Ligne de l'Ouest	RFCB : West line	KBDB : Westlijn
@@ -17,7 +18,8 @@ awclg	AWC : Province de Liège	AWC : Province of Liege	AWC : Provincie Luik
 awclx	AWC : Province du Luxembourg	AWC : Province of Luxembourg	AWC : Provincie Luxemburg
 awc	AWC : Tous les lieux de lâcher en Wallonie	AWC : All release places in Wallonia	AWC :  Alle plaatsen van het vrijgeven van in Wallonië
 itawc	Itinéraire : AWC	Itinerary : AWC	Reisroute : AWC
-itcentand	Itinéraire : Andenne	Itinerary : Andenne	Reisroute : Andenne
+itcentand15	Itinéraire : Andenne 2015	Itinerary : Andenne 2015	Reisroute : Andenne 2015
+itcentand16	Itinéraire : Andenne 2016 (provisoire)	Itinerary : Andenne 2016 (provisional)	Reisroute : Andenne 2016 (voorlopig)
 itcin	Itinéraire : Ciney	Itinerary : Ciney	Reisroute : Ciney
 itdin	Itinéraire : Dinant	Itinerary : Dinant	Reisroute : Dinant
 itflo	Itinéraire : Floreffe	Itinerary : Floreffe	Reisroute : Floreffe
