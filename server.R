@@ -151,9 +151,7 @@ getRacedistances<-reactive({
       
       cv$LatDec<-Sexa2Dec(cv$Lat) #From Sexagésimal to decimal coordinates
       cv$LonDec<-Sexa2Dec(cv$Lon) #From Sexagésimal to decimal coordinates
-      
-      
-      
+            
       DistFact<-1
       if(v$distunit=='mi'){DistFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
       
@@ -584,7 +582,8 @@ output$uiSBdistances <- renderUI({
   HTML(tr("RefCoords")),
   HTML(paste("<span id='note'>",tr("RefCoordsNote"),"</span>",sep="")),
   tags$table(tags$tr(tags$td(textInput("Lat", tr("NorthN"),"503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", tr("EastE"),"044005.0" )))),
-  checkboxInput("kms", label = tr("ShowDist"), value = FALSE)
+  checkboxInput("kms", label = tr("ShowDist"), value = FALSE),
+  checkboxInput("circles", label = tr("ShowCircles"), value = FALSE)
   #radioButtons("round", tr("RoundTo"),
    #            list("km"="0",
    #                 "hm"="1", 
@@ -596,10 +595,7 @@ output$uiSBdistances <- renderUI({
 
 output$uiSBdistancesb <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                 
-                  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all"),
-                  checkboxInput("circles", label = tr("ShowCircles"), value = FALSE),
-                  
+                  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all"),                  
                   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
 })
