@@ -101,7 +101,7 @@ getRacedistances<-reactive({
     return(input)#collect all inputs
   })
 
-  getDistance <- function(data, cv, DistFact) {
+  getDistance <- function(data, cv, DistUnitFact) {
     v<-getInputValues() # get all values of input list
     
     #Calculation of distances in Km
@@ -123,7 +123,7 @@ getRacedistances<-reactive({
     data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
     data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
     data$M=round(data$AFSTG,0)
-    data$Km=round(data$M/1000*DistFact,cv$round)
+    data$Km=round(data$M/1000*DistUnitFact,cv$round)
     return(data)
   }
   
@@ -138,7 +138,14 @@ getRacedistances<-reactive({
     Dec<-Deg+(Min/60)+(Sec/3600)
     return(Dec)
   }
-  
+
+  getDistUnitFact<-function(){
+    v<-getInputValues() # get all values of input list
+    DistUnitFact<-1
+    if(v$distunit=='mi'){DistUnitFact<-3959/6371}# radius of the Earth in Mi / radius of the Earth in Km #6371=Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+    return(DistUnitFact)
+  }
+
   getComputedValues<-reactive({
     v<-getInputValues() # get all values of input list
     cv<-list()#created empty computed values list
@@ -152,12 +159,12 @@ getRacedistances<-reactive({
       cv$LatDec<-Sexa2Dec(cv$Lat) #From Sexagésimal to decimal coordinates
       cv$LonDec<-Sexa2Dec(cv$Lon) #From Sexagésimal to decimal coordinates
             
-      DistFact<-1
-      if(v$distunit=='mi'){DistFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
+      cv$DistUnitFact<-getDistUnitFact()
+      #if(v$distunit=='mi'){cv$DistUnitFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
       
-      data <- getDistance(data, cv,DistFact)
+      data <- getDistance(data,cv,cv$DistUnitFact)
 
-      maintowns <- getDistance(maintowns, cv, DistFact)
+      maintowns <- getDistance(maintowns,cv,cv$DistUnitFact)
       cv$maintowns<-maintowns
     }
     
@@ -213,11 +220,11 @@ getRacedistances<-reactive({
     
     #     if(v$pigeons=="P"){coords<-subset(coords,coords$Id %in% c(79))}
     
-    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250*DistFact)}
-    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250*DistFact & Km<=425*DistFact)}
-    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425*DistFact & Km<=600*DistFact)}
-    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600*DistFact & Km<=800*DistFact)}
-    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800*DistFact)}
+    if(v$racedist=="V"){coords<-subset(coords,coords$Km<=250*cv$DistUnitFact)}
+    if(v$racedist=="PDF"){coords<-subset(coords,coords$Km>250*cv$DistUnitFact & Km<=425*cv$DistUnitFact)}
+    if(v$racedist=="DF"){coords<-subset(coords,coords$Km>425*cv$DistUnitFact & Km<=600*cv$DistUnitFact)}
+    if(v$racedist=="F"){coords<-subset(coords,coords$Km>600*cv$DistUnitFact & Km<=800*cv$DistUnitFact)}
+    if(v$racedist=="GF"){coords<-subset(coords,coords$Km>800*cv$DistUnitFact)}
     
     if(length(v$towns)>0 ){
       if(v$selection=="unselected"){
@@ -364,8 +371,7 @@ getRacedistances<-reactive({
     
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      DistFact<-1
-      if(v$distunit=='mi'){DistFact<-3959/6371}
+      DistUnitFact<-getDistUnitFact()
       AngDeg <- seq(1,360)
       Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
@@ -376,9 +382,9 @@ getRacedistances<-reactive({
         Lat2Deg <- Lat2Rad*(180/pi)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Lon2Rad*(180/pi)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
-        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
+        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
         #         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
-        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistFact,0),v$distunit,sep=" "), pos=3,cex=0.8)
+        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)
       }
     }
 
