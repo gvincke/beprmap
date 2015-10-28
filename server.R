@@ -100,6 +100,44 @@ getRacedistances<-reactive({
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
+
+  getDistance <- function(data, cv, DistFact) {
+    v<-getInputValues() # get all values of input list
+    
+    #Calculation of distances in Km
+    cons1<-0.99664718933525
+    cons2<-6378137
+    
+    cv$LatRad<-cv$LatDec*pi/180
+    cv$LonRad<-cv$LonDec*pi/180
+    
+    data$LatRad<-as.numeric(data$Lat)*pi/180
+    data$LonRad<-as.numeric(data$Lon)*pi/180
+    data$BHO<-(cv$LatRad+data$LatRad)/2
+    data$IHO<-data$LonRad-cv$LonRad
+    data$NU2<-0.0067394967422767*cos(data$BHO)^2
+    data$VHO<-sqrt(1+data$NU2)
+    data$LAHO<-data$IHO*data$VHO
+    data$OM1<-atan(cons1*tan(cv$LatRad))
+    data$OM2<-atan(cons1*tan(data$LatRad))
+    data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
+    data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
+    data$M=round(data$AFSTG,0)
+    data$Km=round(data$M/1000*DistFact,cv$round)
+    return(data)
+  }
+  
+  Sexa2Dec <-function(Sexa){#From Sexagésimal to decimal coordinates
+    Fact<-1
+    if(Sexa<0){
+      Fact<-Fact*-1
+    }
+    Deg<-floor(Sexa/10000)*Fact
+    Min<-((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100)*Fact
+    Sec<-((Sexa/100-floor(Sexa/100))*100)*Fact 
+    Dec<-Deg+(Min/60)+(Sec/3600)
+    return(Dec)
+  }
   
   getComputedValues<-reactive({
     v<-getInputValues() # get all values of input list
@@ -111,77 +149,18 @@ getRacedistances<-reactive({
       cv$Lat<-as.numeric(v$Lat)
       cv$Lon<-as.numeric(v$Lon)
       
-      #From Sexagésimal to decimal coordinates
-      LatFact<-1
-      if(cv$Lat<0){
-        LatFact<-LatFact*-1
-      }
-      cv$LatDeg<-floor(cv$Lat/10000)*LatFact
-      cv$LatMin<-((floor(cv$Lat/100)/100-floor(floor(cv$Lat/100)/100))*100)*LatFact
-      cv$LatSec<-((cv$Lat/100-floor(cv$Lat/100))*100)*LatFact 
-      cv$LatDec<-cv$LatDeg+(cv$LatMin/60)+(cv$LatSec/3600)
-      cv$LatRad<-cv$LatDec*pi/180
+      cv$LatDec<-Sexa2Dec(cv$Lat) #From Sexagésimal to decimal coordinates
+      cv$LonDec<-Sexa2Dec(cv$Lon) #From Sexagésimal to decimal coordinates
       
-      LonFact<-1
-      if(v$Lon<0){
-        LonFact<-LonFact*-1
-      }
-      cv$LonDeg<-floor(cv$Lon/10000)*LonFact 
-      cv$LonMin<-((floor(cv$Lon/100)/100-floor(floor(cv$Lon/100)/100))*100)*LonFact 
-      cv$LonSec<-((cv$Lon/100-floor(cv$Lon/100))*100)*LonFact
-      cv$LonDec<-cv$LonDeg+(cv$LonMin/60)+(cv$LonSec/3600)
-      cv$LonRad<-cv$LonDec*pi/180
       
-      #Calculation of distances in Km
-      cons1<-0.99664718933525
-      cons2<-6378137
       
       DistFact<-1
       if(v$distunit=='mi'){DistFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
       
-      data$LatRad<-as.numeric(data$Lat)*pi/180
-      data$LonRad<-as.numeric(data$Lon)*pi/180
-      data$BHO<-(cv$LatRad+data$LatRad)/2
-      data$IHO<-data$LonRad-cv$LonRad
-      data$NU2<-0.0067394967422767*cos(data$BHO)^2
-      data$VHO<-sqrt(1+data$NU2)
-      data$LAHO<-data$IHO*data$VHO
-      data$OM1<-atan(cons1*tan(cv$LatRad))
-      data$OM2<-atan(cons1*tan(data$LatRad))
-      data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
-      data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
-      data$M=round(data$AFSTG,0)
-      data$Km=round(data$M/1000*DistFact,cv$round)
-      
-      maintowns$LatRad<-as.numeric(maintowns$Lat)*pi/180
-      maintowns$LonRad<-as.numeric(maintowns$Lon)*pi/180
-      maintowns$BHO<-(cv$LatRad+maintowns$LatRad)/2
-      maintowns$IHO<-maintowns$LonRad-cv$LonRad
-      maintowns$NU2<-0.0067394967422767*cos(maintowns$BHO)^2
-      maintowns$VHO<-sqrt(1+maintowns$NU2)
-      maintowns$LAHO<-maintowns$IHO*maintowns$VHO
-      maintowns$OM1<-atan(cons1*tan(cv$LatRad))
-      maintowns$OM2<-atan(cons1*tan(maintowns$LatRad))
-      maintowns$XHO<-sin(maintowns$OM1)*sin(maintowns$OM2)+cos(maintowns$OM1)*cos(maintowns$OM2)*cos(maintowns$LAHO)
-      maintowns$AFSTG=(cons2/maintowns$VHO)*(atan(-maintowns$XHO/sqrt(1-maintowns$XHO^2))+2*atan(1))
-      maintowns$M=round(maintowns$AFSTG,0)
-      maintowns$Km=round(maintowns$M/1000*DistFact,cv$round)
+      data <- getDistance(data, cv,DistFact)
+
+      maintowns <- getDistance(maintowns, cv, DistFact)
       cv$maintowns<-maintowns
-      
-#       perso$LatRad<-as.numeric(perso$Lat)*pi/180
-#       perso$LonRad<-as.numeric(perso$Lon)*pi/180
-#       perso$BHO<-(cv$LatRad+perso$LatRad)/2
-#       perso$IHO<-perso$LonRad-cv$LonRad
-#       perso$NU2<-0.0067394967422767*cos(perso$BHO)^2
-#       perso$VHO<-sqrt(1+perso$NU2)
-#       perso$LAHO<-perso$IHO*perso$VHO
-#       perso$OM1<-atan(cons1*tan(cv$LatRad))
-#       perso$OM2<-atan(cons1*tan(perso$LatRad))
-#       perso$XHO<-sin(perso$OM1)*sin(perso$OM2)+cos(perso$OM1)*cos(perso$OM2)*cos(perso$LAHO)
-#       perso$AFSTG=(cons2/perso$VHO)*(atan(-perso$XHO/sqrt(1-perso$XHO^2))+2*atan(1))
-#       perso$M=round(perso$AFSTG,0)
-#       perso$Km=round(perso$M/1000,cv$round)
-#       cv$perso<-perso
     }
     
     #Data selection : must be after distance computation because some filters are based on distance
@@ -414,6 +393,19 @@ getRacedistances<-reactive({
       return((atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))))*180/pi)
     }
     
+    plotFlightLine <- function(Coords1,Coords2,Color){#coords in degrees
+      #Kms <- seq(Km[1],Km[2],by=DKm)
+      # 1: compute distance between the two coordinates (cf line 142)
+      # 2: compute angle between these two coordinates
+      # 3: compute 10 intermediate coordinates
+      # 4: plot lines between theses intermediates coordinates to respect the earth curve
+      # Plots lines ? Maybe there is an line function wich can smooth de plot and be more accurate ?
+      
+      
+      # Keep this line to be able to see difference between two type of lines
+      lines(c(Coords1[1],Coords2[1]),c(Coords1[2],Coords2[2]),lty=2,col=Color)
+    }
+    
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
@@ -499,6 +491,7 @@ getRacedistances<-reactive({
         labels<-paste("")
         if(v$labels){labels<-paste(labels,as.character(cv$coords$Ville[i]),collapse = NULL,sep=' ')}
         if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
+        if(v$flightlines){plotFlightLine(mycoord,coords,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
         text(coords,labels,cex=1,pos=4)
       }
       
@@ -580,6 +573,7 @@ output$uiSBlocationsbottom <- renderUI({
   #                 )),
   
   checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
+  checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = FALSE),
   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
 })
