@@ -13,7 +13,7 @@ ShowNames	Afficher le nom des lieux de lâchers	Show names of release locations	
 CalculDist	Calcul des distances	Calculation of distances	Berekening van afstanden
 RefCoords	Coordonnées de référence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)	Reference coordinates (<a href='https://en.wikipedia.org/wiki/World_Geodetic_System' target='_blank'>WGS84 format</a>)	Referentiecoördinaten (<a href='https://nl.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84 format </a>)
 RefCoordsNote	Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.	Replace these coordinates by yours! See Help.	Vervang deze coördinaten door van u! Zie Help.
-ShowDist	Afficher pour chaque lieux sa distance	Display each location distance	Toon elke locatie afstand
+ShowDist	Afficher les distances de vol	Display flight distances	Toon vlucht afstanden
 RoundTo	Arrondir au	Round to	Afronden op
 Decimales	Décimales	Decimals	Decimalen
 DistUnit	Unité&nbsp;	Unit&nbsp;	Eenheid&nbsp;
