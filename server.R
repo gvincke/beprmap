@@ -172,6 +172,7 @@ getRacedistances<-reactive({
     coords<-data
     #coords<-c()
     if(v$selection=="unselected"){coords<-subset(coords,Id %in% c())}
+
     if(v$selection=="rfcblinew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
     if(v$selection=="rfcblinec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
     if(v$selection=="rfcblinee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
@@ -230,7 +231,7 @@ getRacedistances<-reactive({
       if(v$selection=="unselected"){
         coords<-data
       }
-      if(v$selection=="unselected" | v$selection=="all"){
+      if(v$selection=="unselected"){# | v$selection=="all"
 
       if("empty" %in% v$towns){
         coords<-subset(coords,coords$Id %in% c())#no more subset is done
@@ -271,7 +272,7 @@ getRacedistances<-reactive({
     coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,paste(Lonsf,Lonsd,sep="."),sep=""))
     
     if(v$Lat!="" & v$Lon!=""){
-#       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
+#     cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       names(cv$datatoshow)[7]<-paste(tr("Dist"),"(m)",sep=" ")#change Lat to LatDD
       names(cv$datatoshow)[8]<-paste(tr("Dist"),"(",v$distunit,")",sep=" ")#Change Lon to LonDD
@@ -390,6 +391,7 @@ getRacedistances<-reactive({
 
     
     angleDeg <- function(lon1,lat1,lon2,lat2) {#from http://rfcb.be/images/Nuttige_programmas/zoneberekening.xls
+      # Compute Radians from Degrees
       lon1<-lon1*(pi/180)
       lat1<-lat1*(pi/180)
       lon2<-lon2*(pi/180)
@@ -397,17 +399,73 @@ getRacedistances<-reactive({
       return((atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))))*180/pi)
     }
     
-    plotFlightLine <- function(Coords1,Coords2,Color){#coords in degrees
-      #Kms <- seq(Km[1],Km[2],by=DKm)
-      # 1: compute distance between the two coordinates (cf line 142)
-      # 2: compute angle between these two coordinates
-      # 3: compute 10 intermediate coordinates
+    plotFlightLine <- function(mycoord,coords,DKm,Color){#mycoords and coords are coodinates generated bu mappproject() function of mapproj library : they are list with $x (lon) and $y (lat) values. They are set for only one couple of points source (mycoords) and destination (coords)
+      v<-getInputValues() # get all values of input list
+      # 1: compute distance between the two coordinates (cf line 142) : this is already done in cv$coords$Km
+      c1<-list()
+      c2<-list()
+      c1$Lon<-mycoord$x #needed to be renamed to be used by getDistance()
+      c1$Lat<-mycoord$y #needed to be renamed to be used by getDistance()
+      c2$LonDec<-coords$x #needed to be renamed to be used by getDistance()
+      c2$LatDec<-coords$y #needed to be renamed to be used by getDistance()
+      c2$round<-as.integer(v$round) #needed by getDistance()
+      DistUnitFact<-getDistUnitFact()
+      Dist<-getDistance(c1, c2, DistUnitFact)
+      # 2: compute angle between these two coordinates #Angles in degrees relatively to reference loft
+      AngDeg <- angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)#lon1,lat1,lon2,lat2
+      # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
+      if(mycoord$x >= coords$x){ # Est or West
+        if(AngDeg<0){ # Notrh or South
+          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      } else {
+        if(AngDeg>0){# Notrh or South
+          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      }
+      # 3: compute intermediate coordinates each Dkm distance
+      Kms <- seq(0,Dist$Km,by=DKm)
+      if(!Dist$Km %in% Kms){
+        Kms<-c(Kms,Dist$Km)# Add total distance to sequence if not already inside to be sure that the line covers the all distance
+      }
       # 4: plot lines between theses intermediates coordinates to respect the earth curve
-      # Plots lines ? Maybe there is an line function wich can smooth de plot and be more accurate ?
+      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      Lat1Rad <- c1$Lat*(pi/180)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- c1$Lon*(pi/180)#Longitude of the loft coordinates in radians
       
-      
-      # Keep this line to be able to see difference between two type of lines
-      lines(c(Coords1[1],Coords2[1]),c(Coords1[2],Coords2[2]),lty=2,col=Color)
+      lineLat<-c()
+      lineLon<-c()
+      for(j in 1:(length(Kms)-1)){
+        if(j==1){
+          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
+          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          
+          Lat2Deg1 <-Lat2Rad1*(180/pi)
+          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          
+          lineLat<-c(lineLat,Lat2Deg1)
+          lineLon<-c(lineLon,Lon2Deg1)
+        }
+
+        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
+        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+                
+        Lat2Deg2 <-Lat2Rad2*(180/pi)
+        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        
+        lineLat<-c(lineLat,Lat2Deg2)# vector of all latitude of dots of this line
+        lineLon<-c(lineLon,Lon2Deg2)# vector of all longitude of dots of this line
+      }
+      if(length(lineLat) & length(lineLon)){
+        # only on line of vectors of lat and lon : apply to plotZonesRFCB where the is sum of lines segmets of couples of coordinates : one line = sum of segments, here it's only one line with vectors of coordinates : line lot (dotted, shaded) is more beautifull
+        lines(lineLon,lineLat,lty=3,type="l",col=Color)#lty 1 solid 2 dashed 3 dotted
+      }
+      # Keep this line below to be able to see difference between two type of lines : streight line between the two points, or reographically corrected line infunction of projection (above)
+      # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
@@ -491,11 +549,11 @@ getRacedistances<-reactive({
       show<-as.integer(row.names(cv$coords))
       for(i in 1:nrow(cv$coords)){
         coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
-        points(coords,pch=20,col='red',cex=1)
+        points(coords,pch=20,col='blue',cex=1)
         labels<-paste("")
         if(v$labels){labels<-paste(labels,as.character(cv$coords$Ville[i]),collapse = NULL,sep=' ')}
         if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
-        if(v$flightlines){plotFlightLine(mycoord,coords,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
+        if(v$flightlines){plotFlightLine(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
         text(coords,labels,cex=1,pos=4)
       }
       
@@ -577,7 +635,7 @@ output$uiSBlocationsbottom <- renderUI({
   #                 )),
   
   checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
-  checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = FALSE),
+  checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = TRUE),
   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
 })
