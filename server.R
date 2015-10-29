@@ -409,7 +409,7 @@ getRacedistances<-reactive({
       c2$LonDec<-coords$x #needed to be renamed to be used by getDistance()
       c2$LatDec<-coords$y #needed to be renamed to be used by getDistance()
       c2$round<-as.integer(v$round) #needed by getDistance()
-      DistUnitFact<-getDistUnitFact()
+      DistUnitFact<-1#distance value must stay in KM !! If in Mi the line will be too short
       Dist<-getDistance(c1, c2, DistUnitFact)
       # 2: compute angle between these two coordinates #Angles in degrees relatively to reference loft
       AngDeg <- angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)#lon1,lat1,lon2,lat2
