@@ -3,19 +3,18 @@ Map	Carte	Map	Kaart
 Datas	Données	Datas	Datas
 Help	Aide	Help	Help
 Credits	Crédits	Credits	Credits
-Title	Localisation des lieux de lâchers RFCB et AWC avec calcul de distance de vol	Localisation of KBDB-RFCB and AWC liberation spots with flight distance computation	Lokaliseren releases plaatsen van KBDB en AWC met vliegafstand berekening
+Title	Localisation des lieux de lâchers avec calcul de distance de vol	Localisation of liberation spots with flight distance computation	Lokaliseren releases plaatsen met vliegafstand berekening
 Caution	ATTENTION : Si vous désirez simplement connaître vos distances sans vous intéresser à la géolocalisation des lieux de lâchers, préférez le <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>fichier excel mis à votre disposition par la RFCB</a>.	CAUTION : If you just want to compute your flight distances without maping liberation spots, please use the <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'> excel file available on the KBDB-RFCB website</a>.	LET OP : Als je gewoon wilt weten uw afstanden zonder rente die u geolocatie plaatsen van releases, liever <a href='http://www.recht-en-plicht-lembeke.be/accessoires/afstandkbdb.xls'>excel-bestand beschikbaar gesteld door de KBDB</a>.
 ReleaseLocations	Lieux de lâchers	Release locations	Releases locaties
 Towns	Villes	Towns	Steden
 Classification	Classification	Classification	Classificatie
 MappedZone	Zone cartographiée	Mapped zone	Toegewezen zone
 ShowNames	Afficher le nom des lieux de lâchers	Show names of release locations	Toon namen van de release locaties
-CalculDist	Calcul des distances	Calculation of distances	Berekening van afstanden
+CalculDist	Calcul des distances de vol	Calculation of flight distances	Berekening vlucht afstanden
 RefCoords	Coordonnées de référence (<a href='https://fr.wikipedia.org/wiki/WGS_84' target='_blank'>format WGS84</a>)	Reference coordinates (<a href='https://en.wikipedia.org/wiki/World_Geodetic_System' target='_blank'>WGS84 format</a>)	Referentiecoördinaten (<a href='https://nl.wikipedia.org/wiki/WGS_84' target='_blank'>WGS84 format </a>)
 RefCoordsNote	Remplacez ces coordonnées par les vôtres ! Consultez l'Aide.	Replace these coordinates by yours! See Help.	Vervang deze coördinaten door van u! Zie Help.
 ShowDist	Afficher les distances de vol	Display flight distances	Toon vlucht afstanden
 ShowFlight	Afficher les lignes de vol	Display flight lines	Toon vlucht lijnen
-RoundTo	Arrondir au	Round to	Afronden op
 Decimales	Décimales	Decimals	Decimalen
 DistUnit	Unité&nbsp;	Unit&nbsp;	Eenheid&nbsp;
 SortDist	Trier selon le type de concours	Sort by type of race	Sorteren op type van ras
@@ -59,6 +58,7 @@ Translations	Traductions	Translations	Vertaalwerk
 TranslationsHowTo	Cette animation a été crée en français. Les traductions dans d'autre langues ont été réalisée avec <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Merci de <a href='http://yapluka.be/contact' target='_blank'>me contacter</a> si vous constatez des erreurs de traduction. Merci !	This animation was created in French. Translations into other languages have been made with <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Thank you to <a href='http://yapluka.be/contact' target='_blank'>contact me</a> if you find translation errors. Thank you!	Deze animatie is gemaakt in het Frans. Vertalingen in andere talen zijn gemaakt met <a href='https://translate.google.com/' target='_blank'>Google Translate</a>. Bedankt om me <a href='http://yapluka.be/contact' target='_blank'>te contacteren</a> als je vertaalfouten. Dankjewel!
 SessionCounter	Compteur de sessions	Session counter	Sessie counter
 TechnicalInformations	Informations techniques	Technical informations	Technische informatie
+Language	Langue	Language	Taal
 
 
 
