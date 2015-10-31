@@ -469,6 +469,83 @@ getRacedistances<-reactive({
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
+    plotPigeonsLocationSimulation <- function(mycoord,coords,DKm,Color){#mycoords and coords are coodinates generated bu mappproject() function of mapproj library : they are list with $x (lon) and $y (lat) values. They are set for only one couple of points source (mycoords) and destination (coords)
+      v<-getInputValues() # get all values of input list
+      # 1: compute distance between the two coordinates (cf line 142) : this is already done in cv$coords$Km
+      c1<-list()
+      c2<-list()
+      c1$Lon<-mycoord$x #needed to be renamed to be used by getDistance()
+      c1$Lat<-mycoord$y #needed to be renamed to be used by getDistance()
+      c2$LonDec<-coords$x #needed to be renamed to be used by getDistance()
+      c2$LatDec<-coords$y #needed to be renamed to be used by getDistance()
+      c2$round<-as.integer(v$round) #needed by getDistance()
+      DistUnitFact<-1#distance value must stay in KM !! If in Mi the line will be too short
+      Dist<-getDistance(c1, c2, DistUnitFact)
+      # 2: compute angle between these two coordinates #Angles in degrees relatively to reference loft
+      AngDeg <- angleDeg(coords$x,coords$y,mycoord$x,mycoord$y)#lon1,lat1,lon2,lat2
+      # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
+      if(mycoord$x >= coords$x){ # Est or West
+        if(AngDeg>0){ # Notrh or South
+          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      } else {
+        if(AngDeg<0){# Notrh or South
+          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      }
+      # 3 : compute intermediate coordinates : compute both min and max distance regarding to time
+      TimeInMinutes<-v$minutes+(v$hours*60)+(v$days*1440)
+      KmMin<-round((v$speed[1]*TimeInMinutes)/1000,3)
+      KmMax<-round((v$speed[2]*TimeInMinutes)/1000,3)
+      # 4: compute intermediate coordinates each Dkm distance
+      if(KmMax>Dist$Km){KmMax<-Dist$Km}#limit KmMax to Race distance
+      if(KmMin>Dist$Km){KmMin<-Dist$Km}#to avoid sign error for DKm in seq()
+      Kms <- seq(KmMin,KmMax,by=DKm)
+      if(!KmMax %in% Kms){
+        Kms<-c(Kms,KmMax)# Add total distance to sequence if not already inside to be sure that the line covers the all distance
+      }
+      # 5 : computes coordinates of both min and max location, based on original coordinates, angle, and distance
+      
+      # 6: plot lines between theses intermediates coordinates to respect the earth curve
+      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      Lat1Rad <- c2$LatDec*(pi/180)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- c2$LonDec*(pi/180)#Longitude of the loft coordinates in radians
+      
+      lineLat<-c()
+      lineLon<-c()
+      for(j in 1:(length(Kms)-1)){
+        if(j==1){
+          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
+          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          
+          Lat2Deg1 <-Lat2Rad1*(180/pi)
+          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          
+          lineLat<-c(lineLat,Lat2Deg1)
+          lineLon<-c(lineLon,Lon2Deg1)
+        }
+        
+        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
+        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        
+        Lat2Deg2 <-Lat2Rad2*(180/pi)
+        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        
+        lineLat<-c(lineLat,Lat2Deg2)# vector of all latitude of dots of this line
+        lineLon<-c(lineLon,Lon2Deg2)# vector of all longitude of dots of this line
+      }
+      if(length(lineLat) & length(lineLon)){
+        # only on line of vectors of lat and lon : apply to plotZonesRFCB where the is sum of lines segmets of couples of coordinates : one line = sum of segments, here it's only one line with vectors of coordinates : line lot (dotted, shaded) is more beautifull
+        lines(lineLon,lineLat,lty=1,lwd = 3,type="l",col=Color)#lty 1 solid 2 dashed 3 dotted
+      }
+      # Keep this line below to be able to see difference between two type of lines : streight line between the two points, or reographically corrected line infunction of projection (above)
+      # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
+    }
+    
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
@@ -555,6 +632,8 @@ getRacedistances<-reactive({
         if(v$labels){labels<-paste(labels,as.character(cv$coords$Ville[i]),collapse = NULL,sep=' ')}
         if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
         if(v$flightlines){plotFlightLine(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
+        if(v$locsim){plotPigeonsLocationSimulation(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
+        
         text(coords,labels,cex=1,pos=4)
       }
       
@@ -671,9 +750,9 @@ output$uiSBsimul <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
                   HTML('<hr style="border:1px solid #ccc;"/>'),
                   h4(HTML(tr("PigeonLocation"))),
-                  checkboxInput("kms", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
-                  sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 500, 
-                              max = 1500, value = c(800, 1200)),
+                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
+                  sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
+                              max = 2200, value = c(800, 1200)),
                   strong(HTML(tr("RaceTime"))),
                   tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))             
   ))
