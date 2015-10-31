@@ -750,7 +750,7 @@ output$uiSBsimul <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
                   HTML('<hr style="border:1px solid #ccc;"/>'),
                   h4(HTML(tr("PigeonLocation"))),
-                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
+                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = TRUE),
                   sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
                               max = 2200, value = c(800, 1200)),
                   strong(HTML(tr("RaceTime"))),
