@@ -177,8 +177,10 @@ getRacedistances<-reactive({
     if(v$selection=="rfcblinec"){coords<-subset(coords,Id %in% c(120,121,122,123,34))}
     if(v$selection=="rfcblinee"){coords<-subset(coords,Id %in% c(103,50,88,68,27,31,99,47,48,58,91,44))}
     if(v$selection=="rfcbvr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
-    if(v$selection=="rfcbnatint"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
-    if(v$selection=="rfcbnatintdf"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
+    if(v$selection=="rfcbnatint15"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}
+    if(v$selection=="rfcbnatint16"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}#42 issoudun not in 2016
+    if(v$selection=="rfcbnatintdf15"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
+    if(v$selection=="rfcbnatintdf16"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49))}#42 issoudun not in 2016
     if(v$selection=="rfcbnatintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
     if(v$selection=="rfcbnatintgf"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
     if(v$selection=="rfcbbeloff"){coords<-subset(coords,Id %in% c(79,59,139,140,55))}

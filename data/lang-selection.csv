@@ -6,10 +6,12 @@ rfcblinew	RFCB : Ligne de l'Ouest	RFCB : West line	KBDB : Westlijn
 rfcblinec	RFCB : Ligne du centre	RFCB : Center line	KBDB : Centerlijn
 rfcblinee	RFCB : Ligne de l'Est	RFCB : Est line	KBDB : Estlijn
 rfcbvr	RFCB : Vallée du Rhône	RFCB : Rhône Valley	KBDB : Rhône-vallei
-rfcbnatint	RFCB : Councours (inter)nationaux	RFCB : (Inter)national races	KBDB : (Inter)nationals races
-rfcbnatintdf	RFCB : Concours (inter)nationaux (Demi-Fond)	RFCB : (Inter)national races (middle distance)	KBDB : (Inter)nationals races (Halve Fond)
-rfcbnatintf	RFCB : Concours (inter)nationaux (Fond)	RFCB : (Inter)national races (long distance)	KBDB : (Inter)nationals races (Fond)
-rfcbnatintgf	RFCB : Concours (inter)nationaux (Grand-Fond)	RFCB : (Inter)national races (extra long distance)	KBDB : (Inter)nationals races (Groot Fond)
+rfcbnatint15	RFCB : Councours (inter)nationaux 2015	RFCB : (Inter)national races 2015	KBDB : (Inter)nationals races 2015
+rfcbnatint16	RFCB : Councours (inter)nationaux 2016	RFCB : (Inter)national races 2016	KBDB : (Inter)nationals races 2016
+rfcbnatintdf15	RFCB : Concours (inter)nationaux (Demi-Fond) 2015	RFCB : (Inter)national races (middle distance) 2015	KBDB : (Inter)nationals races (Halve Fond) 2015
+rfcbnatintdf16	RFCB : Concours (inter)nationaux (Demi-Fond) 2016	RFCB : (Inter)national races (middle distance) 2016	KBDB : (Inter)nationals races (Halve Fond) 2016
+rfcbnatintf	RFCB : Concours (inter)nationaux (Fond) 2015-2016	RFCB : (Inter)national races (long distance) 2015-2016	KBDB : (Inter)nationals races (Fond) 2015-2016
+rfcbnatintgf	RFCB : Concours (inter)nationaux (Grand-Fond) 2015-2016 	RFCB : (Inter)national races (extra long distance) 2015-2016	KBDB : (Inter)nationals races (Groot Fond) 2015-2016
 rfcbdivers	RFCB : Divers	RFCB : Various	KBDB : Divers
 awch	AWC : Province du Hainaut	AWC : Province of Hainaut	AWC : Provincie Henegouwen
 awcbw	AWC : Province du Brabant-Wallon	AWC : Province of Walloon Brabant	AWC : Provincie Waals-Brabant
