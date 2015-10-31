@@ -667,6 +667,18 @@ output$uiSBround <- renderUI({
   numericInput("round", tr("Decimales"), 0,min = 0, max = 3, step=1)
 })
 
+output$uiSBsimul <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
+                  h4(HTML(tr("PigeonLocation"))),
+                  checkboxInput("kms", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
+                  sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 500, 
+                              max = 1500, value = c(800, 1200)),
+                  strong(HTML(tr("RaceTime"))),
+                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))             
+  ))
+})
+
 output$uiSBshow <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
                   h4(tr("Display")),

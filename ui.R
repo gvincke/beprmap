@@ -34,6 +34,7 @@ shinyUI(navbarPage("Belgium Pigeon Racing Map",id="main",#http://shiny.rstudio.c
     tags$style(type='text/css', "select#distunit { width: 65px; display : inline; }"),
     tags$style(type='text/css', "input#round { display : inline; }"),
     tags$style(type="text/css", 'input[type="number"] { width: 50px; }'),
+    tags$style(type="text/css", '#days,#hours,#minutes { width: 60px; }'),
     tags$style(type="text/css", ".jslider { max-width: 350px; }"),
     tags$style(type='text/css', ".well { max-width: 400px; }"),#class of the from inside sidebarPanel
     tags$style(type='text/css', ".col-sm-4 { max-width: 350px; }"),#span4 is the span of sidebarPanel (span8 is for the mainPanel)
@@ -62,7 +63,8 @@ shinyUI(navbarPage("Belgium Pigeon Racing Map",id="main",#http://shiny.rstudio.c
       wellPanel(
         uiOutput('uiSBdistances'),
         tags$table(tags$tr(tags$td(uiOutput('uiSBunit')),tags$td(selectInput("distunit","",choices=c("km","mi"),selectize=FALSE)),tags$td(HTML("&nbsp;")),tags$td(uiOutput('uiSBround')))),#input$distunit must be define in ui.R, but it's label must be define in server;R to be translated, as round level. So i cut the distance ui in pieces to allow each element to be define in ui.R or server.R depending it's caracteristics
-        uiOutput('uiSBdistancesb')
+        uiOutput('uiSBdistancesb'),
+        uiOutput('uiSBsimul')
       )
     )
   )
