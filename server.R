@@ -216,6 +216,7 @@ getRacedistances<-reactive({
     if(v$selection=="itdin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
     if(v$selection=="itflo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="itdh"){coords<-subset(coords,Id %in% c(105,19,53,13,102,22,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,42))}
+    if(v$selection=="iterq16"){coords<-subset(coords,Id %in% c(50,88,68,44,98))}
     
     if(v$selection=="rdr"){coords<-subset(coords,Id %in% c(102,63,57))}
     
