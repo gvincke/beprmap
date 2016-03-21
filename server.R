@@ -198,7 +198,7 @@ getRacedistances<-reactive({
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
-    if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,44,54,38,105,193,23,14,26))}
+    if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,54,38,105,193,23,14))}
     if(v$selection=="itaf"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
     if(v$selection=="itafv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
     if(v$selection=="itafdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
