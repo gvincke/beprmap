@@ -24,26 +24,7 @@ shinyUI(navbarPage("Belgium Pigeon Racing Map",id="main",#http://shiny.rstudio.c
   tags$head(
     tags$head(includeScript("www/js/google-analytics.js")),
     tags$script(type="text/javascript",src="js/scripts.js"),
-    tags$style(type="text/css", "form.well { margin: 0px; padding : 5px;}"),
-    tags$style(type="text/css", "label, div.shiny-input-container div { display: inline; }"),
-    tags$style(type="text/css", ".shiny-input-container {margin-bottom:5px;margin-top:5px; line-height:15px;}"),
-    #tags$style(type="text/css", '.checkbox input[type="checkbox"],.radio input[type="radio"] { float: none; }'),
-    tags$style(type="text/css", 'input[type="text"] { float: none; display : inline;}'),
-    tags$style(type="text/css", '.checkbox,.radio { float: none; display:inline; margin-top:5px; margin-bottom:5px;line-height:15px;}'),
-    tags$style(type='text/css', "select#selection,select#mapzones,select#racedist { width: 200px; display : inline; }"),
-    tags$style(type='text/css', "select#distunit { width: 65px; display : inline; }"),
-    tags$style(type='text/css', "input#round { display : inline; }"),
-    tags$style(type="text/css", 'input[type="number"] { width: 50px; }'),
-    tags$style(type="text/css", '#days,#hours,#minutes { width: 60px; }'),
-    tags$style(type="text/css", ".jslider { max-width: 350px; }"),
-    tags$style(type='text/css', ".well { max-width: 400px; }"),#class of the from inside sidebarPanel
-    tags$style(type='text/css', ".col-sm-4 { max-width: 350px; }"),#span4 is the span of sidebarPanel (span8 is for the mainPanel)
-    tags$style(type='text/css', "#Lon, #Lat { max-width: 100px; }"),
-    tags$style(type='text/css', "#note { color:#ff0000;font-size:xx-small; }"),
-    tags$style(type="text/css", "h1,h2,h3,h4,h5,h6 {color:#317EAC;}"),
-    tags$style(type="text/css", "hr {margin-bottom:8px; margin-top:8px;}"),
-    tags$style(type='text/css', "select#language { width: 150px; display : inline; }"),
-    tags$style(type="text/css", "#lang-div {z-index:1000;position:absolute;top:5px;right:130px;}")
+    tags$link(rel='stylesheet', type="text/css", href="css/style.css")
   ),
   fluidRow(
     column(3,

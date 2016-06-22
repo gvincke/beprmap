@@ -1,0 +1,73 @@
+h1,h2,h3,h4,h5,h6 {
+	color:#317EAC;
+}
+hr {
+  margin-bottom:8px; 
+  margin-top:8px;
+}
+form.well { 
+  margin: 0px; 
+  padding : 5px;
+}
+label, div.shiny-input-container div { 
+  display: inline;
+}
+.shiny-input-container {
+  margin-bottom:5px;
+  margin-top:5px; 
+  line-height:15px;
+}
+input[type="text"] {
+  float: none; 
+  display : inline;
+}
+.checkbox,.radio { 
+  float: none; 
+  display:inline; 
+  margin-top:5px; 
+  margin-bottom:5px;
+  line-height:15px;
+}
+select#selection,select#mapzones,select#racedist { 
+  width: 200px; 
+  display : inline;
+}
+select#distunit {
+  width: 65px; 
+  display : inline;
+}
+input#round { 
+  display : inline;
+}
+input[type="number"] {
+  width: 50px;
+}
+#days,#hours,#minutes {
+  width: 60px;
+}
+#Lon, #Lat {
+  max-width: 100px;
+}
+#note {
+  color:#ff0000;
+  font-size:xx-small;
+}
+select#language {
+  width: 150px; 
+  display : inline;
+}
+#lang-div {
+  z-index:1000;
+  position:absolute;
+  top:5px;
+  right:130px;
+}
+.jslider { 
+  max-width: 350px; 
+}
+.well { 
+  max-width: 400px; 
+}
+.col-sm-4 {
+  max-width: 350px;
+}
