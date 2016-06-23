@@ -127,6 +127,33 @@ getRacedistances<-reactive({
     return(data)
   }
   
+  Dec2Km <-function(LonDec,LatDec,RefLonDec,RefLatDec,DistUnitFact){
+    #refaire ici la fonction ci dessus, mais sans mettre toutes les valeurs dans data, pour soulager la mémoire du script, et permettre le calcul de la distance en dehors de data, comme par exemple les lieux de lâcher perso !
+    v<-getInputValues() # get all values of input list
+    
+    #Calculation of distances in Km
+    cons1<-0.99664718933525
+    cons2<-6378137
+    
+    RefLatRad<-RefLatDec*pi/180
+    RefLonRad<-RefLonDec*pi/180
+    
+    LatRad<-as.numeric(LatDec)*pi/180
+    LonRad<-as.numeric(LonDec)*pi/180
+    BHO<-(RefLatRad+LatRad)/2
+    IHO<-LonRad-RefLonRad
+    NU2<-0.0067394967422767*cos(BHO)^2
+    VHO<-sqrt(1+NU2)
+    LAHO<-IHO*VHO
+    OM1<-atan(cons1*tan(RefLatRad))
+    OM2<-atan(cons1*tan(LatRad))
+    XHO<-sin(OM1)*sin(OM2)+cos(OM1)*cos(OM2)*cos(LAHO)
+    AFSTG=(cons2/VHO)*(atan(-XHO/sqrt(1-XHO^2))+2*atan(1))
+    M=round(AFSTG,0)
+    Km=round(M/1000*DistUnitFact,as.integer(v$round))
+    return(Km)
+  }
+  
   Sexa2Dec <-function(Sexa){#From Sexagésimal to decimal coordinates
     Fact<-1
     if(Sexa<0){
@@ -625,6 +652,16 @@ getRacedistances<-reactive({
         plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20,"black")
       }
     }
+    if(v$PLon!="" & v$PLat!=""){
+      pcoord<-mapproject(Sexa2Dec(as.numeric(v$PLon)),Sexa2Dec(as.numeric(v$PLat)))
+      points(pcoord,pch=20,col='lightblue',cex=1)
+      label<-paste("")
+      if(v$labels){label<-paste(label,as.character(v$PRLName),collapse = NULL,sep=' ')}
+      if(v$kms){label<-paste(label,Dec2Km(Sexa2Dec(as.numeric(v$PLon)),Sexa2Dec(as.numeric(v$PLat)),Sexa2Dec(as.numeric(v$Lon)),Sexa2Dec(as.numeric(v$Lat)),getDistUnitFact()),collapse = NULL,sep=' ')}
+      if(v$flightlines){plotFlightLine(mycoord,pcoord,10,"blue")}
+      if(v$locsim){plotPigeonsLocationSimulation(mycoord,pcoord,10,"blue")}
+      text(pcoord,label,cex=1,pos=4)
+    }
     if(nrow(cv$coords)>0){
       show<-as.integer(row.names(cv$coords))
       for(i in 1:nrow(cv$coords)){
@@ -708,6 +745,12 @@ output$uiSBSelection <- renderUI({
 
 output$uiSBlocationsbottom <- renderUI({
   fluidRow(column(12,NULL,#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
+                  h4(HTML(tr("ParticularReleaseLocation"))),
+                  textInput("PRLName", paste(tr("Name"),":"),"" ),
+                  HTML(tr("Coords")),
+                  tags$table(tags$tr(tags$td(textInput("PLat", tr("NorthN"),"" )),tags$td(HTML("&nbsp;")),tags$td(textInput("PLon", tr("EastE"),"" )))),
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
   selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
   #     h5(HTML("Type de pigeons concernés")),
   #     selectInput("pigeons", "",

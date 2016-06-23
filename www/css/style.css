@@ -45,8 +45,11 @@ input[type="number"] {
 #days,#hours,#minutes {
   width: 60px;
 }
-#Lon, #Lat {
+#Lon, #Lat, #PLon, #PLat {
   max-width: 100px;
+}
+#PRLName {
+  max-width: 200px;
 }
 #note {
   color:#ff0000;
