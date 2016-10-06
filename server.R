@@ -18,6 +18,7 @@ library(shiny)
 library(maps)
 library(mapproj)
 library(mapdata)
+#library(maptools) # (loads foreign, sp, grid, and lattice)
 library(png)
 
 # Create a reactive object here that we can share between all the sessions.
@@ -632,7 +633,10 @@ getRacedistances<-reactive({
     v<-getInputValues()
     cv<-getComputedValues()
     par(xaxt="n",yaxt="n")
-    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0))
+    # https://stat.ethz.ch/pipermail/r-help/2003-May/033971.html : to set background color for oceans, i must set the map twice and draw a rectangle inside the plot between
+    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0),fill=TRUE,col="white")
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "lightblue")
+    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0),fill=TRUE,col="white",add = TRUE)
     map.axes() 
     if(v$Lon!="" & v$Lat!=""){
       mycoord<-mapproject(cv$LonDec,cv$LatDec)
