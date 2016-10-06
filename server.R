@@ -157,9 +157,9 @@ getRacedistances<-reactive({
   
   Sexa2Dec <-function(Sexa){#From Sexagésimal to decimal coordinates
     Fact<-1
-    if(Sexa<0){
-      Fact<-Fact*-1
-    }
+    # if(Sexa<0){
+    #   Fact<-Fact*-1
+    # }
     Deg<-floor(Sexa/10000)*Fact
     Min<-((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100)*Fact
     Sec<-((Sexa/100-floor(Sexa/100))*100)*Fact 
@@ -386,18 +386,23 @@ getRacedistances<-reactive({
         cv$xmax<-cv$xmax+((cv$xmax-cv$xmin)*0.20)
       }
     }
-    
-    #Map should be 2 times more larger than higher
-    cv$mapheight<-cv$ymax-cv$ymin
-    cv$mapwidthmin<-cv$mapheight*2
-    mapwidht<-cv$xmax-cv$xmin
-    if(mapwidht<cv$mapwidthmin){
-      cv$mapwidth<-cv$mapwidthmin
-      mapxmiddle<-(cv$xmin+((cv$xmax-cv$xmin)/2))
-      cv$xmax<-mapxmiddle+cv$mapwidth*0.48
-      cv$xmin<-mapxmiddle-cv$mapwidth*0.48
-    } 
-
+    if(v$mapzones=="man"){
+      cv$ymin<-Sexa2Dec(as.numeric(v$MLatMin))
+      cv$ymax<-Sexa2Dec(as.numeric(v$MLatMax))
+      cv$xmin<-Sexa2Dec(as.numeric(v$MLonMin))
+      cv$xmax<-Sexa2Dec(as.numeric(v$MLonMax))
+    }
+    if(v$mapzones!="man"){ #Map should be 2 times more larger than higher if not manual
+      cv$mapheight<-cv$ymax-cv$ymin
+      cv$mapwidthmin<-cv$mapheight*2
+      mapwidht<-cv$xmax-cv$xmin
+      if(mapwidht<cv$mapwidthmin){
+        cv$mapwidth<-cv$mapwidthmin
+        mapxmiddle<-(cv$xmin+((cv$xmax-cv$xmin)/2))
+        cv$xmax<-mapxmiddle+cv$mapwidth*0.48
+        cv$xmin<-mapxmiddle-cv$mapwidth*0.48
+      } 
+    }
     return(cv)
   })
   
@@ -754,13 +759,24 @@ output$uiSBSelection <- renderUI({
 
 output$uiSBlocationsbottom <- renderUI({
   fluidRow(column(12,NULL,#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-                  h4(HTML(tr("ParticularReleaseLocation"))),
-                  textInput("PRLName", paste(tr("Name"),":"),"" ),
-                  HTML(tr("Coords")),
-                  tags$table(tags$tr(tags$td(textInput("PLat", tr("NorthN"),"" )),tags$td(HTML("&nbsp;")),tags$td(textInput("PLon", tr("EastE"),"" )))),
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-  selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
+    HTML('<hr style="border:1px dashed #ccc;"/>'),
+    h4(HTML(tr("ParticularReleaseLocation"))),
+    textInput("PRLName", paste(tr("Name"),":"),"" ),
+    HTML(tr("Coords")),
+    tags$table(tags$tr(tags$td(textInput("PLat", tr("NorthN"),"" )),tags$td(HTML("&nbsp;")),tags$td(textInput("PLon", tr("EastE"),"" )))),
+    HTML('<hr style="border:1px dashed #ccc;"/>'),
+    checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
+    checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = TRUE),
+    HTML('<hr style="border:1px solid #ccc;"/>'),
+    selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
+    conditionalPanel(condition = "input.mapzones == 'man'",
+                     HTML(tr("Coords")),
+                      tags$table(
+                        tags$tr(tags$td(),tags$td(strong("Min")),tags$td(HTML("&nbsp;")),tags$td(strong("Max"))),
+                        tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","410000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","513000",min = -900000, max = 900000, step=1000))),
+                        tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","-77448",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","123448",min = -1800000, max = 1800000, step=1000)))
+                      )
+                     ),
   #     h5(HTML("Type de pigeons concernés")),
   #     selectInput("pigeons", "",
   #                 list("Tous" = "all",
@@ -769,9 +785,6 @@ output$uiSBlocationsbottom <- renderUI({
   #                      "Vieux" = "V",
   #                      "Vieux & Yearlings"="VY"
   #                 )),
-  
-  checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
-  checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = TRUE),
   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
 })

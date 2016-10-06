@@ -48,6 +48,9 @@ input[type="number"] {
 #Lon, #Lat, #PLon, #PLat {
   max-width: 100px;
 }
+#MLatMax, #MLatMin, #MLonMax, #MLonMin {
+  width: 100px;
+}
 #PRLName {
   max-width: 200px;
 }
