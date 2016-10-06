@@ -743,8 +743,6 @@ output$uiSBlanguage<- renderUI({
 
 output$uiSBtop <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-  HTML(paste("<span id='note'>",tr("Caution"),"</span>",sep="")),#Soit on met un ensemble prévu pour contenir plusieurs output comme sidebarPanel() ou mainPanel() et tout peut être dedant, soit c'est une portion dans un ensemble comme ça et tout doit être séparé.
-  HTML('<hr style="border:1px solid #ccc;"/>'),
   h4(HTML(tr("ReleaseLocations")))
   ))
 })
@@ -792,6 +790,7 @@ output$uiSBlocationsbottom <- renderUI({
 output$uiSBdistances <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
   h4(HTML(tr("CalculDist"))),
+  HTML(paste("<p id='note'>",tr("Caution"),"</p>",sep="")),#Soit on met un ensemble prévu pour contenir plusieurs output comme sidebarPanel() ou mainPanel() et tout peut être dedant, soit c'est une portion dans un ensemble comme ça et tout doit être séparé.
   HTML(tr("RefCoords")),
   tags$table(tags$tr(tags$td(textInput("Lat", tr("NorthN"),"503828.0" )),tags$td(HTML("&nbsp;")),tags$td(textInput("Lon", tr("EastE"),"044005.0" )))),
   HTML(paste("<span id='note'>",tr("RefCoordsNote"),"</span>",sep="")),
