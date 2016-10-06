@@ -816,11 +816,13 @@ output$uiSBsimul <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
                   HTML('<hr style="border:1px solid #ccc;"/>'),
                   h4(HTML(tr("PigeonLocation"))),
-                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = TRUE),
-                  sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
-                              max = 2200, value = c(800, 1200)),
-                  strong(HTML(tr("RaceTime"))),
-                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))             
+                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
+                  conditionalPanel(condition = "input.locsim",
+                    sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
+                                max = 2200, value = c(800, 1200)),
+                    strong(HTML(tr("RaceTime"))),
+                    tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
+                  )
   ))
 })
 
