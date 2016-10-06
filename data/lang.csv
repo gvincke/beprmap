@@ -69,5 +69,7 @@ Days	Jours	Days	Dagen
 Hours	Heures	Hours	Uur
 Minutes	Minutes	Minutes	Minuten
 Name	Nom	Name	Name
-
-
+DownLoadMap	Télécharger la carte	Download map	Download kaart
+FileType	Type de fichier	File type	Bestandstype
+DimImgPx	Dimension (en pixels)	Size (in pixels)	Grootte (in pixels)
+DimImgIn	Dimension (en pouces)	Size (in inches)	Grootte (in inches)

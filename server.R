@@ -400,7 +400,7 @@ getRacedistances<-reactive({
     return(cv)
   })
   
-  output$map <- renderPlot({
+  plotMap <- function()({ #put plot into a function to be able to render it for both output and download
     
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
@@ -709,6 +709,10 @@ getRacedistances<-reactive({
     }
   })#,height =600,width=800
   
+  output$map <- renderPlot(
+    print(plotMap())
+  )
+
   output$Datas = renderDataTable({
     v<-getInputValues()
     cv<-getComputedValues()
@@ -803,6 +807,35 @@ output$uiSBsimul <- renderUI({
                   tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))             
   ))
 })
+
+output$uiSBdloutput <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
+                  h4(HTML(tr("DownLoadMap"))),
+                  radioButtons("dlFileType",paste(tr('FileType'),':',sep=" "),choices =c('png','svg','eps')),
+                  conditionalPanel(condition = "input.dlFileType == 'png'",
+                                   sliderInput("dlFileSizePx", paste(tr('DimImgPx'),':',sep=" "), 
+                                               min=600, max=4000, value=800, step=100)),
+                  conditionalPanel(condition = "input.dlFileType == 'svg' | input.dlFileType == 'eps'",
+                                   sliderInput("dlFileSizeIn", paste(tr('DimImgIn'),':',sep=" "), 
+                                               min=6, max=40, value=8, step=1)),
+                  downloadButton('dlPlotPNG', tr("DownLoadMap"))
+           ))
+})
+
+output$dlPlotPNG <-downloadHandler(
+  filename = function(){paste('map',input$dlFileType,sep='.')},
+  content = function(file){
+    if(input$dlFileType=="png"){png(file, width = input$dlFileSizePx, height = input$dlFileSizePx)}
+    if(input$dlFileType=="svg"){svg(file, width = input$dlFileSizeIn, height = input$dlFileSizeIn)}
+    if(input$dlFileType=="eps"){
+      setEPS()
+      postscript(file, width = input$dlFileSizeIn, height = input$dlFileSizeIn)
+      }
+    plotMap()
+    dev.off()
+  }
+)
 
 output$uiSBshow <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
