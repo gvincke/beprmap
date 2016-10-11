@@ -70,6 +70,8 @@ Hours	Heures	Hours	Uur
 Minutes	Minutes	Minutes	Minuten
 Name	Nom	Name	Name
 DownLoadMap	Télécharger la carte	Download map	Download kaart
+DownLoadData	Télécharger les données	Download data	Download data
+DownLoadDataCSV	Télécharger les données (format CSV)	Download data (CSV file)	Download data (CSV formaat)
 FileType	Type de fichier	File type	Bestandstype
 DimImgPx	Dimension (en pixels)	Size (in pixels)	Grootte (in pixels)
 DimImgIn	Dimension (en pouces)	Size (in inches)	Grootte (in inches)

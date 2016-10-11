@@ -837,11 +837,13 @@ output$uiSBdloutput <- renderUI({
                   conditionalPanel(condition = "input.dlFileType == 'svg' | input.dlFileType == 'eps'",
                                    sliderInput("dlFileSizeIn", paste(tr('DimImgIn'),':',sep=" "), 
                                                min=6, max=40, value=8, step=1)),
-                  downloadButton('dlPlotPNG', tr("DownLoadMap"))
+                  downloadButton('dlMap', tr("DownLoadMap")),
+                  h4(HTML(tr("DownLoadData"))),
+                  downloadButton('dlData', tr("DownLoadDataCSV"))
            ))
 })
 
-output$dlPlotPNG <-downloadHandler(
+output$dlMap <-downloadHandler(
   filename = function(){paste('map',input$dlFileType,sep='.')},
   content = function(file){
     if(input$dlFileType=="png"){png(file, width = input$dlFileSizePx, height = input$dlFileSizePx)}
@@ -852,6 +854,15 @@ output$dlPlotPNG <-downloadHandler(
       }
     plotMap()
     dev.off()
+  }
+)
+
+output$dlData <- downloadHandler(
+  filename = "beprmap.csv",
+  content = function(file) {
+    v<-getInputValues()
+    cv<-getComputedValues()
+    write.csv(cv$datatoshow, file)
   }
 )
 
