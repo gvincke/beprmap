@@ -226,6 +226,7 @@ getRacedistances<-reactive({
     if(v$selection=="awc"){coords<-subset(coords,Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
     if(v$selection=="itawc15"){coords<-subset(coords,Id %in% c(14,46,105))}
     if(v$selection=="itawc16"){coords<-subset(coords,Id %in% c(14,71,19,23,105))}
+    if(v$selection=="itawc17"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
