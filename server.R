@@ -13,6 +13,9 @@
 ## See LICENCE.txt or http://www.gnu.org/licenses/old-licenses/gpl-2.0.html for more informations
 
 # Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
+#TODO : séparer localisation des lieux de lâcher de calcul de distance : vider coordonées de référence => forcer l'encodage de coordonées
+#TODO : Réorganiser l'interface pour "forcer l'encodage des coordonnées ?" Ou Visualiser à droite et calcul de distance à gauche ? Ou l'inverse ?
+#TODO : ligne 196 voir si data doit être conditionné à coordonnées perso colombier
 
 library(shiny)
 library(maps)
