@@ -16,7 +16,7 @@
 #TODO : séparer localisation des lieux de lâcher de calcul de distance : vider coordonées de référence => forcer l'encodage de coordonées
 #TODO : Réorganiser l'interface pour "forcer l'encodage des coordonnées ?" Ou Visualiser à droite et calcul de distance à gauche ? Ou l'inverse ?
 #TODO : ligne 196 voir si data doit être conditionné à coordonnées perso colombier
-
+#TODO : ajouter les lieux suivants http://www.colombophiliefr.com/Dossiers/GPS/lieux_lacher.htm
 library(shiny)
 library(maps)
 library(mapproj)
