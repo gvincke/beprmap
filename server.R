@@ -119,7 +119,9 @@ shinyServer(function(input, output, session) {
   Dec2Rad <- function(Dec){
     return(Dec*(pi/180))
   }
-  
+  Rad2Dec <- function(Rad){
+    return(Rad*(180/pi))
+  }
   getDistanceInMeters <- function(LonDec,LatDec,RefLonDec,RefLatDec) {
     cons1<-0.99664718933525
     cons2<-6378137
@@ -404,14 +406,15 @@ shinyServer(function(input, output, session) {
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       DistUnitFact<-getDistUnitFact()
       AngDeg <- seq(1,360)
+      AngRad <- Dec2Rad(AngDeg)
       Lat1Rad <- Dec2Rad(LatDec)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Dec2Rad(LonDec)#Longitude of the center of the circle in radians
-      AngRad <- Dec2Rad(AngDeg)
+
       for(i in 1:length(Km)){
         Lat2Rad <-asin(sin(Lat1Rad)*cos(Km[i]/ER)+cos(Lat1Rad)*sin(Km[i]/ER)*cos(AngRad))  #Latitude of each point of the circle rearding to distance and to angle in radians
         Lon2Rad <- Lon1Rad+atan2(sin(AngRad)*sin(Km[i]/ER)*cos(Lat1Rad),cos(Km[i]/ER)-sin(Lat1Rad)*sin(Lat2Rad)) #Longitude of each point of the circle rearding to distance and to angle in radians
-        Lat2Deg <- Lat2Rad*(180/pi)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-        Lon2Deg <- Lon2Rad*(180/pi)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+        Lat2Deg <- Rad2Dec(Lat2Rad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+        Lon2Deg <- Rad2Dec(Lon2Rad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
         text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
         #         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
@@ -425,7 +428,7 @@ shinyServer(function(input, output, session) {
       lat1<-Dec2Rad(lat1)
       lon2<-Dec2Rad(lon2)
       lat2<-Dec2Rad(lat2)
-      return((atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))))*180/pi)
+      return(Rad2Dec(atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)))))
     }
     
     plotFlightLine <- function(mycoord,coords,DKm,Color){#mycoords and coords are coodinates generated bu mappproject() function of mapproj library : they are list with $x (lon) and $y (lat) values. They are set for only one couple of points source (mycoords) and destination (coords)
@@ -473,8 +476,8 @@ shinyServer(function(input, output, session) {
           Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
           Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
           
-          Lat2Deg1 <-Lat2Rad1*(180/pi)
-          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          Lat2Deg1 <-Rad2Dec(Lat2Rad1)
+          Lon2Deg1 <-Rad2Dec(Lon2Rad1)
           
           lineLat<-c(lineLat,Lat2Deg1)
           lineLon<-c(lineLon,Lon2Deg1)
@@ -483,8 +486,8 @@ shinyServer(function(input, output, session) {
         Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
         Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
                 
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        Lat2Deg2 <-Rad2Dec(Lat2Rad2)
+        Lon2Deg2 <-Rad2Dec(Lon2Rad2)
         
         lineLat<-c(lineLat,Lat2Deg2)# vector of all latitude of dots of this line
         lineLon<-c(lineLon,Lon2Deg2)# vector of all longitude of dots of this line
@@ -550,8 +553,8 @@ shinyServer(function(input, output, session) {
           Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
           Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
           
-          Lat2Deg1 <-Lat2Rad1*(180/pi)
-          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          Lat2Deg1 <-Rad2Dec(Lat2Rad1)
+          Lon2Deg1 <-Rad2Dec(Lon2Rad1)
           
           lineLat<-c(lineLat,Lat2Deg1)
           lineLon<-c(lineLon,Lon2Deg1)
@@ -560,8 +563,8 @@ shinyServer(function(input, output, session) {
         Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
         Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
         
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        Lat2Deg2 <-Rad2Dec(Lat2Rad2)
+        Lon2Deg2 <-Rad2Dec(Lon2Rad2)
         
         lineLat<-c(lineLat,Lat2Deg2)# vector of all latitude of dots of this line
         lineLon<-c(lineLon,Lon2Deg2)# vector of all longitude of dots of this line
@@ -610,11 +613,11 @@ shinyServer(function(input, output, session) {
           Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad[i]))
           Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
           
-          Lat2Deg1 <-Lat2Rad1*(180/pi)
-          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          Lat2Deg1 <-Rad2Dec(Lat2Rad1)
+          Lon2Deg1 <-Rad2Dec(Lon2Rad1)
           
-          Lat2Deg2 <-Lat2Rad2*(180/pi)
-          Lon2Deg2 <-Lon2Rad2*(180/pi)
+          Lat2Deg2 <-Rad2Dec(Lat2Rad2)
+          Lon2Deg2 <-Rad2Dec(Lon2Rad2)
           if(i %in% c(1,3,5)){
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
           } else {
@@ -641,11 +644,11 @@ shinyServer(function(input, output, session) {
           Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad[i]))
           Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
           
-          Lat2Deg1 <-Lat2Rad1*(180/pi)
-          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          Lat2Deg1 <-Rad2Dec(Lat2Rad1)
+          Lon2Deg1 <-Rad2Dec(Lon2Rad1)
           
-          Lat2Deg2 <-Lat2Rad2*(180/pi)
-          Lon2Deg2 <-Lon2Rad2*(180/pi)
+          Lat2Deg2 <-Rad2Dec(Lat2Rad2)
+          Lon2Deg2 <-Rad2Dec(Lon2Rad2)
           if(i %in% c(1,3,5)){
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
           } else {
@@ -666,11 +669,11 @@ shinyServer(function(input, output, session) {
         Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
         Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
         
-        Lat2Deg1 <-Lat2Rad1*(180/pi)
-        Lon2Deg1 <-Lon2Rad1*(180/pi)
+        Lat2Deg1 <-Rad2Dec(Lat2Rad1)
+        Lon2Deg1 <-Rad2Dec(Lon2Rad1)
         
-        Lat2Deg2 <-Lat2Rad2*(180/pi)
-        Lon2Deg2 <-Lon2Rad2*(180/pi)
+        Lat2Deg2 <-Rad2Dec(Lat2Rad2)
+        Lon2Deg2 <-Rad2Dec(Lon2Rad2)
         
         text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
         text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
