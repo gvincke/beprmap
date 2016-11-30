@@ -92,7 +92,7 @@ shinyServer(function(input, output, session) {
   return(l)
   })
   
-getRacedistances<-reactive({
+  getRacedistances<-reactive({ #read.delim and row.names inside the reactive function due to paste and input$distunit
   langracedist <- read.delim(paste("data/lang-racedist-",input$distunit,".csv",sep=""), header = TRUE, sep = "\t", as.is = TRUE) 
   row.names(langracedist)<-langracedist$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
     l<-list()
@@ -102,24 +102,21 @@ getRacedistances<-reactive({
     return(l)
   })
 
-langTrainingComputationMethods <- read.delim("data/lang-trainingcomputationmethods.csv", header = TRUE, sep = "\t", as.is = TRUE) 
-row.names(langTrainingComputationMethods)<-langTrainingComputationMethods$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
-getTrainingComputationMethods<-reactive({
-  l<-list()
-  for(i in 1:nrow(langTrainingComputationMethods)){
-    l[[langTrainingComputationMethods[[input$language]][i]]]<-langTrainingComputationMethods$key[i]
-  }
-  return(l)
-})
+  langTrainingComputationMethods <- read.delim("data/lang-trainingcomputationmethods.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langTrainingComputationMethods)<-langTrainingComputationMethods$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getTrainingComputationMethods<-reactive({
+    l<-list()
+    for(i in 1:nrow(langTrainingComputationMethods)){
+      l[[langTrainingComputationMethods[[input$language]][i]]]<-langTrainingComputationMethods$key[i]
+    }
+    return(l)
+  })
   
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
   
-  Dec2Km <-function(LonDec,LatDec,RefLonDec,RefLatDec,DistUnitFact){
-    v<-getInputValues() # get all values of input list
-    
-    #Calculation of distances in Km
+  getDistanceInMeters <- function(LonDec,LatDec,RefLonDec,RefLatDec) {
     cons1<-0.99664718933525
     cons2<-6378137
     
@@ -137,38 +134,20 @@ getTrainingComputationMethods<-reactive({
     OM2<-atan(cons1*tan(LatRad))
     XHO<-sin(OM1)*sin(OM2)+cos(OM1)*cos(OM2)*cos(LAHO)
     AFSTG<-(cons2/VHO)*(atan(-XHO/sqrt(1-XHO^2))+2*atan(1))
-    M<-round(AFSTG,0)
-    cat(M)
-    Km<-round(round(AFSTG,0)/1000*DistUnitFact,as.integer(v$round))
+    return(round(AFSTG,0))#Distance in meters (M)
+  }
+  
+  Dec2Km <-function(LonDec,LatDec,RefLonDec,RefLatDec,DistUnitFact){#Utilisée par le calcul de la distance des lieux persos
+    v<-getInputValues() # get all values of input list
+    #Calculation of distances in Km
+    M<-getDistanceInMeters(LonDec,LatDec,RefLonDec,RefLatDec)
+    Km<-round(M/1000*DistUnitFact,as.integer(v$round))
     return(Km)
   }
 
   getDistance <- function(data, cv, DistUnitFact) {
-    v<-getInputValues() # get all values of input list
-    
-    # Calculation of distances in Km
-    cons1<-0.99664718933525
-    cons2<-6378137
-
-    cv$LatRad<-cv$LatDec*pi/180
-    cv$LonRad<-cv$LonDec*pi/180
-
-    data$LatRad<-as.numeric(data$Lat)*pi/180
-    data$LonRad<-as.numeric(data$Lon)*pi/180
-    data$BHO<-(cv$LatRad+data$LatRad)/2
-    data$IHO<-data$LonRad-cv$LonRad
-    data$NU2<-0.0067394967422767*cos(data$BHO)^2
-    data$VHO<-sqrt(1+data$NU2)
-    data$LAHO<-data$IHO*data$VHO
-    data$OM1<-atan(cons1*tan(cv$LatRad))
-    data$OM2<-atan(cons1*tan(data$LatRad))
-    data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
-    data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
-    data$M=round(data$AFSTG,0)
-    data$Km=round(data$M/1000*DistUnitFact,cv$round)
-    
-    # M est aussi nécéssaire = distance en Miles = nécéssaires pour les datas !!
-    #data$Km=Dec2Km(data$Lon,data$Lat,cv$LonDec,cv$LatDec,DistUnitFact)
+    data$M<-getDistanceInMeters(data$Lon,data$Lat,cv$LonDec,cv$LatDec)
+    data$Km<-round(data$M/1000*DistUnitFact,cv$round)
     return(data)
   }
   
