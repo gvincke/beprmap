@@ -180,17 +180,13 @@ shinyServer(function(input, output, session) {
       cv$LonDec<-Sexa2Dec(cv$Lon) #From Sexagésimal to decimal coordinates
             
       cv$DistUnitFact<-getDistUnitFact()
-      #if(v$distunit=='mi'){cv$DistUnitFact<-3959/6371}#facteur de correction entre Km et Mi # radius of the Earth in Mi / radius of the Earth in Km
-      
-      data <- getDistance(data,cv,cv$DistUnitFact)
 
-      maintowns <- getDistance(maintowns,cv,cv$DistUnitFact)
-      cv$maintowns<-maintowns
+      data <- getDistance(data,cv,cv$DistUnitFact)
+      cv$maintowns<- getDistance(maintowns,cv,cv$DistUnitFact)
     }
     
     #Data selection : must be after distance computation because some filters are based on distance
     coords<-data
-    #coords<-c()
     if(v$selection=="unselected"){coords<-subset(coords,Id %in% c())}
 
     if(v$selection=="rfcblinew"){coords<-subset(coords,Id %in% c(112,113,114,115,116,117,118,119))}
@@ -299,7 +295,6 @@ shinyServer(function(input, output, session) {
     coords <- transform(coords, LonWSG84 = paste(LonSign,Lond,Lonm,paste(Lonsf,Lonsd,sep="."),sep=""))
     
     if(v$Lat!="" & v$Lon!=""){
-#     cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       cv$datatoshow<-subset(coords,select=c(Id,Villes,LatWSG84,LonWSG84,Lat,Lon,M,Km,Pays))
       names(cv$datatoshow)[7]<-paste(tr("Dist")," ","(m)",sep="")#change Lat to LatDD
       names(cv$datatoshow)[8]<-paste(tr("Dist")," ","(",v$distunit,")",sep="")#Change Lon to LonDD
@@ -312,7 +307,6 @@ shinyServer(function(input, output, session) {
     names(cv$datatoshow)[5]<-paste(tr("NorthN"),tr("DD"),sep=" ")#change Lat to LatDD
     names(cv$datatoshow)[6]<-paste(tr("EastE"),tr("DD"),sep=" ")#Change Lon to LonDD
     names(cv$datatoshow)[9]<-paste(tr("Country"),sep="")#Change Lon to LonDD
-    
     
     #Set zone of plotting
     #default
