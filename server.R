@@ -116,15 +116,19 @@ shinyServer(function(input, output, session) {
     return(input)#collect all inputs
   })
   
+  Dec2Rad <- function(Dec){
+    return(Dec*(pi/180))
+  }
+  
   getDistanceInMeters <- function(LonDec,LatDec,RefLonDec,RefLatDec) {
     cons1<-0.99664718933525
     cons2<-6378137
     
-    RefLatRad<-RefLatDec*pi/180
-    RefLonRad<-RefLonDec*pi/180
+    RefLatRad<-Dec2Rad(RefLatDec)
+    RefLonRad<-Dec2Rad(RefLonDec)
     
-    LatRad<-as.numeric(LatDec)*pi/180
-    LonRad<-as.numeric(LonDec)*pi/180
+    LatRad<-Dec2Rad(as.numeric(LatDec))
+    LonRad<-Dec2Rad(as.numeric(LonDec))
     BHO<-(RefLatRad+LatRad)/2
     IHO<-LonRad-RefLonRad
     NU2<-0.0067394967422767*cos(BHO)^2
@@ -400,9 +404,9 @@ shinyServer(function(input, output, session) {
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       DistUnitFact<-getDistUnitFact()
       AngDeg <- seq(1,360)
-      Lat1Rad <- LatDec*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- LonDec*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
+      Lat1Rad <- Dec2Rad(LatDec)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(LonDec)#Longitude of the center of the circle in radians
+      AngRad <- Dec2Rad(AngDeg)
       for(i in 1:length(Km)){
         Lat2Rad <-asin(sin(Lat1Rad)*cos(Km[i]/ER)+cos(Lat1Rad)*sin(Km[i]/ER)*cos(AngRad))  #Latitude of each point of the circle rearding to distance and to angle in radians
         Lon2Rad <- Lon1Rad+atan2(sin(AngRad)*sin(Km[i]/ER)*cos(Lat1Rad),cos(Km[i]/ER)-sin(Lat1Rad)*sin(Lat2Rad)) #Longitude of each point of the circle rearding to distance and to angle in radians
@@ -417,10 +421,10 @@ shinyServer(function(input, output, session) {
  
     angleDeg <- function(lon1,lat1,lon2,lat2) {#from http://rfcb.be/images/Nuttige_programmas/zoneberekening.xls
       # Compute Radians from Degrees
-      lon1<-lon1*(pi/180)
-      lat1<-lat1*(pi/180)
-      lon2<-lon2*(pi/180)
-      lat2<-lat2*(pi/180)
+      lon1<-Dec2Rad(lon1)
+      lat1<-Dec2Rad(lat1)
+      lon2<-Dec2Rad(lon2)
+      lat2<-Dec2Rad(lat2)
       return((atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2))))*180/pi)
     }
     
@@ -441,15 +445,15 @@ shinyServer(function(input, output, session) {
       # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
       if(mycoord$x >= coords$x){ # Est or West
         if(AngDeg<0){ # Notrh or South
-          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         } else {
-          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         }
       } else {
         if(AngDeg>0){# Notrh or South
-          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         } else {
-          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         }
       }
       # 3: compute intermediate coordinates each Dkm distance
@@ -459,8 +463,8 @@ shinyServer(function(input, output, session) {
       }
       # 4: plot lines between theses intermediates coordinates to respect the earth curve
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      Lat1Rad <- c1$Lat*(pi/180)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- c1$Lon*(pi/180)#Longitude of the loft coordinates in radians
+      Lat1Rad <- Dec2Rad(c1$Lat)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(c1$Lon)#Longitude of the loft coordinates in radians
       
       lineLat<-c()
       lineLon<-c()
@@ -510,15 +514,15 @@ shinyServer(function(input, output, session) {
       # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
       if(mycoord$x >= coords$x){ # Est or West
         if(AngDeg>0){ # Notrh or South
-          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         } else {
-          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         }
       } else {
         if(AngDeg<0){# Notrh or South
-          AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         } else {
-          AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          AngRad <- Dec2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
         }
       }
       # 3 : compute intermediate coordinates : compute both min and max distance regarding to time
@@ -536,8 +540,8 @@ shinyServer(function(input, output, session) {
       
       # 6: plot lines between theses intermediates coordinates to respect the earth curve
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      Lat1Rad <- c2$LatDec*(pi/180)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- c2$LonDec*(pi/180)#Longitude of the loft coordinates in radians
+      Lat1Rad <- Dec2Rad(c2$LatDec)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(c2$LonDec)#Longitude of the loft coordinates in radians
       
       lineLat<-c()
       lineLon<-c()
@@ -575,9 +579,9 @@ shinyServer(function(input, output, session) {
       # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
       
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- Coords[2]*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
+      Lat1Rad <- Dec2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(Coords[2])#Longitude of the center of the circle in radians
+      AngRad <- Dec2Rad(AngDeg)
       # Si AngDeg > 0 == North
       
       # if(mycoord$x >= coords$x){ # Est or West
@@ -622,9 +626,9 @@ shinyServer(function(input, output, session) {
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
-      Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- Coords[2]*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
+      Lat1Rad <- Dec2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(Coords[2])#Longitude of the center of the circle in radians
+      AngRad <- Dec2Rad(AngDeg)
       Kms <- seq(Km[1],Km[2],by=DKm)
       if(!Km[2] %in% Kms){
         Kms<-c(Kms,Km[2])
@@ -652,9 +656,9 @@ shinyServer(function(input, output, session) {
       #Plot labels
       AngDeg <- c(AngDeg[1]-2.5,AngDeg[2]-(AngDeg[2]-AngDeg[1])*0.5,AngDeg[3]-(AngDeg[3]-AngDeg[2])*0.5,AngDeg[4]-(AngDeg[4]-AngDeg[3])*0.5,AngDeg[5]-(AngDeg[5]-AngDeg[4])*0.5,AngDeg[5]+2.5)#Angles in radians defining zones relatively to Chastres
       labels<-c("A1","A2","B1","B2","C1","C2")
-      Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- Coords[2]*(pi/180)#Longitude of the center of the circle in radians
-      AngRad <- AngDeg*(pi/180)
+      Lat1Rad <- Dec2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Dec2Rad(Coords[2])#Longitude of the center of the circle in radians
+      AngRad <- Dec2Rad(AngDeg)
       for(i in 1:6){
         Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
         Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
