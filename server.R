@@ -100,6 +100,16 @@ getRacedistances<-reactive({
     }
     return(l)
   })
+
+langTrainingComputationMethods <- read.delim("data/lang-trainingcomputationmethods.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+row.names(langTrainingComputationMethods)<-langTrainingComputationMethods$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+getTrainingComputationMethods<-reactive({
+  l<-list()
+  for(i in 1:nrow(langTrainingComputationMethods)){
+    l[[langTrainingComputationMethods[[input$language]][i]]]<-langTrainingComputationMethods$key[i]
+  }
+  return(l)
+})
   
   getInputValues<-reactive({
     return(input)#collect all inputs
@@ -587,6 +597,56 @@ getRacedistances<-reactive({
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
+    plotTrainingFlightLine <- function(Coords,AngDeg,Km,DKm,Color){
+      v<-getInputValues() # get all values of input list
+      # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
+      
+      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+      Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Coords[2]*(pi/180)#Longitude of the center of the circle in radians
+      AngRad <- AngDeg*(pi/180)
+      # Si AngDeg > 0 == North
+      
+      # if(mycoord$x >= coords$x){ # Est or West
+      #   if(AngDeg>0){ # Notrh or South
+      #     AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+      #   } else {
+      #     AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+      #   }
+      # } else {
+      #   if(AngDeg<0){# Notrh or South
+      #     AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+      #   } else {
+      #     AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+      #   }
+      # }
+      
+      Kms <- seq(Km[1],Km[2],by=DKm)
+      if(!Km[2] %in% Kms){
+        Kms<-c(Kms,Km[2])
+      }
+      for(i in 1:length(AngDeg)){
+        for(j in 1:(length(Kms)-1)){
+          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad[i]))
+          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          
+          Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad[i]))
+          Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+          
+          Lat2Deg1 <-Lat2Rad1*(180/pi)
+          Lon2Deg1 <-Lon2Rad1*(180/pi)
+          
+          Lat2Deg2 <-Lat2Rad2*(180/pi)
+          Lon2Deg2 <-Lon2Rad2*(180/pi)
+          if(i %in% c(1,3,5)){
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+          } else {
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
+          }
+        }
+      }
+    }
+    
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
       ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Coords[1]*(pi/180)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
@@ -640,6 +700,8 @@ getRacedistances<-reactive({
       }
     }
     
+    
+    
     v<-getInputValues()
     cv<-getComputedValues()
     par(xaxt="n",yaxt="n")
@@ -666,6 +728,9 @@ getRacedistances<-reactive({
         a5 <- angleDeg(1.2052777778,45.5191666667,6.0445555556,50.7285277778)
         plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20,"black")
       }
+      if(v$training){
+        plotDist(cv$LatDec,cv$LonDec,v$trainingdistance)
+      }
     }
     if(v$PLon!="" & v$PLat!=""){
       pcoord<-mapproject(Sexa2Dec(as.numeric(v$PLon)),Sexa2Dec(as.numeric(v$PLat)))
@@ -690,7 +755,39 @@ getRacedistances<-reactive({
         
         text(coords,labels,cex=1,pos=4)
       }
-      
+      if(v$training){
+        #TrainingAngle<-getTrainingAngle(mycoord,cv$coords)
+        # Calculer maintenant pour chaque lieux son angle
+        trainingangles<-c()
+        for(i in 1:nrow(cv$coords)){
+          coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
+          trainingangles <- c(trainingangles,angleDeg(mycoord$x,mycoord$y,coords$x,coords$y))
+        }
+        #cat(trainingangles)
+        # Calculer la bissectrice ou la moyenne
+        #Attention : revoir comment sont calculés les angles en degrés car cela semble être un miroir en valeur absolue par rapport à l'horizontale !! ==> Pas commode => Putain je savais que j'aurais du faire une branche !!!
+        if(v$trainingmethods=="mean"){
+          trainingangle<-mean(trainingangles)
+        }
+        if(v$trainingmethods=="bissect"){
+          trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
+        }
+        #cat(trainingangle)
+        if(trainingangle >= -90 & trainingangle <= 90 ){
+          trainingangle<- trainingangle+180
+        }
+        # Calculer la distance max des points sélectionnés et tracer la ligne de vol avec angle et distance précisée
+        maxdist<-max(cv$coords$Km)
+        # Tracer la ligne sur cette distance
+        cat(mean(cv$coords$Lon))
+        
+        #points(mapproject(mean(cv$coords$Lon),mean(cv$coords$Lat)))
+        plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"red")
+        #plotZonesRFCB(c(cv$LatDec,cv$LonDec),trainingangle+180,c(0,maxdist),10,"red")#Problème : labels et direction de l'angle !
+        # plotTrainingFlightLine(mycoord,trainingangle,maxdist,10,"blue")
+        # Calculer l'intersection = angle plus distance depuis loft
+        text(mycoord,labels=trainingangle,cex=1,pos=4,col="red")
+      }
     }
     if(v$maintowns){
       maintownscoords<-mapproject(maintowns$Lon,maintowns$Lat)
@@ -815,6 +912,20 @@ output$uiSBunit <- renderUI({
 })
 output$uiSBround <- renderUI({
   numericInput("round", tr("Decimales"), 0,min = 0, max = 3, step=1)
+})
+
+output$uiSBtraining <- renderUI({
+  fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
+                  h4(HTML(tr("PigeonTraining"))),
+                  checkboxInput("training", label = tr("ComputeTrainingLocation"), value = FALSE),
+                  conditionalPanel(condition = "input.training",
+                    sliderInput("trainingdistance", label = strong(tr("TrainingDistance")), min = 10, max = 100, value = 40, step=10),
+                    selectInput(inputId="trainingmethods",label=strong(HTML(paste(tr("TrainingComputationMethods")," :",sep=""))),choices=getTrainingComputationMethods(),selected="befres",selectize=FALSE)
+                  #                  strong(HTML(tr("RaceTime"))),
+                  #                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
+                  )
+  ))
 })
 
 output$uiSBsimul <- renderUI({

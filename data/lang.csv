@@ -75,3 +75,7 @@ DownLoadDataCSV	Télécharger les données (format CSV)	Download data (CSV file)
 FileType	Type de fichier	File type	Bestandstype
 DimImgPx	Dimension (en pixels)	Size (in pixels)	Grootte (in pixels)
 DimImgIn	Dimension (en pouces)	Size (in inches)	Grootte (in inches)
+PigeonTraining	Entrainement des pigeons	Training of pigeons	Training duiven
+ComputeTrainingLocation	Calculer les coordonnées d'un lieux d'entrainement	Compute training location coordinates	Bereken trainingslocatie coördinaten
+TrainingDistance	Distance d'entrainement	Training distance	Opleiding op afstand
+TrainingComputationMethods	Méthodes de calcul	Computation methods	Berekeningsmethoden
