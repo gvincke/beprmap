@@ -17,6 +17,7 @@
 #TODO : Réorganiser l'interface pour "forcer l'encodage des coordonnées ?" Ou Visualiser à droite et calcul de distance à gauche ? Ou l'inverse ?
 #TODO : ligne 196 voir si data doit être conditionné à coordonnées perso colombier
 #TODO : ajouter les lieux suivants http://www.colombophiliefr.com/Dossiers/GPS/lieux_lacher.htm
+#TODO : importation de fichiers langues pour les select : reactive ou observe : il y a les deux dans le code : uniformiser
 library(shiny)
 library(maps)
 library(mapproj)
@@ -114,35 +115,8 @@ getTrainingComputationMethods<-reactive({
   getInputValues<-reactive({
     return(input)#collect all inputs
   })
-
-  getDistance <- function(data, cv, DistUnitFact) {
-    v<-getInputValues() # get all values of input list
-    
-    #Calculation of distances in Km
-    cons1<-0.99664718933525
-    cons2<-6378137
-    
-    cv$LatRad<-cv$LatDec*pi/180
-    cv$LonRad<-cv$LonDec*pi/180
-    
-    data$LatRad<-as.numeric(data$Lat)*pi/180
-    data$LonRad<-as.numeric(data$Lon)*pi/180
-    data$BHO<-(cv$LatRad+data$LatRad)/2
-    data$IHO<-data$LonRad-cv$LonRad
-    data$NU2<-0.0067394967422767*cos(data$BHO)^2
-    data$VHO<-sqrt(1+data$NU2)
-    data$LAHO<-data$IHO*data$VHO
-    data$OM1<-atan(cons1*tan(cv$LatRad))
-    data$OM2<-atan(cons1*tan(data$LatRad))
-    data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
-    data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
-    data$M=round(data$AFSTG,0)
-    data$Km=round(data$M/1000*DistUnitFact,cv$round)
-    return(data)
-  }
   
   Dec2Km <-function(LonDec,LatDec,RefLonDec,RefLatDec,DistUnitFact){
-    #refaire ici la fonction ci dessus, mais sans mettre toutes les valeurs dans data, pour soulager la mémoire du script, et permettre le calcul de la distance en dehors de data, comme par exemple les lieux de lâcher perso !
     v<-getInputValues() # get all values of input list
     
     #Calculation of distances in Km
@@ -162,11 +136,43 @@ getTrainingComputationMethods<-reactive({
     OM1<-atan(cons1*tan(RefLatRad))
     OM2<-atan(cons1*tan(LatRad))
     XHO<-sin(OM1)*sin(OM2)+cos(OM1)*cos(OM2)*cos(LAHO)
-    AFSTG=(cons2/VHO)*(atan(-XHO/sqrt(1-XHO^2))+2*atan(1))
-    M=round(AFSTG,0)
-    Km=round(M/1000*DistUnitFact,as.integer(v$round))
+    AFSTG<-(cons2/VHO)*(atan(-XHO/sqrt(1-XHO^2))+2*atan(1))
+    M<-round(AFSTG,0)
+    cat(M)
+    Km<-round(round(AFSTG,0)/1000*DistUnitFact,as.integer(v$round))
     return(Km)
   }
+
+  getDistance <- function(data, cv, DistUnitFact) {
+    v<-getInputValues() # get all values of input list
+    
+    # Calculation of distances in Km
+    cons1<-0.99664718933525
+    cons2<-6378137
+
+    cv$LatRad<-cv$LatDec*pi/180
+    cv$LonRad<-cv$LonDec*pi/180
+
+    data$LatRad<-as.numeric(data$Lat)*pi/180
+    data$LonRad<-as.numeric(data$Lon)*pi/180
+    data$BHO<-(cv$LatRad+data$LatRad)/2
+    data$IHO<-data$LonRad-cv$LonRad
+    data$NU2<-0.0067394967422767*cos(data$BHO)^2
+    data$VHO<-sqrt(1+data$NU2)
+    data$LAHO<-data$IHO*data$VHO
+    data$OM1<-atan(cons1*tan(cv$LatRad))
+    data$OM2<-atan(cons1*tan(data$LatRad))
+    data$XHO<-sin(data$OM1)*sin(data$OM2)+cos(data$OM1)*cos(data$OM2)*cos(data$LAHO)
+    data$AFSTG=(cons2/data$VHO)*(atan(-data$XHO/sqrt(1-data$XHO^2))+2*atan(1))
+    data$M=round(data$AFSTG,0)
+    data$Km=round(data$M/1000*DistUnitFact,cv$round)
+    
+    # M est aussi nécéssaire = distance en Miles = nécéssaires pour les datas !!
+    #data$Km=Dec2Km(data$Lon,data$Lat,cv$LonDec,cv$LatDec,DistUnitFact)
+    return(data)
+  }
+  
+
   
   Sexa2Dec <-function(Sexa){#From Sexagésimal to decimal coordinates
     Fact<-1
