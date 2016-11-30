@@ -151,16 +151,10 @@ shinyServer(function(input, output, session) {
     return(data)
   }
   
-
-  
   Sexa2Dec <-function(Sexa){#From Sexagésimal to decimal coordinates
-    Fact<-1
-    # if(Sexa<0){
-    #   Fact<-Fact*-1
-    # }
-    Deg<-floor(Sexa/10000)*Fact
-    Min<-((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100)*Fact
-    Sec<-((Sexa/100-floor(Sexa/100))*100)*Fact 
+    Deg<-floor(Sexa/10000)
+    Min<-((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100)
+    Sec<-((Sexa/100-floor(Sexa/100))*100)
     Dec<-Deg+(Min/60)+(Sec/3600)
     return(Dec)
   }
