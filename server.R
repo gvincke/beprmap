@@ -172,10 +172,8 @@ shinyServer(function(input, output, session) {
     return(asin(sin(LatCenterRad)*cos(DistInKms/ER)+cos(LatCenterRad)*sin(DistInKms/ER)*cos(AngRad)))  #Latitude of each point of the circle rearding to distance and to angle in radians
   }
   
-  getLonFromAngleDistance <-function(LatCenterRad,LonCenterRad,AngRad,DistInKms){
-    NewLatRad<-getLatFromAngleDistance(LatCenterRad,AngRad,DistInKms)  #Latitude of each point of the circle rearding to distance and to angle in radians
-    NewLonRad <- LonCenterRad+atan2(sin(AngRad)*sin(DistInKms/ER)*cos(LatCenterRad),cos(DistInKms/ER)-sin(LatCenterRad)*sin(NewLatRad)) #Longitude of each point of the circle rearding to distance and to angle in radians
-    return(NewLonRad)
+  getLonFromAngleDistance <-function(LatCenterRad,LonCenterRad,AngRad,DistInKms,NewLatRad){
+    return(LonCenterRad+atan2(sin(AngRad)*sin(DistInKms/ER)*cos(LatCenterRad),cos(DistInKms/ER)-sin(LatCenterRad)*sin(NewLatRad))) #Longitude of each point of the circle rearding to distance and to angle in radians
   }
   
   getDistUnitFact<-function(){
@@ -422,7 +420,7 @@ shinyServer(function(input, output, session) {
 
       for(i in 1:length(Km)){
         Lat2Rad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[i])
-        Lon2Rad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[i])
+        Lon2Rad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[i],Lat2Rad)
         Lat2Deg <- Rad2Deg(Lat2Rad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Rad2Deg(Lon2Rad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
@@ -481,8 +479,8 @@ shinyServer(function(input, output, session) {
       lineLon<-c()
       for(j in 1:(length(Kms)-1)){
         if(j==1){
-          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
-          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
           
           Lat2Deg1 <-Rad2Deg(Lat2Rad1)
           Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -491,8 +489,8 @@ shinyServer(function(input, output, session) {
           lineLon<-c(lineLon,Lon2Deg1)
         }
 
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
                 
         Lat2Deg2 <-Rad2Deg(Lat2Rad2)
         Lon2Deg2 <-Rad2Deg(Lon2Rad2)
@@ -557,8 +555,8 @@ shinyServer(function(input, output, session) {
       lineLon<-c()
       for(j in 1:(length(Kms)-1)){
         if(j==1){
-          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad))
-          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
           
           Lat2Deg1 <-Rad2Deg(Lat2Rad1)
           Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -567,8 +565,8 @@ shinyServer(function(input, output, session) {
           lineLon<-c(lineLon,Lon2Deg1)
         }
         
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad)*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
         
         Lat2Deg2 <-Rad2Deg(Lat2Rad2)
         Lon2Deg2 <-Rad2Deg(Lon2Rad2)
@@ -612,11 +610,11 @@ shinyServer(function(input, output, session) {
       }
       for(i in 1:length(AngDeg)){
         for(j in 1:(length(Kms)-1)){
-          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad[i]))
-          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
           
-          Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad[i]))
-          Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
           
           Lat2Deg1 <-Rad2Deg(Lat2Rad1)
           Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -642,11 +640,11 @@ shinyServer(function(input, output, session) {
       }
       for(i in 1:5){
         for(j in 1:(length(Kms)-1)){
-          Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Kms[j]/ER)+cos(Lat1Rad)*sin(Kms[j]/ER)*cos(AngRad[i]))
-          Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j]/ER)*cos(Lat1Rad),cos(Kms[j]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
           
-          Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Kms[j+1]/ER)+cos(Lat1Rad)*sin(Kms[j+1]/ER)*cos(AngRad[i]))
-          Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Kms[j+1]/ER)*cos(Lat1Rad),cos(Kms[j+1]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
           
           Lat2Deg1 <-Rad2Deg(Lat2Rad1)
           Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -667,11 +665,11 @@ shinyServer(function(input, output, session) {
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
       AngRad <- Deg2Rad(AngDeg)
       for(i in 1:6){
-        Lat2Rad1 <- asin(sin(Lat1Rad)*cos(Km[1]/ER)+cos(Lat1Rad)*sin(Km[1]/ER)*cos(AngRad[i]))
-        Lon2Rad1 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[1]/ER)*cos(Lat1Rad),cos(Km[1]/ER)-sin(Lat1Rad)*sin(Lat2Rad1))
+        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[j])
+        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[j],Lat2Rad1)
         
-        Lat2Rad2 <- asin(sin(Lat1Rad)*cos(Km[2]/ER)+cos(Lat1Rad)*sin(Km[2]/ER)*cos(AngRad[i]))
-        Lon2Rad2 <- Lon1Rad+atan2(sin(AngRad[i])*sin(Km[2]/ER)*cos(Lat1Rad),cos(Km[2]/ER)-sin(Lat1Rad)*sin(Lat2Rad2))
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[j+1])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[j+1],Lat2Rad2)
         
         Lat2Deg1 <-Rad2Deg(Lat2Rad1)
         Lon2Deg1 <-Rad2Deg(Lon2Rad1)
