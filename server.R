@@ -28,6 +28,7 @@ library(png)
 # Create a reactive object here that we can share between all the sessions.
 SRV <- reactiveValues(count=0)#Session reactive values
 cc <- readPNG("www/img/cc_by_320x60.png")
+ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
 
 shinyServer(function(input, output, session) {
   # https://gist.github.com/trestletech/9926129
@@ -167,10 +168,20 @@ shinyServer(function(input, output, session) {
     return(Dec)
   }
 
+  getLatFromAngleDistance <-function(LatCenterRad,AngRad,DistInKms){
+    return(asin(sin(LatCenterRad)*cos(DistInKms/ER)+cos(LatCenterRad)*sin(DistInKms/ER)*cos(AngRad)))  #Latitude of each point of the circle rearding to distance and to angle in radians
+  }
+  
+  getLonFromAngleDistance <-function(LatCenterRad,LonCenterRad,AngRad,DistInKms){
+    NewLatRad<-getLatFromAngleDistance(LatCenterRad,AngRad,DistInKms)  #Latitude of each point of the circle rearding to distance and to angle in radians
+    NewLonRad <- LonCenterRad+atan2(sin(AngRad)*sin(DistInKms/ER)*cos(LatCenterRad),cos(DistInKms/ER)-sin(LatCenterRad)*sin(NewLatRad)) #Longitude of each point of the circle rearding to distance and to angle in radians
+    return(NewLonRad)
+  }
+  
   getDistUnitFact<-function(){
     v<-getInputValues() # get all values of input list
     DistUnitFact<-1
-    if(v$distunit=='mi'){DistUnitFact<-3959/6371}# radius of the Earth in Mi / radius of the Earth in Km #6371=Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
+    if(v$distunit=='mi'){DistUnitFact<-3959/ER}# radius of the Earth in Mi / radius of the Earth in Km 
     return(DistUnitFact)
   }
 
@@ -403,7 +414,6 @@ shinyServer(function(input, output, session) {
   plotMap <- function()({ #put plot into a function to be able to render it for both output and download
     
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       DistUnitFact<-getDistUnitFact()
       AngDeg <- seq(1,360)
       AngRad <- Deg2Rad(AngDeg)
@@ -411,13 +421,12 @@ shinyServer(function(input, output, session) {
       Lon1Rad <- Deg2Rad(LonDec)#Longitude of the center of the circle in radians
 
       for(i in 1:length(Km)){
-        Lat2Rad <-asin(sin(Lat1Rad)*cos(Km[i]/ER)+cos(Lat1Rad)*sin(Km[i]/ER)*cos(AngRad))  #Latitude of each point of the circle rearding to distance and to angle in radians
-        Lon2Rad <- Lon1Rad+atan2(sin(AngRad)*sin(Km[i]/ER)*cos(Lat1Rad),cos(Km[i]/ER)-sin(Lat1Rad)*sin(Lat2Rad)) #Longitude of each point of the circle rearding to distance and to angle in radians
+        Lat2Rad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[i])
+        Lon2Rad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[i])
         Lat2Deg <- Rad2Deg(Lat2Rad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Rad2Deg(Lon2Rad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
         text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
-        #         lines(c(LonDec,Lon2Deg[1]),c(LatDec,Lat2Deg[1]))#plot the radius of one angle
         text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)
       }
     }
@@ -465,7 +474,6 @@ shinyServer(function(input, output, session) {
         Kms<-c(Kms,Dist$Km)# Add total distance to sequence if not already inside to be sure that the line covers the all distance
       }
       # 4: plot lines between theses intermediates coordinates to respect the earth curve
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Deg2Rad(c1$Lat)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(c1$Lon)#Longitude of the loft coordinates in radians
       
@@ -542,7 +550,6 @@ shinyServer(function(input, output, session) {
       # 5 : computes coordinates of both min and max location, based on original coordinates, angle, and distance
       
       # 6: plot lines between theses intermediates coordinates to respect the earth curve
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Deg2Rad(c2$LatDec)#Latitude of the loft coordinates in radians #From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(c2$LonDec)#Longitude of the loft coordinates in radians
       
@@ -580,8 +587,6 @@ shinyServer(function(input, output, session) {
     plotTrainingFlightLine <- function(Coords,AngDeg,Km,DKm,Color){
       v<-getInputValues() # get all values of input list
       # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
-      
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
       AngRad <- Deg2Rad(AngDeg)
@@ -628,7 +633,6 @@ shinyServer(function(input, output, session) {
     }
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
-      ER <- 6371 #Earth Radius in kilometers. http://en.wikipedia.org/wiki/Earth_radius Change this to 3959 and you will have your function working in miles.
       Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
       AngRad <- Deg2Rad(AngDeg)
