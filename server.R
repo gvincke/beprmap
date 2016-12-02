@@ -501,6 +501,7 @@ shinyServer(function(input, output, session) {
       if(length(lineLat) & length(lineLon)){
         # only on line of vectors of lat and lon : apply to plotZonesRFCB where the is sum of lines segmets of couples of coordinates : one line = sum of segments, here it's only one line with vectors of coordinates : line lot (dotted, shaded) is more beautifull
         lines(lineLon,lineLat,lty=3,type="l",col=Color)#lty 1 solid 2 dashed 3 dotted
+        #points(lineLon[1],lineLat[1],col="yellow")#Proove that first coordinates is the loft
       }
       # Keep this line below to be able to see difference between two type of lines : streight line between the two points, or reographically corrected line infunction of projection (above)
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
@@ -582,51 +583,31 @@ shinyServer(function(input, output, session) {
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
-    plotTrainingFlightLine <- function(Coords,AngDeg,Km,DKm,Color){
+    plotTrainingFlightLine <- function(Coords,AngRad,Km,DKm,Color){
       v<-getInputValues() # get all values of input list
       # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
       Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
-      AngRad <- Deg2Rad(AngDeg)
-      # Si AngDeg > 0 == North
-      
-      # if(mycoord$x >= coords$x){ # Est or West
-      #   if(AngDeg>0){ # Notrh or South
-      #     AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-      #   } else {
-      #     AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-      #   }
-      # } else {
-      #   if(AngDeg<0){# Notrh or South
-      #     AngRad <- (AngDeg)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-      #   } else {
-      #     AngRad <- (AngDeg+180)*(pi/180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-      #   }
-      # }
-      
+
       Kms <- seq(Km[1],Km[2],by=DKm)
       if(!Km[2] %in% Kms){
         Kms<-c(Kms,Km[2])
       }
-      for(i in 1:length(AngDeg)){
-        for(j in 1:(length(Kms)-1)){
-          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
-          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
-          
-          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
-          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
-          
-          Lat2Deg1 <-Rad2Deg(Lat2Rad1)
-          Lon2Deg1 <-Rad2Deg(Lon2Rad1)
-          
-          Lat2Deg2 <-Rad2Deg(Lat2Rad2)
-          Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-          if(i %in% c(1,3,5)){
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
-          } else {
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
-          }
-        }
+
+      for(j in 1:(length(Kms)-1)){
+        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
+        
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
+        
+        Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+        Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+        
+        Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+        Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+
+        lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
       }
     }
     
@@ -743,9 +724,24 @@ shinyServer(function(input, output, session) {
         trainingangles<-c()
         for(i in 1:nrow(cv$coords)){
           coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
-          trainingangles <- c(trainingangles,angleDeg(mycoord$x,mycoord$y,coords$x,coords$y))
+          AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
+          if(mycoord$x >= coords$x){ # Est or West
+            if(AngDeg<0){ # Notrh or South
+              AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+            } else {
+              AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+            }
+          } else {
+            if(AngDeg>0){# Notrh or South
+              AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+            } else {
+              AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+            }
+          }
+          trainingangles <- c(trainingangles,AngRad)
+          # TODO : améliorer : angleDeg() Si destination sud : a gauche vert = angle positif, à droite négatif. Si direction Nord à gauche négatif à droite positif
         }
-        #cat(trainingangles)
+        cat(trainingangles)
         # Calculer la bissectrice ou la moyenne
         #Attention : revoir comment sont calculés les angles en degrés car cela semble être un miroir en valeur absolue par rapport à l'horizontale !! ==> Pas commode => Putain je savais que j'aurais du faire une branche !!!
         if(v$trainingmethods=="mean"){
@@ -754,14 +750,11 @@ shinyServer(function(input, output, session) {
         if(v$trainingmethods=="bissect"){
           trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
         }
-        #cat(trainingangle)
-        if(trainingangle >= -90 & trainingangle <= 90 ){
-          trainingangle<- trainingangle+180
-        }
+        cat(paste("-",trainingangle))
         # Calculer la distance max des points sélectionnés et tracer la ligne de vol avec angle et distance précisée
         maxdist<-max(cv$coords$Km)
         # Tracer la ligne sur cette distance
-        cat(mean(cv$coords$Lon))
+        #cat(mean(cv$coords$Lon))
         
         #points(mapproject(mean(cv$coords$Lon),mean(cv$coords$Lat)))
         plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"red")
