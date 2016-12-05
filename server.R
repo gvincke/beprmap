@@ -583,6 +583,35 @@ shinyServer(function(input, output, session) {
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
+    getTrainingAngle <- function(mycoord,destcoords){#(mycoord,cv$coords) #coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
+      trainingangles<-c()
+      for(i in 1:nrow(destcoords)){
+        coords<-mapproject(destcoords$Lon[i],destcoords$Lat[i])
+        AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
+        if(mycoord$x >= coords$x){ # Est or West
+          if(AngDeg<0){ # Notrh or South
+            AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          } else {
+            AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          }
+        } else {
+          if(AngDeg>0){# Notrh or South
+            AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          } else {
+            AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+          }
+        }
+        trainingangles <- c(trainingangles,AngRad)
+      }
+      if(v$trainingmethods=="mean"){
+        trainingangle<-mean(trainingangles)
+      }
+      if(v$trainingmethods=="bissect"){
+        trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
+      }
+      return(trainingangle)
+    }
+    
     plotTrainingFlightLine <- function(Coords,AngRad,Km,DKm,Color){
       v<-getInputValues() # get all values of input list
       # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
@@ -609,6 +638,13 @@ shinyServer(function(input, output, session) {
 
         lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
       }
+      
+      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,v$trainingdistance)
+      LonTrainingRad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,v$trainingdistance,LatTrainingRad)
+      LatTrainingDeg <- Rad2Deg(LatTrainingRad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+      LonTrainingDeg <- Rad2Deg(LonTrainingRad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+      points(LonTrainingDeg,LatTrainingDeg,col="black")
+      text(LonTrainingDeg,LatTrainingDeg,paste(LatTrainingDeg,",",LonTrainingDeg),col="black")
     }
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
@@ -719,49 +755,10 @@ shinyServer(function(input, output, session) {
         text(coords,labels,cex=1,pos=4)
       }
       if(v$training){
-        #TrainingAngle<-getTrainingAngle(mycoord,cv$coords)
-        # Calculer maintenant pour chaque lieux son angle
-        trainingangles<-c()
-        for(i in 1:nrow(cv$coords)){
-          coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
-          AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
-          if(mycoord$x >= coords$x){ # Est or West
-            if(AngDeg<0){ # Notrh or South
-              AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-            } else {
-              AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-            }
-          } else {
-            if(AngDeg>0){# Notrh or South
-              AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-            } else {
-              AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-            }
-          }
-          trainingangles <- c(trainingangles,AngRad)
-          # TODO : améliorer : angleDeg() Si destination sud : a gauche vert = angle positif, à droite négatif. Si direction Nord à gauche négatif à droite positif
-        }
-        cat(trainingangles)
-        # Calculer la bissectrice ou la moyenne
-        #Attention : revoir comment sont calculés les angles en degrés car cela semble être un miroir en valeur absolue par rapport à l'horizontale !! ==> Pas commode => Putain je savais que j'aurais du faire une branche !!!
-        if(v$trainingmethods=="mean"){
-          trainingangle<-mean(trainingangles)
-        }
-        if(v$trainingmethods=="bissect"){
-          trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
-        }
-        cat(paste("-",trainingangle))
-        # Calculer la distance max des points sélectionnés et tracer la ligne de vol avec angle et distance précisée
+        trainingangle<-getTrainingAngle(mycoord,cv$coords)
         maxdist<-max(cv$coords$Km)
-        # Tracer la ligne sur cette distance
-        #cat(mean(cv$coords$Lon))
-        
-        #points(mapproject(mean(cv$coords$Lon),mean(cv$coords$Lat)))
         plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"red")
-        #plotZonesRFCB(c(cv$LatDec,cv$LonDec),trainingangle+180,c(0,maxdist),10,"red")#Problème : labels et direction de l'angle !
-        # plotTrainingFlightLine(mycoord,trainingangle,maxdist,10,"blue")
-        # Calculer l'intersection = angle plus distance depuis loft
-        text(mycoord,labels=trainingangle,cex=1,pos=4,col="red")
+        #text(mycoord,labels=trainingangle,cex=1,pos=4,col="red")
       }
     }
     if(v$maintowns){
