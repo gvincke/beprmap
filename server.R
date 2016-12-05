@@ -167,7 +167,14 @@ shinyServer(function(input, output, session) {
     Dec<-Deg+(Min/60)+(Sec/3600)
     return(Dec)
   }
-
+  
+  Dec2Sexa <-function(Dec) {
+    Deg<-floor(Dec)
+    Min<-floor((Dec-Deg)*60)
+    Sec<-round((((Dec-Deg)*60)-Min)*60,1)
+    return(Deg*10000+Min*100+Sec)
+  }
+  
   getLatFromAngleDistance <-function(LatCenterRad,AngRad,DistInKms){
     return(asin(sin(LatCenterRad)*cos(DistInKms/ER)+cos(LatCenterRad)*sin(DistInKms/ER)*cos(AngRad)))  #Latitude of each point of the circle rearding to distance and to angle in radians
   }
@@ -907,27 +914,31 @@ output$uiSBtraining <- renderUI({
                   h4(HTML(tr("PigeonTraining"))),
                   checkboxInput("training", label = tr("ComputeTrainingLocation"), value = FALSE),
                   conditionalPanel(condition = "input.training",
-                    sliderInput("trainingdistance", label = strong(tr("TrainingDistance")), min = 10, max = 100, value = 40, step=10),
-                    selectInput(inputId="trainingmethods",label=strong(HTML(paste(tr("TrainingComputationMethods")," :",sep=""))),choices=getTrainingComputationMethods(),selected="befres",selectize=FALSE)
+                    sliderInput("trainingdistance", label = strong(tr("TrainingDistance")), min = 10, max = 150, value = 40, step=5),
+                    selectInput(inputId="trainingmethods",label=strong(HTML(paste(tr("TrainingComputationMethods")," :",sep=""))),choices=getTrainingComputationMethods(),selected="mean",selectize=FALSE)
                   #                  strong(HTML(tr("RaceTime"))),
                   #                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
                   )
   ))
 })
 output$uiSBtrainingCoords <- renderText({
-v<-getInputValues()
-cv<-getComputedValues()
-LatTrainingDeg<-""
-LonTrainingDeg<-""
-if(v$Lon!="" & v$Lat!=""){
-  mycoord<-mapproject(cv$LonDec,cv$LatDec)
-  if(v$training & length(cv$coords)>0){
-    trainingangle<-getTrainingAngle(mycoord,cv$coords)
-    LatTrainingDeg<-round(getTrainingLatDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),4)
-    LonTrainingDeg<-round(getTrainingLonDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),4)
+  v<-getInputValues()
+  cv<-getComputedValues()
+  LatTrainingDeg<-""
+  LonTrainingDeg<-""
+  if(v$Lon!="" & v$Lat!=""){
+    mycoord<-mapproject(cv$LonDec,cv$LatDec)
+    if(v$training & nrow(cv$coords)>0){
+      trainingangle<-getTrainingAngle(mycoord,cv$coords)
+      LatTrainingDeg<-round(getTrainingLatDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),6)
+      LonTrainingDeg<-round(getTrainingLonDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),6)
+      HTML(paste(tr('TrainingCoordinates')," : ","<a href='","https://www.google.com/maps?q=",LatTrainingDeg,",",LonTrainingDeg,"' target='_blank'>",Dec2Sexa(LatTrainingDeg),",",Dec2Sexa(LonTrainingDeg),"</a>",sep=""))
+    } else {
+      HTML(paste(""))
+    }
+  } else {
+    HTML(paste(""))
   }
-}
-paste(LatTrainingDeg,",",LonTrainingDeg)
 })
 
 output$uiSBsimul <- renderUI({
