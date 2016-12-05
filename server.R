@@ -612,6 +612,22 @@ shinyServer(function(input, output, session) {
       return(trainingangle)
     }
     
+    getTrainingLatDeg <- function (Coords,AngRad,Km) {
+      Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
+      LatTrainingDeg <- Rad2Deg(LatTrainingRad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+      return(LatTrainingDeg)
+    }
+    
+    getTrainingLonDeg <- function (Coords,AngRad,Km) {
+      Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
+      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
+      LonTrainingRad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km,LatTrainingRad)
+      LonTrainingDeg <- Rad2Deg(LonTrainingRad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+      return(LonTrainingDeg)
+    }
+    
     plotTrainingFlightLine <- function(Coords,AngRad,Km,DKm,Color){
       v<-getInputValues() # get all values of input list
       # regarder comment on fait pour lignes des zones plus que pour les lignes de vol car = aussi un point, angle et distance
@@ -638,13 +654,9 @@ shinyServer(function(input, output, session) {
 
         lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
       }
-      
-      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,v$trainingdistance)
-      LonTrainingRad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,v$trainingdistance,LatTrainingRad)
-      LatTrainingDeg <- Rad2Deg(LatTrainingRad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-      LonTrainingDeg <- Rad2Deg(LonTrainingRad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+      LatTrainingDeg<-getTrainingLatDeg(Coords,AngRad,v$trainingdistance)
+      LonTrainingDeg<-getTrainingLonDeg(Coords,AngRad,v$trainingdistance)
       points(LonTrainingDeg,LatTrainingDeg,col="black")
-      text(LonTrainingDeg,LatTrainingDeg,paste(LatTrainingDeg,",",LonTrainingDeg),col="black")
     }
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
@@ -698,8 +710,6 @@ shinyServer(function(input, output, session) {
         text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
       }
     }
-    
-    
     
     v<-getInputValues()
     cv<-getComputedValues()
