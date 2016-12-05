@@ -409,6 +409,61 @@ shinyServer(function(input, output, session) {
     return(cv)
   })
   
+  angleDeg <- function(lon1,lat1,lon2,lat2) {#from http://rfcb.be/images/Nuttige_programmas/zoneberekening.xls
+    # Compute Radians from Degrees
+    lon1<-Deg2Rad(lon1)
+    lat1<-Deg2Rad(lat1)
+    lon2<-Deg2Rad(lon2)
+    lat2<-Deg2Rad(lat2)
+    return(Rad2Deg(atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)))))
+  }
+  
+  getTrainingAngle <- function(mycoord,destcoords){#(mycoord,cv$coords) #coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
+    v<-getInputValues()
+    trainingangles<-c()
+    for(i in 1:nrow(destcoords)){
+      coords<-mapproject(destcoords$Lon[i],destcoords$Lat[i])
+      AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
+      if(mycoord$x >= coords$x){ # Est or West
+        if(AngDeg<0){ # Notrh or South
+          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      } else {
+        if(AngDeg>0){# Notrh or South
+          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        } else {
+          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
+        }
+      }
+      trainingangles <- c(trainingangles,AngRad)
+    }
+    if(v$trainingmethods=="mean"){
+      trainingangle<-mean(trainingangles)
+    }
+    if(v$trainingmethods=="bissect"){
+      trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
+    }
+    return(trainingangle)
+  }
+  
+  getTrainingLatDeg <- function (Coords,AngRad,Km) {
+    Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+    LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
+    LatTrainingDeg <- Rad2Deg(LatTrainingRad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+    return(LatTrainingDeg)
+  }
+  
+  getTrainingLonDeg <- function (Coords,AngRad,Km) {
+    Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+    Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
+    LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
+    LonTrainingRad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km,LatTrainingRad)
+    LonTrainingDeg <- Rad2Deg(LonTrainingRad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
+    return(LonTrainingDeg)
+  }
+  
   plotMap <- function()({ #put plot into a function to be able to render it for both output and download
     
     plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
@@ -429,14 +484,7 @@ shinyServer(function(input, output, session) {
       }
     }
  
-    angleDeg <- function(lon1,lat1,lon2,lat2) {#from http://rfcb.be/images/Nuttige_programmas/zoneberekening.xls
-      # Compute Radians from Degrees
-      lon1<-Deg2Rad(lon1)
-      lat1<-Deg2Rad(lat1)
-      lon2<-Deg2Rad(lon2)
-      lat2<-Deg2Rad(lat2)
-      return(Rad2Deg(atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)))))
-    }
+
     
     plotFlightLine <- function(mycoord,coords,DKm,Color){#mycoords and coords are coodinates generated bu mappproject() function of mapproj library : they are list with $x (lon) and $y (lat) values. They are set for only one couple of points source (mycoords) and destination (coords)
       v<-getInputValues() # get all values of input list
@@ -583,50 +631,7 @@ shinyServer(function(input, output, session) {
       # lines(c(mycoord[1],coords[1]),c(mycoord[2],coords[2]),lty=2,col="green")
     }
     
-    getTrainingAngle <- function(mycoord,destcoords){#(mycoord,cv$coords) #coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
-      trainingangles<-c()
-      for(i in 1:nrow(destcoords)){
-        coords<-mapproject(destcoords$Lon[i],destcoords$Lat[i])
-        AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
-        if(mycoord$x >= coords$x){ # Est or West
-          if(AngDeg<0){ # Notrh or South
-            AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-          } else {
-            AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-          }
-        } else {
-          if(AngDeg>0){# Notrh or South
-            AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-          } else {
-            AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-          }
-        }
-        trainingangles <- c(trainingangles,AngRad)
-      }
-      if(v$trainingmethods=="mean"){
-        trainingangle<-mean(trainingangles)
-      }
-      if(v$trainingmethods=="bissect"){
-        trainingangle<-mean(c(max(trainingangles),min(trainingangles)))
-      }
-      return(trainingangle)
-    }
-    
-    getTrainingLatDeg <- function (Coords,AngRad,Km) {
-      Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
-      LatTrainingDeg <- Rad2Deg(LatTrainingRad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-      return(LatTrainingDeg)
-    }
-    
-    getTrainingLonDeg <- function (Coords,AngRad,Km) {
-      Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
-      Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
-      LatTrainingRad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km)
-      LonTrainingRad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km,LatTrainingRad)
-      LonTrainingDeg <- Rad2Deg(LonTrainingRad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-      return(LonTrainingDeg)
-    }
+
     
     plotTrainingFlightLine <- function(Coords,AngRad,Km,DKm,Color){
       v<-getInputValues() # get all values of input list
@@ -908,6 +913,21 @@ output$uiSBtraining <- renderUI({
                   #                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
                   )
   ))
+})
+output$uiSBtrainingCoords <- renderText({
+v<-getInputValues()
+cv<-getComputedValues()
+LatTrainingDeg<-""
+LonTrainingDeg<-""
+if(v$Lon!="" & v$Lat!=""){
+  mycoord<-mapproject(cv$LonDec,cv$LatDec)
+  if(v$training & length(cv$coords)>0){
+    trainingangle<-getTrainingAngle(mycoord,cv$coords)
+    LatTrainingDeg<-round(getTrainingLatDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),4)
+    LonTrainingDeg<-round(getTrainingLonDeg(c(cv$LatDec,cv$LonDec),trainingangle,v$trainingdistance),4)
+  }
+}
+paste(LatTrainingDeg,",",LonTrainingDeg)
 })
 
 output$uiSBsimul <- renderUI({

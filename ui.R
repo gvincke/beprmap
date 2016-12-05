@@ -38,7 +38,8 @@ shinyUI(navbarPage("Belgium Pigeon Racing Map",id="main",#http://shiny.rstudio.c
       )
     ),
     column(6,
-      uiOutput("uiMain")
+      uiOutput("uiMain"),
+      uiOutput('uiSBtrainingCoords')
     ),
     column(3,
       wellPanel(
