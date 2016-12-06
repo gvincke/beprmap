@@ -779,7 +779,7 @@ shinyServer(function(input, output, session) {
       if(v$training){
         trainingangle<-getTrainingAngle(mycoord,cv$coords)
         maxdist<-max(cv$coords$Km)
-        plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"black")
+        plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"#666666")
       }
     }
     if(v$maintowns){
