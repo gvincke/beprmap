@@ -473,7 +473,7 @@ shinyServer(function(input, output, session) {
   
   plotMap <- function()({ #put plot into a function to be able to render it for both output and download
     
-    plotDist <- function(LatDec, LonDec, Km) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
+    plotDist <- function(LatDec, LonDec, Km, Color) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       DistUnitFact<-getDistUnitFact()
       AngDeg <- seq(1,360)
       AngRad <- Deg2Rad(AngDeg)
@@ -485,9 +485,9 @@ shinyServer(function(input, output, session) {
         Lon2Rad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[i],Lat2Rad)
         Lat2Deg <- Rad2Deg(Lat2Rad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Rad2Deg(Lon2Rad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-        polygon(c(Lon2Deg),c(Lat2Deg),lty=2)
-        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
-        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8)
+        polygon(c(Lon2Deg),c(Lat2Deg),lty=2,border=Color)
+        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
+        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)
       }
     }
  
@@ -735,7 +735,7 @@ shinyServer(function(input, output, session) {
       mycoord<-mapproject(cv$LonDec,cv$LatDec)
       points(mycoord,pch=18,col='blue',cex=2)
       if(v$circles){
-        plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800))
+        plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800),"black")
       }
       if(v$zones2014){
         plotZonesRFCB(c(48.4297221876,1.5213888709),c(24.8144,29.9559,34.0166,38.9018,43.9448),c(250,450),20,"#999999")
@@ -750,7 +750,7 @@ shinyServer(function(input, output, session) {
         plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20,"black")
       }
       if(v$training){
-        plotDist(cv$LatDec,cv$LonDec,v$trainingdistance)
+        plotDist(cv$LatDec,cv$LonDec,v$trainingdistance,"#666666")
       }
     }
     if(v$PLon!="" & v$PLat!=""){
