@@ -202,9 +202,9 @@ shinyServer(function(input, output, session) {
       
       cv$LatDec<-Sexa2Dec(cv$Lat) #From Sexagésimal to decimal coordinates
       cv$LonDec<-Sexa2Dec(cv$Lon) #From Sexagésimal to decimal coordinates
-            
+         
       cv$DistUnitFact<-getDistUnitFact()
-
+      
       data <- getDistance(data,cv,cv$DistUnitFact)
       cv$maintowns<- getDistance(maintowns,cv,cv$DistUnitFact)
     }
@@ -664,11 +664,11 @@ shinyServer(function(input, output, session) {
         Lat2Deg2 <-Rad2Deg(Lat2Rad2)
         Lon2Deg2 <-Rad2Deg(Lon2Rad2)
 
-        lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
+        lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,type="l",col=Color)
       }
       LatTrainingDeg<-getTrainingLatDeg(Coords,AngRad,v$trainingdistance)
       LonTrainingDeg<-getTrainingLonDeg(Coords,AngRad,v$trainingdistance)
-      points(LonTrainingDeg,LatTrainingDeg,col="black")
+      points(LonTrainingDeg,LatTrainingDeg,pch=20,col=Color)
     }
     
     plotZonesRFCB <- function(Coords,AngDeg,Km,DKm,Color){
@@ -779,7 +779,7 @@ shinyServer(function(input, output, session) {
       if(v$training){
         trainingangle<-getTrainingAngle(mycoord,cv$coords)
         maxdist<-max(cv$coords$Km)
-        plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"red")
+        plotTrainingFlightLine(c(cv$LatDec,cv$LonDec),trainingangle,c(0,maxdist),10,"black")
       }
     }
     if(v$maintowns){
@@ -1014,6 +1014,7 @@ output$uiMain <- renderUI({
               tabPanel(
                 tr("Map"),
                 plotOutput("map",height=700),#,height = "auto"
+                uiOutput('uiSBtrainingCoords'),# must be call from server.R to allow getComputeValues() to be called without errors
                 value=1
               ),
               tabPanel(

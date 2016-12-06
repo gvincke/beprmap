@@ -46,7 +46,6 @@ shinyUI(navbarPage("Belgium Pigeon Racing Map",id="main",#http://shiny.rstudio.c
         tags$table(tags$tr(tags$td(uiOutput('uiSBunit')),tags$td(selectInput("distunit","",choices=c("km","mi"),selectize=FALSE)),tags$td(HTML("&nbsp;")),tags$td(uiOutput('uiSBround')))),#input$distunit must be define in ui.R, but it's label must be define in server;R to be translated, as round level. So i cut the distance ui in pieces to allow each element to be define in ui.R or server.R depending it's caracteristics
         uiOutput('uiSBdistancesb'),
         uiOutput('uiSBtraining'),
-        uiOutput('uiSBtrainingCoords'),
         uiOutput('uiSBsimul'),
         uiOutput('uiSBdloutput')
       )
