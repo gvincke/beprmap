@@ -681,11 +681,11 @@ shinyServer(function(input, output, session) {
       }
       for(i in 1:5){
         for(j in 1:(length(Kms)-1)){
-          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
-          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Kms[j],Lat2Rad1)
           
-          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
-          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
+          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j+1])
+          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Kms[j+1],Lat2Rad2)
           
           Lat2Deg1 <-Rad2Deg(Lat2Rad1)
           Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -706,11 +706,11 @@ shinyServer(function(input, output, session) {
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
       AngRad <- Deg2Rad(AngDeg)
       for(i in 1:6){
-        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[j])
-        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[j],Lat2Rad1)
+        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
+        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
         
-        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[j+1])
-        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[j+1],Lat2Rad2)
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
         
         Lat2Deg1 <-Rad2Deg(Lat2Rad1)
         Lon2Deg1 <-Rad2Deg(Lon2Rad1)
@@ -718,6 +718,84 @@ shinyServer(function(input, output, session) {
         Lat2Deg2 <-Rad2Deg(Lat2Rad2)
         Lon2Deg2 <-Rad2Deg(Lon2Rad2)
         
+        text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
+        text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
+      }
+    }
+    
+    plotZonesDyn <- function(Coords,DKm,Color){#,AngDeg,Km
+      Lat1Rad <- Deg2Rad(Coords$y)#Latitude of the center of the circle in radians
+      Lon1Rad <- Deg2Rad(Coords$x)#Longitude of the center of the circle in radians
+      
+      BelgiumMapData<-map("world2Hires","Belgium",resolution=0,plot=FALSE)
+      BelgiumCoords<-list()
+      BelgiumCoords$x<-BelgiumMapData$x[!is.na(BelgiumMapData$x)]
+      BelgiumCoords$y<-BelgiumMapData$y[!is.na(BelgiumMapData$y)]
+      
+      AnglesZonesDeg<-c()
+      for(i in 1:length(BelgiumCoords$x)){
+        AnglesZonesDeg<-c(AnglesZonesDeg,angleDeg(Coords$x,Coords$y,BelgiumCoords$x[i],BelgiumCoords$y[i])) #(lon1,lat1,lon2,lat2))
+      }
+
+      AngleDegMin<-min(AnglesZonesDeg,na.rm = TRUE)
+      AngleDegMax<-max(AnglesZonesDeg,na.rm = TRUE)
+      AngleRadMin<-Deg2Rad(AngleDegMin)
+      AngleRadMax<-Deg2Rad(AngleDegMax)
+      AngleRadDiff<-AngleRadMax-AngleRadMin
+      AngRad<-seq(from=AngleRadMin,to=AngleRadMax,length.out=7)
+      AngRad<-AngRad[2:6]
+ 
+      Km<-c()
+      for(i in 1:length(BelgiumCoords$x)){
+        Km<-c(Km,getDistanceInMeters(Coords$x,Coords$y,BelgiumCoords$x[i],BelgiumCoords$y[i])/1000) #(lon1,lat1,lon2,lat2))
+      }
+      # cat(Km)
+      
+      Km<-c(min(Km)-10,max(Km)+10)
+      Kms <- seq(Km[1],Km[2],by=DKm)
+      if(!Km[2] %in% Kms){
+        Kms<-c(Kms,Km[2])
+      }
+      for(i in 1:length(AngRad)){
+        for(j in 1:(length(Kms)-1)){
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Kms[j],Lat2Rad1)
+
+          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j+1])
+          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Kms[j+1],Lat2Rad2)
+
+          Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+          Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+
+          Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+          Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+          if(i %in% c(1,3,5)){
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+          } else {
+            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
+          }
+        }
+      }
+      # #Plot labels
+      Delta<-(AngRad[2]-AngRad[1])/2
+      AngRad<-AngRad-Delta
+      AngRad<-c(AngRad,Delta+AngRad[5]+Delta)
+      labels<-c("A1","A2","B1","B2","C1","C2")
+      Lat1Rad <- Deg2Rad(Coords$y)#Latitude of the center of the circle in radians
+      Lon1Rad <- Deg2Rad(Coords$x)#Longitude of the center of the circle in radians
+      for(i in 1:6){
+        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
+        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
+
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
+
+        Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+        Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+
+        Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+        Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+
         text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
         text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
       }
@@ -773,8 +851,10 @@ shinyServer(function(input, output, session) {
         if(v$kms){labels<-paste(labels,cv$coords$Km[i],collapse = NULL,sep=' ')}
         if(v$flightlines){plotFlightLine(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
         if(v$locsim){plotPigeonsLocationSimulation(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
-        
         text(coords,labels,cex=1,pos=4)
+        if(v$zonesdyn){
+          plotZonesDyn(coords,20,"#666666")
+        }
       }
       if(v$training){
         trainingangle<-getTrainingAngle(mycoord,cv$coords)
@@ -999,6 +1079,7 @@ output$uiSBshow <- renderUI({
                   h4(tr("Display")),
                   checkboxInput("zones2015", label = tr("Zones2015"), value = FALSE),
                   checkboxInput("zones2014", label = tr("Zones2014"), value = FALSE),
+                  checkboxInput("zonesdyn", label = tr("ZonesDyn"), value = FALSE),
                   checkboxInput("maintowns", label = tr("MainTowns"), value = FALSE),
                   #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
                   HTML('<hr style="border:1px solid #ccc;"/>')   
