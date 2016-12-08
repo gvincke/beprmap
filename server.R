@@ -219,10 +219,14 @@ shinyServer(function(input, output, session) {
     if(v$selection=="rfcbvr"){coords<-subset(coords,Id %in% c(80,81,35,85,100,111,20,93,5,9,30))}
     if(v$selection=="rfcbnatint15"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}
     if(v$selection=="rfcbnatint16"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}#42 issoudun not in 2016
+    if(v$selection=="rfcbnatint17"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,18,22,43,52,53,57,74,76,94,101,102))}#+18 Carcassonne -39 gueret -49 La Souteraine  -64 Montluçon -70 Narbonne
     if(v$selection=="rfcbnatintdf15"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
     if(v$selection=="rfcbnatintdf16"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49))}#42 issoudun not in 2016
+    if(v$selection=="rfcbnatintdf17"){coords<-subset(coords,Id %in% c(13,22,6))}#-39 gueret -64 Montluçon -49 La Souteraine
     if(v$selection=="rfcbnatintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
+    if(v$selection=="rfcbnatintf17"){coords<-subset(coords,Id %in% c(53,102,17,16,43,101,52))}#-61 Montauban -63 Montélimar
     if(v$selection=="rfcbnatintgf"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="rfcbnatintgf17"){coords<-subset(coords,Id %in% c(74,2,10,94,57,76,18))}#+18 Carcassonne -70 Narbonne
     if(v$selection=="rfcbbeloff"){coords<-subset(coords,Id %in% c(79,59,139,140,55))}
     if(v$selection=="rfcbbeltour"){coords<-subset(coords,Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
     if(v$selection=="rfcbdivers"){coords<-subset(coords,Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
