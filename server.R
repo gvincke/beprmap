@@ -424,6 +424,40 @@ shinyServer(function(input, output, session) {
     lat2<-Deg2Rad(lat2)
     return(Rad2Deg(atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)))))
   }
+  # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
+  # TODO : try to optimise that computation to avoid this +180
+  AngDeg2RadLoft2Dest<-function(loftcoord,destcoord,AngDeg){
+    if(loftcoord$x >= destcoord$x){ # Est or West
+      if(AngDeg<0){ # Notrh or South
+        AngRad <- Deg2Rad(AngDeg)
+      } else {
+        AngRad <- Deg2Rad(AngDeg+180)
+      }
+    } else {
+      if(AngDeg>0){# Notrh or South
+        AngRad <- Deg2Rad(AngDeg)
+      } else {
+        AngRad <- Deg2Rad(AngDeg+180)
+      }
+    }
+    return(AngRad)
+  }
+  AngDeg2RadDest2Loft<-function(loftcoord,destcoord,AngDeg){      # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
+    if(loftcoord$x >= destcoord$x){ # Est or West
+      if(AngDeg>0){ # Notrh or South
+        AngRad <- Deg2Rad(AngDeg)
+      } else {
+        AngRad <- Deg2Rad(AngDeg+180)
+      }
+    } else {
+      if(AngDeg<0){# Notrh or South
+        AngRad <- Deg2Rad(AngDeg)
+      } else {
+        AngRad <- Deg2Rad(AngDeg+180)
+      }
+    }
+    return(AngRad)
+  }
   
   getTrainingAngle <- function(mycoord,destcoords){#(mycoord,cv$coords) #coords<-mapproject(cv$coords$Lon[i],cv$coords$Lat[i])
     v<-getInputValues()
@@ -431,19 +465,7 @@ shinyServer(function(input, output, session) {
     for(i in 1:nrow(destcoords)){
       coords<-mapproject(destcoords$Lon[i],destcoords$Lat[i])
       AngDeg<-angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)
-      if(mycoord$x >= coords$x){ # Est or West
-        if(AngDeg<0){ # Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      } else {
-        if(AngDeg>0){# Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      }
+      AngRad<-AngDeg2RadLoft2Dest(mycoord,coords,AngDeg)
       trainingangles <- c(trainingangles,AngRad)
     }
     if(v$trainingmethods=="mean"){
@@ -507,20 +529,7 @@ shinyServer(function(input, output, session) {
       Dist<-getDistance(c1, c2, DistUnitFact)
       # 2: compute angle between these two coordinates #Angles in degrees relatively to reference loft
       AngDeg <- angleDeg(mycoord$x,mycoord$y,coords$x,coords$y)#lon1,lat1,lon2,lat2
-      # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
-      if(mycoord$x >= coords$x){ # Est or West
-        if(AngDeg<0){ # Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      } else {
-        if(AngDeg>0){# Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      }
+      AngRad<-AngDeg2RadLoft2Dest(mycoord,coords,AngDeg)
       # 3: compute intermediate coordinates each Dkm distance
       Kms <- seq(0,Dist$Km,by=DKm)
       if(!Dist$Km %in% Kms){
@@ -576,20 +585,7 @@ shinyServer(function(input, output, session) {
       Dist<-getDistance(c1, c2, DistUnitFact)
       # 2: compute angle between these two coordinates #Angles in degrees relatively to reference loft
       AngDeg <- angleDeg(coords$x,coords$y,mycoord$x,mycoord$y)#lon1,lat1,lon2,lat2
-      # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
-      if(mycoord$x >= coords$x){ # Est or West
-        if(AngDeg>0){ # Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      } else {
-        if(AngDeg<0){# Notrh or South
-          AngRad <- Deg2Rad(AngDeg)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        } else {
-          AngRad <- Deg2Rad(AngDeg+180)# AngDeg+180 : TODO : try to optimise that computation to avoid this +180
-        }
-      }
+      AngRad<-AngDeg2RadDest2Loft(mycoord,coords,AngDeg)
       # 3 : compute intermediate coordinates : compute both min and max distance regarding to time
       TimeInMinutes<-v$minutes+(v$hours*60)+(v$days*1440)
       KmMin<-round((v$speed[1]*TimeInMinutes)/1000,3)
@@ -743,7 +739,7 @@ shinyServer(function(input, output, session) {
       AngleRadMax<-Deg2Rad(AngleDegMax)
       AngleRadDiff<-AngleRadMax-AngleRadMin
       AngRad<-seq(from=AngleRadMin,to=AngleRadMax,length.out=7)
-      AngRad<-AngRad[2:6]
+      # AngRad<-AngRad[2:6]
  
       Km<-c()
       for(i in 1:length(BelgiumCoords$x)){
@@ -769,7 +765,7 @@ shinyServer(function(input, output, session) {
 
           Lat2Deg2 <-Rad2Deg(Lat2Rad2)
           Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-          if(i %in% c(1,3,5)){
+          if(i %in% c(2,4,6)){
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
           } else {
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
@@ -777,6 +773,7 @@ shinyServer(function(input, output, session) {
         }
       }
       # #Plot labels
+      AngRad<-AngRad[2:6]
       Delta<-(AngRad[2]-AngRad[1])/2
       AngRad<-AngRad-Delta
       AngRad<-c(AngRad,Delta+AngRad[5]+Delta)
