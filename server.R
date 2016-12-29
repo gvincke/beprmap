@@ -256,7 +256,8 @@ shinyServer(function(input, output, session) {
     if(v$selection=="ituwrgdf"){coords<-subset(coords,Id %in% c(105,19,13,22,39,64,6,49,26,42))}
     if(v$selection=="ituwrf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52,192))}
     if(v$selection=="ituwri"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
-    if(v$selection=="itgcf"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26,192))}
+    if(v$selection=="itgcf16"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,19,46,26,192))}
+    if(v$selection=="itgcf17"){coords<-subset(coords,Id %in% c(31,99,47,91,84,54,38,95,c(14,71,64,23,105)))}#+AWC 2017
     if(v$selection=="itham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="itmef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="ithav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
