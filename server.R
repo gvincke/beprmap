@@ -244,12 +244,13 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
     if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,54,38,105,193,23,14))}
-    if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(59,31,99,47,91,84))}
+    if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(31,99,47,91,84,54,38,95))}
     if(v$selection=="itaf15"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
     # if(v$selection=="itafv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
     # if(v$selection=="itafdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
     # if(v$selection=="itaff"){coords<-subset(coords,Id %in% c(53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
     if(v$selection=="itaf16"){coords<-subset(coords,Id %in% c(59,103,50,68,58,105,88,19,26,2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}
+    if(v$selection=="itaf17"){coords<-subset(coords,Id %in% c(c(59,31,99,47,91),c(54,38,19,14,22,71,6,64,105),c(53,102,17,16,43,101,52),c(74,2,10,94,57,76,18)))}
     if(v$selection=="ituwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
     if(v$selection=="ituwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
     if(v$selection=="ituwrdf"){coords<-subset(coords,Id %in% c(98,48))}
