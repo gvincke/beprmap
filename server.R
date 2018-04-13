@@ -240,12 +240,16 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itawc15"){coords<-subset(coords,Id %in% c(14,46,105))}
     if(v$selection=="itawc16"){coords<-subset(coords,Id %in% c(14,71,19,23,105))}
     if(v$selection=="itawc17"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
+    if(v$selection=="itawc18"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
     if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,54,38,105,193,23,14))}
    # if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(31,99,47,91,84,54,38,95))}
     if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(31,99,85,91,84,54,38,95))}#85 la ferté remplacé par Sézane car site la ferté pas accessible
+    if(v$selection=="itcentand18"){coords<-subset(coords,Id %in% c(99,85,84,31,54,38,80))}
+    if(v$selection=="itbeaur18"){coords<-subset(coords,Id %in% c(196,99,85,84,54,38,c(19,66,14,105,71,23,192)))}
+    
     if(v$selection=="itaf15"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
     # if(v$selection=="itafv"){coords<-subset(coords,Id %in% c(25,59,31,99,85,80))}
     # if(v$selection=="itafdf"){coords<-subset(coords,Id %in% c(91,106,13,15,22,91,106,46,90,105,42))}
@@ -807,12 +811,18 @@ shinyServer(function(input, output, session) {
     
     v<-getInputValues()
     cv<-getComputedValues()
-    par(xaxt="n",yaxt="n")
+    par()
+    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))
     # https://stat.ethz.ch/pipermail/r-help/2003-May/033971.html : to set background color for oceans, i must set the map twice and draw a rectangle inside the plot between
-    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0),fill=TRUE,col="white")
-    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "lightblue")
-    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),mar = c(0,0,0,0),fill=TRUE,col="white",add = TRUE)
-    map.axes() 
+    #cat("cv$xmin", cv$xmin, "\n")
+    #cat("cv$xmax", cv$xmax, "\n")
+    #cat("cv$ymin", cv$ymin, "\n")
+    #cat("cv$ymax", cv$ymax, "\n")
+    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,lforce="e",col="white",myborder=0)#mar = c(0,0,0,0)
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white")
+    rect(cv$xmin,  cv$ymin, cv$xmax, cv$ymax, col = "lightblue")
+    map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,col="white",lforce="e",add = TRUE,myborder=0)#mar = c(0,0,0,0),lforce="e"
+    #map.axes() 
     if(v$Lon!="" & v$Lat!=""){
       mycoord<-mapproject(cv$LonDec,cv$LatDec)
       points(mycoord,pch=18,col='blue',cex=2)
@@ -890,10 +900,10 @@ shinyServer(function(input, output, session) {
     rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
     text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke",sep=""),pos=4,cex=1)
     if(v$distunit=='km') {
-      map.scale(x=cv$xmin, y=(cv$ymax-((cv$ymax-cv$ymin)*0.03)*0.5),metric=TRUE)
+      map.scale(x=cv$xmin*0.95, y=(cv$ymax-((cv$ymax-cv$ymin)*0.075)*0.5),metric=TRUE)
     }
     if(v$distunit=='mi') {
-      map.scale(x=cv$xmin, y=(cv$ymax-((cv$ymax-cv$ymin)*0.03)*0.5),metric=FALSE)
+      map.scale(x=cv$xmin*0.95, y=(cv$ymax-((cv$ymax-cv$ymin)*0.075)*0.5),metric=FALSE)
     }
   })#,height =600,width=800
   
