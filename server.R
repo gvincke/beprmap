@@ -247,7 +247,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itcentand16"){coords<-subset(coords,Id %in% c(103,59,50,88,68,58,54,38,105,193,23,14))}
    # if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(31,99,47,91,84,54,38,95))}
     if(v$selection=="itcentand17"){coords<-subset(coords,Id %in% c(31,99,85,91,84,54,38,95))}#85 la ferté remplacé par Sézane car site la ferté pas accessible
-    if(v$selection=="itcentand18"){coords<-subset(coords,Id %in% c(99,85,84,31,54,38,80))}
+    if(v$selection=="itcentand18"){coords<-subset(coords,Id %in% c(99,85,84,31,54,38,80,66,73,193,98))}
     if(v$selection=="itbeaur18"){coords<-subset(coords,Id %in% c(196,99,85,84,54,38,c(19,66,14,105,71,23,192)))}
     
     if(v$selection=="itaf15"){coords<-subset(coords,Id %in% c(25,59,31,25,59,31,99,85,80,91,106,13,15,22,91,106,46,90,105,42,53,102,17,39,74,64,2,63,6,10,61,49,94,16,57,43,70,101,76,52,6))}
