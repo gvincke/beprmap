@@ -264,7 +264,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itaf16"){coords<-subset(coords,Id %in% c(59,103,50,68,58,105,88,19,26,2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}
     if(v$selection=="itaf17"){coords<-subset(coords,Id %in% c(c(59,31,99,47,91),c(54,38,19,14,22,71,6,64,105),c(53,102,17,16,43,101,52),c(74,2,10,94,57,76,18)))}
     
-    if(v$selection=="itaf19"){coords<-subset(coords,Id %in% c(c(31,59,99),c(84,85),c(39,193,30),c(48,64,71,6,105,4)))}
+    if(v$selection=="itaf19"){coords<-subset(coords,Id %in% c(c(31,59,99),c(84,85),c(38,193,30),c(48,64,71,6,105,4)))}
     if(v$selection=="ituwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
     if(v$selection=="ituwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
     if(v$selection=="ituwrdf"){coords<-subset(coords,Id %in% c(98,48))}
