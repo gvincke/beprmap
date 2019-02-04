@@ -56,7 +56,7 @@ shinyServer(function(input, output, session) {
   observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
     
     l<-as.list(data$Id)
-        l<-setNames(l,data$Villes)
+        l<-setNames(l,data$Label)
     l<-l[order(names(l))]
     l<-as.list(c(" "="empty",as.vector(l)))
     updateSelectInput(#http://www.inside-r.org/packages/cran/shiny/docs/updateSelectInput
@@ -243,9 +243,9 @@ shinyServer(function(input, output, session) {
     if(v$selection=="awch"){coords<-subset(coords,Id %in% c(79,182,183,59))}
     if(v$selection=="awcbw"){coords<-subset(coords,Id %in% c(184))}
     if(v$selection=="awcn"){coords<-subset(coords,Id %in% c(185,168,95,37))}
-    if(v$selection=="awclg"){coords<-subset(coords,Id %in% c(186,187,188,189))}
+    if(v$selection=="awclg"){coords<-subset(coords,Id %in% c(186,141,188,189))}
     if(v$selection=="awclx"){coords<-subset(coords,Id %in% c(190,191,7,109))}
-    if(v$selection=="awc"){coords<-subset(coords,Id %in% c(79,182,183,59,184,185,168,95,37,186,187,188,189,190,191,7,109))}
+    if(v$selection=="awc"){coords<-subset(coords,Id %in% c(79,182,183,59,184,185,168,95,37,186,141,188,189,190,191,7,109))}
     if(v$selection=="itawc15"){coords<-subset(coords,Id %in% c(14,46,105))}
     if(v$selection=="itawc16"){coords<-subset(coords,Id %in% c(14,71,19,23,105))}
     if(v$selection=="itawc17"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
