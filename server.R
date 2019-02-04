@@ -54,12 +54,15 @@ shinyServer(function(input, output, session) {
   data <- read.csv("data/coordonnees_rfcb.csv", sep=";", dec=",", quote="")
   
   observe({#http://stackoverflow.com/questions/28119964/dynamic-input-selector-based-on-uploaded-data
-    v<-sort(as.vector(data$Villes)) 
-    v<-c(" "="empty",v)
+    
+    l<-as.list(data$Id)
+        l<-setNames(l,data$Villes)
+    l<-l[order(names(l))]
+    l<-as.list(c(" "="empty",as.vector(l)))
     updateSelectInput(#http://www.inside-r.org/packages/cran/shiny/docs/updateSelectInput
       session,
       "towns",
-      choices=v)
+      choices=l)
   })
   
   maintowns <- read.csv("data/coordonnees_principales_villes.csv", sep=";", dec=".", quote="")
@@ -303,7 +306,7 @@ shinyServer(function(input, output, session) {
       if("empty" %in% v$towns){
         coords<-subset(coords,coords$Id %in% c())#no more subset is done
       }else {
-        coords<-subset(coords,coords$Villes %in% v$towns)
+        coords<-subset(coords,coords$Id %in% v$towns)
       }
       }
     }
