@@ -224,12 +224,12 @@ shinyServer(function(input, output, session) {
     if(v$selection=="rfcbnatint16"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}#42 issoudun not in 2016
     if(v$selection=="rfcbnatint17"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,18,22,43,52,53,57,74,76,94,101,102))}#+18 Carcassonne -39 gueret -49 La Souteraine  -64 Montluçon -70 Narbonne
     if(v$selection=="rfcbnatint18"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,18,22,43,52,53,57,74,76,94,101,102, 39,63,70,4))}#+39 Montelimar +63 Gueret +70 Narbonne +4 Angoulème
-    if(v$selection=="rfcbnatint19"){coords<-subset(coords,Id %in% c(c(105,13,22,97,66,42,51,71),c(53,102,17,63,61,8,52,89,101),c(74,2,10,94,57,70,76)))}
+    if(v$selection=="rfcbnatint19"){coords<-subset(coords,Id %in% c(c(105,13,22,97,64,42,6),c(53,102,17,63,61,8,52,89,101),c(74,2,10,94,57,70,76)))}
     
     if(v$selection=="rfcbnatintdf15"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
     if(v$selection=="rfcbnatintdf16"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49))}#42 issoudun not in 2016
     if(v$selection=="rfcbnatintdf17"){coords<-subset(coords,Id %in% c(13,22,6))}#-39 gueret -64 Montluçon -49 La Souteraine
-    if(v$selection=="rfcbnatintdf19"){coords<-subset(coords,Id %in% c(105,13,22,97,66,42,51,71))}
+    if(v$selection=="rfcbnatintdf19"){coords<-subset(coords,Id %in% c(105,13,22,97,64,42,6))}
     if(v$selection=="rfcbnatintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
     if(v$selection=="rfcbnatintf17"){coords<-subset(coords,Id %in% c(53,102,17,16,43,101,52))}#-61 Montauban -63 Montélimar
     if(v$selection=="rfcbnatintf19"){coords<-subset(coords,Id %in% c(53,102,17,63,61,8,52,89,101))}
@@ -250,7 +250,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itawc16"){coords<-subset(coords,Id %in% c(14,71,19,23,105))}
     if(v$selection=="itawc17"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
     if(v$selection=="itawc18"){coords<-subset(coords,Id %in% c(14,71,105,48))}#64,23,
-    if(v$selection=="itawc19"){coords<-subset(coords,Id %in% c(4,6,71,64,105,48))}#-14 Bourges -23 Chateauroux +6Argenton +4 Angouleme
+    if(v$selection=="itawc19"){coords<-subset(coords,Id %in% c(6,71,64,105,48))}#-14 Bourges -23 Chateauroux +6Argenton (+4 Angouleme annulé)
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
@@ -267,7 +267,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itaf16"){coords<-subset(coords,Id %in% c(59,103,50,68,58,105,88,19,26,2,6,10,13,16,17,22,39,43,49,52,53,57,61,63,64,70,74,76,94,101,102))}
     if(v$selection=="itaf17"){coords<-subset(coords,Id %in% c(c(59,31,99,47,91),c(54,38,19,14,22,71,6,64,105),c(53,102,17,16,43,101,52),c(74,2,10,94,57,76,18)))}
     
-    if(v$selection=="itaf19"){coords<-subset(coords,Id %in% c(c(31,59,99),c(84,85),c(38,193,30),c(48,64,71,6,105,4)))}
+    if(v$selection=="itaf19"){coords<-subset(coords,Id %in% c(c(31,59,99),c(84,85),c(38,193,30),c(48,64,71,6,105),c(c(105,13,22,97,64,42,6),c(53,102,17,63,61,8,52,89,101),c(74,2,10,94,57,70,76))))}
     if(v$selection=="ituwr"){coords<-subset(coords,Id %in% c(59,88,44,98,48,105,19,13,22,39,64,6,49,26,42,53,102,17,63,61,16,43,101,52,74,2,10,94,57,70,76,192))}
     if(v$selection=="ituwrv"){coords<-subset(coords,Id %in% c(59,88,44))}
     if(v$selection=="ituwrdf"){coords<-subset(coords,Id %in% c(98,48))}
