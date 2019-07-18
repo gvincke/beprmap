@@ -49,6 +49,9 @@ input[type="number"] {
   max-width: 100px;
 }
 #MLatMax, #MLatMin, #MLonMax, #MLonMin {
+  width: 50px;
+}
+#zonecirccut {
   width: 100px;
 }
 #PRLName {

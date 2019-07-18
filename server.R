@@ -25,6 +25,10 @@ library(mapdata)
 #library(maptools) # (loads foreign, sp, grid, and lattice)
 library(png)
 
+library(sp)#Classes and Methods for Spatial Data : https://cran.r-project.org/web/packages/sp/index.html
+#library(BelgiumMaps.StatBel)
+#data(BE_ADMIN_PROVINCE)
+
 # Create a reactive object here that we can share between all the sessions.
 SRV <- reactiveValues(count=0)#Session reactive values
 cc <- readPNG("www/img/cc_by_320x60.png")
@@ -93,7 +97,37 @@ shinyServer(function(input, output, session) {
     for(i in 1:nrow(langmappedzone)){
       l[[langmappedzone[[input$language]][i]]]<-langmappedzone$key[i]
     }
-  return(l)
+    return(l)
+  })
+  
+  langmappedfanciers <- read.delim("data/lang-mappedfanciers.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langmappedfanciers)<-langmappedfanciers$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getMappedfanciers<-reactive({
+    l<-list()
+    for(i in 1:nrow(langmappedfanciers)){
+      l[[langmappedfanciers[[input$language]][i]]]<-langmappedfanciers$key[i]
+    }
+    return(l)
+  })
+  
+  langracingzone <- read.delim("data/lang-racingzone.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(langracingzone)<-langracingzone$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getRacingzones<-reactive({
+    l<-list()
+    for(i in 1:nrow(langracingzone)){
+      l[[langracingzone[[input$language]][i]]]<-langracingzone$key[i]
+    }
+    return(l)
+  })
+  
+  beladmin <- read.delim("data/lang-belgium-administrative.csv", header = TRUE, sep = "\t", as.is = TRUE) 
+  row.names(beladmin)<-beladmin$key #to have key in both row.names and $key. If we whant only as row.names add row.names=1 to read.delim
+  getBelAdmin<-reactive({
+    l<-list()
+    for(i in 1:nrow(beladmin)){
+      l[[beladmin[[input$language]][i]]]<-beladmin$key[i]
+    }
+    return(l)
   })
   
   getRacedistances<-reactive({ #read.delim and row.names inside the reactive function due to paste and input$distunit
@@ -521,21 +555,26 @@ shinyServer(function(input, output, session) {
   
   plotMap <- function()({ #put plot into a function to be able to render it for both output and download
     
-    plotDist <- function(LatDec, LonDec, Km, Color) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
+    plotDist <- function(LatDec, LonDec, Km, Color,AngDeg1=1,AngDeg2=360) { #inspired form http://www.movable-type.co.uk/scripts/latlong-vincenty.html and http://stackoverflow.com/questions/23071026/drawing-circle-on-r-map
       DistUnitFact<-getDistUnitFact()
-      AngDeg <- seq(1,360)
+      AngDeg<-c(AngDeg1,seq(ceiling(AngDeg1),floor(AngDeg2)),AngDeg2) # car seq ne donne que des suites d'entier : donc on rajoute les valeurs décimales avant et après
       AngRad <- Deg2Rad(AngDeg)
       Lat1Rad <- Deg2Rad(LatDec)#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(LonDec)#Longitude of the center of the circle in radians
 
-      for(i in 1:length(Km)){
+      for(i in 1:length(Km)){# Pour chaque distance, faire un cercle ou un aarc de cercle
         Lat2Rad <- getLatFromAngleDistance(Lat1Rad,AngRad,Km[i])
         Lon2Rad <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Km[i],Lat2Rad)
         Lat2Deg <- Rad2Deg(Lat2Rad)#Latitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
         Lon2Deg <- Rad2Deg(Lon2Rad)#Longitude of each point of the circle in degrees#From radians to degrees deg = rad*(180/pi)
-        polygon(c(Lon2Deg),c(Lat2Deg),lty=2,border=Color)
-        text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
-        text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)
+        
+        if(AngDeg1==1 && AngDeg2==360){
+          polygon(c(Lon2Deg),c(Lat2Deg),lty=2,border=Color)
+          text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
+          text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)
+        } else { #Arc
+          lines(c(Lon2Deg),c(Lat2Deg), col=Color, lty=2)
+        }
       }
     }
  
@@ -701,7 +740,7 @@ shinyServer(function(input, output, session) {
       if(!Km[2] %in% Kms){
         Kms<-c(Kms,Km[2])
       }
-      for(i in 1:5){
+      for(i in 1:7){# Tracer les lignes
         for(j in 1:(length(Kms)-1)){
           Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j])
           Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Kms[j],Lat2Rad1)
@@ -714,38 +753,92 @@ shinyServer(function(input, output, session) {
           
           Lat2Deg2 <-Rad2Deg(Lat2Rad2)
           Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-          if(i %in% c(1,3,5)){
+          if(i %in% c(2,4,6)){
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
           } else {
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
           }
         }
       }
+      # Compute % of fanciers when fanciers
+      if(v$zonesfanciers){
+        if(v$fanciers =="anvers1553"){
+          fanciers <- read.csv("data/fanciers-belgium-anvers-1553.csv", sep=",", dec=".")
+        }
+        if(v$fanciers=="liege1580"){
+          fanciers <- read.csv("data/fanciers-belgium-liege-1580.csv", sep=",", dec=".")
+        }
+        if(v$fanciers=="liege535"){
+          fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
+        }
+        # calculer les angles avec lieux de lâcher (ici les ditances sont pas nécéssaires car zones 2014 ou 2015 sont en profondeurs)
+        #fanciers$angledeg <- NA
+        fanciers$anglerad <- NA
+        #fanciers$Km <- NA
+        for(i in 1:nrow(fanciers)){ #add angle to data
+          #fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
+          fanciers[i,]$anglerad<-Deg2Rad(angleDeg(Coords[2],Coords[1],fanciers[i,]$longitude,fanciers[i,]$latitude))
+          #calculer les distances de chaque fancier avec lieu de lâcher
+          #fanciers[i,]$Km <- getDistanceInMeters(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude)/1000 #(lon1,lat1,lon2,lat2)
+        }
+        nfanciersbyzones<-c()
+        pcfanciersbyzones<-c()
+        for(i in 2:length(AngRad)){
+          subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+          nfanciersbyzones<-c(nfanciersbyzones,nrow(subfanciers))
+          pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subfanciers)/nrow(fanciers)*100,digits =2))
+        }
+      }
       #Plot labels
-      AngDeg <- c(AngDeg[1]-2.5,AngDeg[2]-(AngDeg[2]-AngDeg[1])*0.5,AngDeg[3]-(AngDeg[3]-AngDeg[2])*0.5,AngDeg[4]-(AngDeg[4]-AngDeg[3])*0.5,AngDeg[5]-(AngDeg[5]-AngDeg[4])*0.5,AngDeg[5]+2.5)#Angles in radians defining zones relatively to Chastres
+      AngDeg <- c(AngDeg[2]-2.5,AngDeg[3]-(AngDeg[3]-AngDeg[2])*0.5,AngDeg[4]-(AngDeg[4]-AngDeg[3])*0.5,AngDeg[5]-(AngDeg[5]-AngDeg[4])*0.5,AngDeg[6]-(AngDeg[6]-AngDeg[5])*0.5,AngDeg[6]+2.5)#Angles in radians defining zones relatively to Chastres
       labels<-c("A1","A2","B1","B2","C1","C2")
       Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
       AngRad <- Deg2Rad(AngDeg)
       for(i in 1:6){
-        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
-        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
-        
-        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
-        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
-        
-        Lat2Deg1 <-Rad2Deg(Lat2Rad1)
-        Lon2Deg1 <-Rad2Deg(Lon2Rad1)
-        
-        Lat2Deg2 <-Rad2Deg(Lat2Rad2)
-        Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-        
-        text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
-        text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
+        # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
+        # Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
+        # 
+        # Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
+        # Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
+        # 
+        # Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+        # Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+        # 
+        # Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+        # Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+        # 
+        # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
+        # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
+        if(v$zones=="2015"){
+          midDistCoef<-2
+        } else {#2014
+          midDistCoef<-2.5
+        }
+        if(v$zonesfanciers){
+          Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1))
+          Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1),Lat2Rad3)
+          Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+          Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+          Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2))
+          Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2),Lat2Rad4)
+          Lat2Deg4 <-Rad2Deg(Lat2Rad4)
+          Lon2Deg4 <-Rad2Deg(Lon2Rad4)
+          text(Lon2Deg3,Lat2Deg3,labels=labels[i],col=Color)
+          text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+        } else {
+          Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef)
+          Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef,Lat2Rad3)
+          Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+          Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+          text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+        }
       }
     }
     
     plotZonesDyn <- function(Coords,DKm,Color){#,AngDeg,Km
+      v<-getInputValues() # get all values of input list
+      cv<-getComputedValues()
       Lat1Rad <- Deg2Rad(Coords$y)#Latitude of the center of the circle in radians
       Lon1Rad <- Deg2Rad(Coords$x)#Longitude of the center of the circle in radians
       
@@ -761,23 +854,125 @@ shinyServer(function(input, output, session) {
 
       AngleDegMin<-min(AnglesZonesDeg,na.rm = TRUE)
       AngleDegMax<-max(AnglesZonesDeg,na.rm = TRUE)
+      #cat(paste("Min : ",AngleDegMin," |  Max : ",AngleDegMax))
       AngleRadMin<-Deg2Rad(AngleDegMin)
       AngleRadMax<-Deg2Rad(AngleDegMax)
       AngleRadDiff<-AngleRadMax-AngleRadMin
-      AngRad<-seq(from=AngleRadMin,to=AngleRadMax,length.out=7)
-      # AngRad<-AngRad[2:6]
+      
+      # Compute % of fanciers when fanciers
+      if(v$fanciers =="anvers1553"){
+        fanciers <- read.csv("data/fanciers-belgium-anvers-1553.csv", sep=",", dec=".")
+      }
+      if(v$fanciers=="liege1580"){
+        fanciers <- read.csv("data/fanciers-belgium-liege-1580.csv", sep=",", dec=".")
+      }
+      if(v$fanciers=="liege535"){
+        fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
+      }
+      # calculer les angles avec lieux de lâcher (ici les ditances sont pas nécéssaires car zones 2014 ou 2015 sont en profondeurs)
+      #fanciers$angledeg <- NA
+      fanciers$anglerad <- NA
+      fanciers$Km <- NA
+      for(i in 1:nrow(fanciers)){ #add angle to data
+        #fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
+        fanciers[i,]$anglerad<-Deg2Rad(angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude))
+        if(v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
+          #calculer les distances de chaque fancier avec lieu de lâcher
+          fanciers[i,]$Km <- getDistanceInMeters(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude)/1000 #(lon1,lat1,lon2,lat2)
+        }
+      }
+      # classer par ordre croissant
+      fanciers<-fanciers[with(fanciers, order(anglerad)),]
+      
+      if(v$zones=="dynvertabs"){
+        AngRad<-seq(from=AngleRadMin,to=AngleRadMax,length.out=7)
+      }
+      if(v$zones=="dynvertrel" || v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
+        # if(v$fanciers =="anvers1553"){
+        #   fanciers <- read.csv("data/fanciers-belgium-anvers-1553.csv", sep=",", dec=".")
+        # }
+        # if(v$fanciers=="liege1580"){
+        #   fanciers <- read.csv("data/fanciers-belgium-liege-1580.csv", sep=",", dec=".")
+        # }
+        # if(v$fanciers=="liege535"){
+        #   fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
+        # }
+        # calculer les angles des fanciers
+        # fanciers$angledeg <- NA
+        # fanciers$anglerad <- NA
+        # fanciers$Km <- NA
+        # for(i in 1:nrow(fanciers)){ #add angle to data
+        #   fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
+        #   fanciers[i,]$anglerad<-Deg2Rad(fanciers[i,]$angledeg)
+        #   if(v$zones=="dynvertcircrel2"){
+        #     #calculer les distances de chaque fancier avec lieu de lâcher
+        #     fanciers[i,]$Km <- getDistanceInMeters(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude)/1000 #(lon1,lat1,lon2,lat2)
+        #   }
+        # }
+        # # les classer par ordre croissant
+        # fanciers<-fanciers[with(fanciers, order(anglerad)),] 
+        # fanciers$rank <- NA
+        # fanciers$rank <- 1:nrow(fanciers)
+        # calculer les rangs et déterminer les limites des 100/6 % des fanciers concernés
+        AngRad<-c()
+        AngRad<-c(AngRad,AngleRadMin)
+        for(a in 1:5){
+          AngRad<-c(AngRad,(fanciers[floor(nrow(fanciers)*(a/6)),]$anglerad+fanciers[ceiling(nrow(fanciers)*(a/6)),]$anglerad)/2)#% pas égaux quand nrow(fanciers) n'est pas un multiple de 6
+          #AngRad<-c(AngRad,fanciers[ceiling(nrow(fanciers)*(a/6)),]$anglerad)#16.68% puis 16.61%
+          #AngRad<-c(AngRad,fanciers[floor(nrow(fanciers)*(a/6)),]$anglerad)#16.68% puis 16.61%
+        }
+        AngRad<-c(AngRad,AngleRadMax)
+      }
+      # ajouter le % de fancier par zone (doit pour ça avoir le AngRad et la distance calculés)
+      if(v$zonesfanciers){
+        nfanciersbyzones<-c()
+        pcfanciersbyzones<-c()
+        for(i in 2:length(AngRad)){
+          if(v$zones=="dynvertabs" || v$zones=="dynvertrel") {
+            subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+            nfanciersbyzones<-c(nfanciersbyzones,nrow(subfanciers))
+            pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subfanciers)/nrow(fanciers)*100,digits =2))
+          } else {# un angle sur deux, et prendre la distance en compte
+            if(i %in% c(2,4,6)){
+              subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i+1])
+              if(v$zones=="dynvertcircrel2"){
+                subsubfanciers<-subset(subfanciers, Km <= median(subfanciers$Km))
+                nfanciersbyzones<-c(nfanciersbyzones,nrow(subsubfanciers))
+                pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subsubfanciers)/nrow(fanciers)*100,digits =2))
+                
+                subsubfanciers<-subset(subfanciers, Km > median(subfanciers$Km))
+                nfanciersbyzones<-c(nfanciersbyzones,nrow(subsubfanciers))
+                pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subsubfanciers)/nrow(fanciers)*100,digits =2))
+              } else {#dynvertcircrel
+                subsubfanciers<-subset(subfanciers, Km <= v$zonecirccut)
+                nfanciersbyzones<-c(nfanciersbyzones,nrow(subsubfanciers))
+                pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subsubfanciers)/nrow(fanciers)*100,digits =2))
+                
+                subsubfanciers<-subset(subfanciers, Km > v$zonecirccut)
+                nfanciersbyzones<-c(nfanciersbyzones,nrow(subsubfanciers))
+                pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subsubfanciers)/nrow(fanciers)*100,digits =2))
+                
+              }
+            }
+          }
+        }
+      }
  
+      # définir les distance entre lesquelle tracer les lignes verticales
       Km<-c()
       for(i in 1:length(BelgiumCoords$x)){
         Km<-c(Km,getDistanceInMeters(Coords$x,Coords$y,BelgiumCoords$x[i],BelgiumCoords$y[i])/1000) #(lon1,lat1,lon2,lat2))
       }
-      # cat(Km)
-      
       Km<-c(min(Km)-10,max(Km)+10)
       Kms <- seq(Km[1],Km[2],by=DKm)
       if(!Km[2] %in% Kms){
         Kms<-c(Kms,Km[2])
       }
+      
+      if(v$zones=="dynvertcircrel2"){
+        KmLabels<-c()
+      }
+      
       for(i in 1:length(AngRad)){
         for(j in 1:(length(Kms)-1)){
           Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Kms[j])
@@ -792,42 +987,132 @@ shinyServer(function(input, output, session) {
           Lat2Deg2 <-Rad2Deg(Lat2Rad2)
           Lon2Deg2 <-Rad2Deg(Lon2Rad2)
           if(i %in% c(2,4,6)){
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
-          } else {
+            if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+              lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+            }
+          } else {#i=1,3,5,7
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
           }
         }
+        if((v$zones=="dynvertcircrel2") && i %in% c(1,3,5)){# Pour tous les angles sauf le dernier, dessiner l'arc de l'angle jusqu'à l'angle suivant
+          # Entre l'angle et l'angle suivant : sélectionner les coordonnées du sample, calculer leur distance, et en trouver la médiane qu'on file à l'arc
+          subfanciers<-subset(fanciers, anglerad >= AngRad[i] & anglerad < AngRad[i+2])
+          #cat(paste("i=",i,"; nrow(subfanciers)=",nrow(subfanciers)),"AngRad[i]=",AngRad[i]," median(Km)=",length(subfanciers$Km)," | ")
+          KmLabels<-c(KmLabels,median(subfanciers$Km))
+          plotDist(Coords$y,Coords$x,median(subfanciers$Km),"#666666",Rad2Deg(AngRad[i]),Rad2Deg(AngRad[i+2]))# TODO
+        }
       }
+      #cat(KmLabels)
       # #Plot labels
-      AngRad<-AngRad[2:6]
-      Delta<-(AngRad[2]-AngRad[1])/2
-      AngRad<-AngRad-Delta
-      AngRad<-c(AngRad,Delta+AngRad[5]+Delta)
+      #AngRad<-AngRad[2:7]
+      Deltas<-c()
+      if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+        for(i in 2:7){
+          Deltas<-c(Deltas,(AngRad[i]-AngRad[i-1])/2)
+        }
+        AngRad<-AngRad[1:6]
+      } else {
+        for(i in c(3,5,7)){
+          Deltas<-c(Deltas,(AngRad[i]-AngRad[i-2])/2)
+        }
+        AngRad<-AngRad[c(1,3,5)]
+      }
+      #Delta<-(AngRad[2]-AngRad[1])/2
+      AngRad<-AngRad+Deltas
+      #AngRad<-c(AngRad,Delta+AngRad[5]+Delta)
       labels<-c("A1","A2","B1","B2","C1","C2")
       Lat1Rad <- Deg2Rad(Coords$y)#Latitude of the center of the circle in radians
       Lon1Rad <- Deg2Rad(Coords$x)#Longitude of the center of the circle in radians
-      for(i in 1:6){
-        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
-        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
+      if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+        steps<-c(1:6)
+      } else {
+        steps<-c(1:3)
+      }
+      j<-c(0)
+      for(i in steps){
+        if(v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
+          #KmLabel<-c(KmLabels[i]-(KmLabels[i]-Km[1])*0.15,KmLabels[i]+(Km[2]-KmLabels[i])*0.15)
+          if(v$zones=="dynvertcircrel2"){
+            KmLabel<-c(KmLabels[i]-15,KmLabels[i]+15)
+          } else {
+            KmLabel<-c(v$zonecirccut-15,v$zonecirccut+15)
+          }
+          Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],KmLabel[1])
+          Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],KmLabel[1],Lat2Rad1)
+          Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+          Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+          Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],KmLabel[2])
+          Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],KmLabel[2],Lat2Rad2)
+          Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+          Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+          if(v$zonesfanciers){
+            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],KmLabel[1]-10)
+            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],KmLabel[1]-10,Lat2Rad3)
+            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+            
+            Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],KmLabel[2]+10)
+            Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],KmLabel[2]+10,Lat2Rad4)
+            Lat2Deg4 <-Rad2Deg(Lat2Rad4)
+            Lon2Deg4 <-Rad2Deg(Lon2Rad4)
+          } 
 
-        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
-        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
+        } else {
+          # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
+          # Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
+          # 
+          # Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
+          # Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
+          
+          if(v$zonesfanciers){
+            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1))
+            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1),Lat2Rad3)
+            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+                               
+            Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1))
+            Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1),Lat2Rad4)
+            Lat2Deg4 <-Rad2Deg(Lat2Rad4)
+            Lon2Deg4 <-Rad2Deg(Lon2Rad4)
+          } else {
+            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2)
+            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad3)
+            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+          }
+        }
 
-        Lat2Deg1 <-Rad2Deg(Lat2Rad1)
-        Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+        # Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+        # Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+        # 
+        # Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+        # Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+        if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+          # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
+          # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
+          if(v$zonesfanciers){
+            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+            text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+          } else {
+            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+          }
+        } else {#dynvertcircrel et dynvertcircrel2
+          text(Lon2Deg1,Lat2Deg1,labels= labels[i+j],col=Color)
+          text(Lon2Deg2,Lat2Deg2,labels= labels[i+j+1],col=Color)
+          if(v$zonesfanciers){
+            text(Lon2Deg3,Lat2Deg3,labels= paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i+j],"%)",sep=''),col=Color)
+            text(Lon2Deg4,Lat2Deg4,labels= paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i+j+1],"%)",sep=''),col=Color)
+          } 
+          j<-j+1
+        }
 
-        Lat2Deg2 <-Rad2Deg(Lat2Rad2)
-        Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-
-        text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
-        text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
       }
     }
     
     v<-getInputValues()
     cv<-getComputedValues()
     par()
-    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))
+    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))#,xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax)
     # https://stat.ethz.ch/pipermail/r-help/2003-May/033971.html : to set background color for oceans, i must set the map twice and draw a rectangle inside the plot between
     #cat("cv$xmin", cv$xmin, "\n")
     #cat("cv$xmax", cv$xmax, "\n")
@@ -838,23 +1123,48 @@ shinyServer(function(input, output, session) {
     rect(cv$xmin,  cv$ymin, cv$xmax, cv$ymax, col = "lightblue")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,col="white",lforce="e",add = TRUE,myborder=0)#mar = c(0,0,0,0),lforce="e"
     #map.axes() 
+    #plot(BE_ADMIN_PROVINCE, add = TRUE, border="black")#, lwd = 3
+    if(v$beladmin != "none"){
+      #list_one[!list_one$letters %in% list_two$letters2,]
+      # https://stackoverflow.com/questions/33112082/removing-data-from-one-dataframe-that-exists-in-another-dataframe-r
+      #idée = prendre data region et soustraire frontière pour pas overlay de maps
+      #gadm0 <-readRDS("data/gadm/gadm36_BEL_0_sp.rds")
+      gadmX <-readRDS(paste("data/gadm/gadm36_BEL_",v$beladmin,"_sp.rds",sep=''))
+      #plot(gadm, add=TRUE,border= "gray",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax))#col => couleur de fond (fill), border => couleur des traits
+      map(gadmX,add=TRUE,col="gray",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),lforce="e")#lforce : avec xlim et y lim : assure qu'on ne plotte pas en dehors des limites
+      #map('worldHires', "belgium",col="black",lwd = 1,add = TRUE,xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),lforce="e")#,myborder=0
+    }
+    if(v$zonesfanciers){
+      if(v$fanciers=="anvers1553"){
+        fanciers <- read.csv("data/fanciers-belgium-anvers-1553.csv", sep=",", dec=".")
+      }
+      if(v$fanciers=="liege1580"){
+        fanciers <- read.csv("data/fanciers-belgium-liege-1580.csv", sep=",", dec=".")
+      }
+      if(v$fanciers=="liege535"){
+        fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
+      }
+      points(fanciers,pch=20,col='red',cex=0.2)
+    }
     if(v$Lon!="" & v$Lat!=""){
       mycoord<-mapproject(cv$LonDec,cv$LatDec)
       points(mycoord,pch=18,col='blue',cex=2)
+
       if(v$circles){
         plotDist(cv$LatDec,cv$LonDec,c(250,425,600,800),"black")
       }
-      if(v$zones2014){
-        plotZonesRFCB(c(48.4297221876,1.5213888709),c(24.8144,29.9559,34.0166,38.9018,43.9448),c(250,450),20,"#999999")
+      if(v$zones=="2014"){#Angles in degrees defining zones relatively to Chastres
+        plotZonesRFCB(c(48.4297221876,1.5213888709),c(13.5210003004908,24.8144,29.9559,34.0166,38.9018,43.9448,66.8003024954277),c(250,450),20,"black")#Min :  13.5210003004908  |  Max :  66.8003024954277
       }
-      if(v$zones2015){
-        #Angles in degrees defining zones relatively to Limoges
+      if(v$zones=="2015"){#Angles in degrees defining zones relatively to Limoges Min :  8.56848816243249  |  Max :  36.117411637631
+        a0 <- 8.56848816243249
         a1 <- angleDeg(1.2052777778,45.5191666667,3.2810555556,51.3508888889)
         a2 <- angleDeg(1.2052777778,45.5191666667,3.9889444444,51.2348055556)
         a3 <- angleDeg(1.2052777778,45.5191666667,4.9106944444,51.4081111111)
         a4 <- angleDeg(1.2052777778,45.5191666667,5.6214722222,51.20725)
         a5 <- angleDeg(1.2052777778,45.5191666667,6.0445555556,50.7285277778)
-        plotZonesRFCB(c(45.5191666667,1.2052777778),c(a1,a2,a3,a4,a5),c(535,725),20,"black")
+        a6 <- 36.117411637631
+        plotZonesRFCB(c(45.5191666667,1.2052777778),c(a0,a1,a2,a3,a4,a5,a6),c(535,725),20,"black")
       }
       if(v$training){
         plotDist(cv$LatDec,cv$LonDec,v$trainingdistance,"#666666")
@@ -881,8 +1191,16 @@ shinyServer(function(input, output, session) {
         if(v$flightlines){plotFlightLine(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
         if(v$locsim){plotPigeonsLocationSimulation(mycoord,coords,10,"blue")}#coords in degrees (lat,lon) cv$LatDec,cv$LonDec
         text(coords,labels,cex=1,pos=4)
-        if(v$zonesdyn){
-          plotZonesDyn(coords,20,"#666666")
+        if(v$zones =="dynvertabs" || v$zones == "dynvertrel" || v$zones == "dynvertcircrel" || v$zones == "dynvertcircrel2" ){
+          plotZonesDyn(coords,20,"black")#"#666666"
+          if(v$zones == "dynvertcircrel"){
+            plotDist(cv$coords$Lat[i],cv$coords$Lon[i],v$zonecirccut,"black")#"#666666"
+          }
+          if(v$zones == "dynvertcircrel2"){
+            # Déterminer pour chaque zone la distance de chaque amateur
+            # Puis en prendre le max et le min, et la médiane : 
+            # plotArc à distance de la médiane de angle à gauche jusque angle à droite
+          }
         }
       }
       if(v$training){
@@ -915,10 +1233,10 @@ shinyServer(function(input, output, session) {
     rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
     text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke",sep=""),pos=4,cex=1)
     if(v$distunit=='km') {
-      map.scale(x=cv$xmin*0.95, y=(cv$ymax-((cv$ymax-cv$ymin)*0.075)*0.5),metric=TRUE)
+      map.scale(x=cv$xmin+((cv$xmax-cv$xmin)*0.005), y=(cv$ymin+((cv$ymax-cv$ymin)*0.07)),metric=TRUE)
     }
     if(v$distunit=='mi') {
-      map.scale(x=cv$xmin*0.95, y=(cv$ymax-((cv$ymax-cv$ymin)*0.075)*0.5),metric=FALSE)
+      map.scale(x=cv$xmin+((cv$xmax-cv$xmin)*0.005), y=(cv$ymin+((cv$ymax-cv$ymin)*0.07)),metric=FALSE)
     }
   })#,height =600,width=800
   
@@ -975,8 +1293,8 @@ output$uiSBlocationsbottom <- renderUI({
                      HTML(tr("Coords")),
                       tags$table(
                         tags$tr(tags$td(),tags$td(strong("Min")),tags$td(HTML("&nbsp;")),tags$td(strong("Max"))),
-                        tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","410000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","513000",min = -900000, max = 900000, step=1000))),
-                        tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","-77448",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","123448",min = -1800000, max = 1800000, step=1000)))
+                        tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","490000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","518000",min = -900000, max = 900000, step=1000))),
+                        tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","7000",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","80000",min = -1800000, max = 1800000, step=1000)))
                       )
                      ),
   #     h5(HTML("Type de pigeons concernés")),
@@ -1105,10 +1423,26 @@ output$dlData <- downloadHandler(
 
 output$uiSBshow <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
+                  #h4(tr("Zones")),
+                  #checkboxInput("displayzones", label = tr("DisplayZones"), value = FALSE),
+                  #conditionalPanel(condition = "input.displayzones",
+                    #checkboxInput("zones2015", label = tr("Zones2015"), value = FALSE),
+                    #checkboxInput("zones2014", label = tr("Zones2014"), value = FALSE),
+                    #checkboxInput("zonesdyn", label = tr("ZonesDyn"), value = FALSE),
+                    
+                      selectInput(inputId="zones",label=strong(HTML(paste(tr("Zones"),":",sep=" "))),choices=getRacingzones(),selected="none",selectize=FALSE),
+                      #checkboxInput("zonesdynrel", label = tr("ZonesDynRel"), value = FALSE),
+                      conditionalPanel(condition = "input.zones == 'dynvertcircrel'",
+                                       numericInput("zonecirccut","Limite","550",min = 250, max = 1250, step=5, width = 5)
+                      ),
+                      conditionalPanel(condition = "input.zones != 'none'",
+                        selectInput(inputId="fanciers",label=strong(HTML(paste(tr("FanciersDataset"),":",sep=" "))),choices=getMappedfanciers(),selected="anvers1553",selectize=FALSE),
+                        checkboxInput("zonesfanciers", label = tr("DisplayFanciers"), value = FALSE)
+                        ),
+                  selectInput(inputId="beladmin",label=strong(HTML(paste(tr("BelAdminZones"),":",sep=" "))),choices=getBelAdmin(),selected="none",selectize=FALSE),
+                  #),
+                  HTML('<hr style="border:1px solid #ccc;"/>'),
                   h4(tr("Display")),
-                  checkboxInput("zones2015", label = tr("Zones2015"), value = FALSE),
-                  checkboxInput("zones2014", label = tr("Zones2014"), value = FALSE),
-                  checkboxInput("zonesdyn", label = tr("ZonesDyn"), value = FALSE),
                   checkboxInput("maintowns", label = tr("MainTowns"), value = FALSE),
                   #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
                   HTML('<hr style="border:1px solid #ccc;"/>')   
