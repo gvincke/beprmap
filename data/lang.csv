@@ -24,6 +24,7 @@ ShowCircles	Afficher les limites des catégories de distance	Show limits of dist
 Display	Afficher	Display	Tonen
 Zones	Zones pour le demi-fond et le fond	Zones for middle and long distances	Zones voor halve fond en fond
 DisplayZones	Afficher les zones	Display zones	Tonen zones
+HideMiddleDistanceSubdivisions	Masquer les sub-divisions du demi-fond	Hide middle distance sub-divisions	Verberg de subafstanden op de middelste afstand
 FanciersDataset	Liste d'amateurs  (données simulées)	Fanciers list (simulated data)	Fanciers list  (gesimuleerde gegevens)
 DisplayFanciers	Montrer les amateurs (données simulées)	Display fanciers (simulated data)	Toon fanciers (gesimuleerde gegevens)
 MainTowns	Principales villes du pays	Main cities	Belangrijkste steden

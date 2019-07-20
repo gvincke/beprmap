@@ -754,7 +754,9 @@ shinyServer(function(input, output, session) {
           Lat2Deg2 <-Rad2Deg(Lat2Rad2)
           Lon2Deg2 <-Rad2Deg(Lon2Rad2)
           if(i %in% c(2,4,6)){
-            lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+            if(v$zonehidemiddle == FALSE) {
+              lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+            }
           } else {
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
           }
@@ -791,9 +793,14 @@ shinyServer(function(input, output, session) {
       }
       #Plot labels
       AngDeg <- c(AngDeg[2]-2.5,AngDeg[3]-(AngDeg[3]-AngDeg[2])*0.5,AngDeg[4]-(AngDeg[4]-AngDeg[3])*0.5,AngDeg[5]-(AngDeg[5]-AngDeg[4])*0.5,AngDeg[6]-(AngDeg[6]-AngDeg[5])*0.5,AngDeg[6]+2.5)#Angles in radians defining zones relatively to Chastres
-      labels<-c("A1","A2","B1","B2","C1","C2")
+      if(v$zonehidemiddle == FALSE) {
+        labels<-c("A1","A2","B1","B2","C1","C2")
+      } else {
+        labels<-c("A","A","B","B","C","C")#on met tout et on affiche 1/2 = plus simple que de tout calculer pour 3 valeurs au lieu de 6
+      }
       Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
       Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
+      AngRadLines <- AngRad #backup AngRad used to lines to plot labels when great distance only
       AngRad <- Deg2Rad(AngDeg)
       for(i in 1:6){
         # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
@@ -831,7 +838,18 @@ shinyServer(function(input, output, session) {
           Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef,Lat2Rad3)
           Lat2Deg3 <-Rad2Deg(Lat2Rad3)
           Lon2Deg3 <-Rad2Deg(Lon2Rad3)
-          text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+          if(v$zonehidemiddle == FALSE) {
+            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+          } else {
+            if(i %in% c(2,4,6)){
+              # Recalculer les corrdonnées des labels pour calquer celle sde slignes intermédiaires
+              Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1))
+              Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1),Lat2Rad5)
+              Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+              Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+              text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+            } 
+          }
         }
       }
     }
@@ -988,7 +1006,9 @@ shinyServer(function(input, output, session) {
           Lon2Deg2 <-Rad2Deg(Lon2Rad2)
           if(i %in% c(2,4,6)){
             if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+              if(v$zonehidemiddle == FALSE){
               lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+              }
             }
           } else {#i=1,3,5,7
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
@@ -1002,6 +1022,7 @@ shinyServer(function(input, output, session) {
           plotDist(Coords$y,Coords$x,median(subfanciers$Km),"#666666",Rad2Deg(AngRad[i]),Rad2Deg(AngRad[i+2]))# TODO
         }
       }
+      AngRadLines<-AngRad #Backup of AngRad for lines to plot great distance labels at the same angle that lines on middle distance when midle distance is hided
       #cat(KmLabels)
       # #Plot labels
       #AngRad<-AngRad[2:7]
@@ -1020,7 +1041,15 @@ shinyServer(function(input, output, session) {
       #Delta<-(AngRad[2]-AngRad[1])/2
       AngRad<-AngRad+Deltas
       #AngRad<-c(AngRad,Delta+AngRad[5]+Delta)
-      labels<-c("A1","A2","B1","B2","C1","C2")
+      if(v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2") {
+        labels<-c("A1","A2","B1","B2","C1","C2")
+      } else {
+        if(v$zonehidemiddle == FALSE){
+          labels<-c("A1","A2","B1","B2","C1","C2")
+        } else {
+          labels<-c("A","A","B","B","C","C")#on met tout et on affiche 1/2 = plus simple que de tout calculer pour 3 valeurs au lieu de 6
+        }
+      }
       Lat1Rad <- Deg2Rad(Coords$y)#Latitude of the center of the circle in radians
       Lon1Rad <- Deg2Rad(Coords$x)#Longitude of the center of the circle in radians
       if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
@@ -1057,7 +1086,7 @@ shinyServer(function(input, output, session) {
             Lon2Deg4 <-Rad2Deg(Lon2Rad4)
           } 
 
-        } else {
+        } else { # when not dynvertcircrel2 or dynvertcircrel2 : so when dynvertabs or dynvertrel
           # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
           # Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
           # 
@@ -1087,16 +1116,35 @@ shinyServer(function(input, output, session) {
         # 
         # Lat2Deg2 <-Rad2Deg(Lat2Rad2)
         # Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-        if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
+        if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){#dynvertabs or dynvertrel
           # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
           # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
           if(v$zonesfanciers){
             text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
             text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
           } else {
-            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+            if(v$zonehidemiddle == FALSE){
+              text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+            } else { # When Hide Middle Distance Label 
+              if(i %in% c(2,4,6)){
+                if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
+                  DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2)
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+                } else {#dynvertabs
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2)
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+                }
+              }
+            }
           }
-        } else {#dynvertcircrel et dynvertcircrel2
+        } else {#dynvertcircrel et dynvertcircrel2 
           text(Lon2Deg1,Lat2Deg1,labels= labels[i+j],col=Color)
           text(Lon2Deg2,Lat2Deg2,labels= labels[i+j+1],col=Color)
           if(v$zonesfanciers){
@@ -1111,14 +1159,16 @@ shinyServer(function(input, output, session) {
     
     v<-getInputValues()
     cv<-getComputedValues()
-    par()
-    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))#,xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax)
+    #cat(par("xpd")[1])
+    par(xpd=FALSE)#censé empécher de plotter en dehors de la sone de plot ...
+    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))#mar = c(0,0,0,0),mai = c(0,0,0,0),oma = c(0,0,0,0),omi = c(0,0,0,0),bg="red",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax)   ,xlim=c(par("usr")[1],par("usr")[2]),ylim=c(par("usr")[3],par("usr")[4])
     # https://stat.ethz.ch/pipermail/r-help/2003-May/033971.html : to set background color for oceans, i must set the map twice and draw a rectangle inside the plot between
     #cat("cv$xmin", cv$xmin, "\n")
     #cat("cv$xmax", cv$xmax, "\n")
     #cat("cv$ymin", cv$ymin, "\n")
     #cat("cv$ymax", cv$ymax, "\n")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,lforce="e",col="white",myborder=0)#mar = c(0,0,0,0)
+    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]))
     rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white")
     rect(cv$xmin,  cv$ymin, cv$xmax, cv$ymax, col = "lightblue")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,col="white",lforce="e",add = TRUE,myborder=0)#mar = c(0,0,0,0),lforce="e"
@@ -1436,6 +1486,7 @@ output$uiSBshow <- renderUI({
                                        numericInput("zonecirccut","Limite","550",min = 250, max = 1250, step=5, width = 5)
                       ),
                       conditionalPanel(condition = "input.zones != 'none'",
+                        checkboxInput("zonehidemiddle", label = tr("HideMiddleDistanceSubdivisions"), value = FALSE),
                         selectInput(inputId="fanciers",label=strong(HTML(paste(tr("FanciersDataset"),":",sep=" "))),choices=getMappedfanciers(),selected="anvers1553",selectize=FALSE),
                         checkboxInput("zonesfanciers", label = tr("DisplayFanciers"), value = FALSE)
                         ),
