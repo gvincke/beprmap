@@ -49,7 +49,7 @@ input[type="number"] {
   max-width: 100px;
 }
 #MLatMax, #MLatMin, #MLonMax, #MLonMin {
-  width: 50px;
+  width: 90px;
 }
 #zonecirccut {
   width: 100px;
