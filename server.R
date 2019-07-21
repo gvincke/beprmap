@@ -756,6 +756,7 @@ shinyServer(function(input, output, session) {
           if(i %in% c(2,4,6)){
             if(v$zonehidemiddle == FALSE) {
               lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+              #plot(c(Lon2Deg1,Lat2Deg1),c(Lon2Deg2,Lat2Deg2),lty=2,col=Color,type='l',add=TRUE)#no = add not valid for plot
             }
           } else {
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
@@ -786,7 +787,13 @@ shinyServer(function(input, output, session) {
         nfanciersbyzones<-c()
         pcfanciersbyzones<-c()
         for(i in 2:length(AngRad)){
-          subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+          if(v$zonehidemiddle == TRUE) {#si on veut masquer les demi-fond : calculer n et pc de 1 à 3, 3 - 5, 5 - 7, mais faire un array de 6 pour simplifier le plots. Idéalement on devrait ne calculer que une fois sur deux, mais j'optimiserait plus tard
+            #faire i<-i+1 si i est pair
+            if(i %% 2 == 0) {i<-i+1}
+            subfanciers<-subset(fanciers, anglerad > AngRad[i-2] & anglerad <=AngRad[i])
+          } else {
+            subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+          }
           nfanciersbyzones<-c(nfanciersbyzones,nrow(subfanciers))
           pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subfanciers)/nrow(fanciers)*100,digits =2))
         }
@@ -822,29 +829,48 @@ shinyServer(function(input, output, session) {
         } else {#2014
           midDistCoef<-2.5
         }
-        if(v$zonesfanciers){
-          Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1))
-          Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1),Lat2Rad3)
-          Lat2Deg3 <-Rad2Deg(Lat2Rad3)
-          Lon2Deg3 <-Rad2Deg(Lon2Rad3)
-          Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2))
-          Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2),Lat2Rad4)
-          Lat2Deg4 <-Rad2Deg(Lat2Rad4)
-          Lon2Deg4 <-Rad2Deg(Lon2Rad4)
-          text(Lon2Deg3,Lat2Deg3,labels=labels[i],col=Color)
-          text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
-        } else {
-          Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef)
-          Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef,Lat2Rad3)
-          Lat2Deg3 <-Rad2Deg(Lat2Rad3)
-          Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+        if(v$zonesfanciers){#si on affiche les fanciers on recalcule position de label et affiche le n(%)
           if(v$zonehidemiddle == FALSE) {
-            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1))
+            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1),Lat2Rad3)
+            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+            text(Lon2Deg3,Lat2Deg3,labels=labels[i],col=Color)
+            
+            Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2))
+            Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2),Lat2Rad4)
+            Lat2Deg4 <-Rad2Deg(Lat2Rad4)
+            Lon2Deg4 <-Rad2Deg(Lon2Rad4)
+            text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
           } else {
+            #recalculer position labels et n(%)
             if(i %in% c(2,4,6)){
               # Recalculer les corrdonnées des labels pour calquer celle sde slignes intermédiaires
               Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1))
               Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef-0.1),Lat2Rad5)
+              Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+              Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+              text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+              
+              Lat2Rad6 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2))
+              Lon2Rad6 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef+0.2),Lat2Rad6)
+              Lat2Deg6 <-Rad2Deg(Lat2Rad6)
+              Lon2Deg6 <-Rad2Deg(Lon2Rad6)
+              text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+            }
+          }
+        } else { #SI pas de fanciers => juste label 
+          if(v$zonehidemiddle == FALSE) {
+            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef)
+            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/midDistCoef,Lat2Rad3)
+            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+          } else {
+            if(i %in% c(2,4,6)){
+              # Recalculer les corrdonnées des labels pour calquer celle sde slignes intermédiaires
+              Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef))
+              Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(midDistCoef),Lat2Rad5)
               Lat2Deg5 <-Rad2Deg(Lat2Rad5)
               Lon2Deg5 <-Rad2Deg(Lon2Rad5)
               text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
@@ -947,7 +973,13 @@ shinyServer(function(input, output, session) {
         pcfanciersbyzones<-c()
         for(i in 2:length(AngRad)){
           if(v$zones=="dynvertabs" || v$zones=="dynvertrel") {
-            subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+            if(v$zonehidemiddle == TRUE) {#si on veut masquer les demi-fond : calculer n et pc de 1 à 3, 3 - 5, 5 - 7, mais faire un array de 6 pour simplifier le plots. Idéalement on devrait ne calculer que une fois sur deux, mais j'optimiserait plus tard
+              #faire i<-i+1 si i est pair
+              if(i %% 2 == 0) {i<-i+1}
+              subfanciers<-subset(fanciers, anglerad > AngRad[i-2] & anglerad <=AngRad[i])
+            } else {
+              subfanciers<-subset(fanciers, anglerad > AngRad[i-1] & anglerad <=AngRad[i])
+            }
             nfanciersbyzones<-c(nfanciersbyzones,nrow(subfanciers))
             pcfanciersbyzones<-c(pcfanciersbyzones,round(nrow(subfanciers)/nrow(fanciers)*100,digits =2))
           } else {# un angle sur deux, et prendre la distance en compte
@@ -1093,21 +1125,67 @@ shinyServer(function(input, output, session) {
           # Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
           # Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
           
-          if(v$zonesfanciers){
-            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1))
-            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1),Lat2Rad3)
-            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
-            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
-                               
-            Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1))
-            Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1),Lat2Rad4)
-            Lat2Deg4 <-Rad2Deg(Lat2Rad4)
-            Lon2Deg4 <-Rad2Deg(Lon2Rad4)
-          } else {
-            Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2)
-            Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad3)
-            Lat2Deg3 <-Rad2Deg(Lat2Rad3)
-            Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+          if(v$zonesfanciers){#3 et #4 c'est quand on montre le DF. #5 et #§ c'est quand on masque le DF -> on montre que le fond
+            if(v$zonehidemiddle == FALSE){#3 et #4
+              Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1))
+              Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2-0.1),Lat2Rad3)
+              Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+              Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+                                 
+              Lat2Rad4 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1))
+              Lon2Rad4 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/(2+0.1),Lat2Rad4)
+              Lat2Deg4 <-Rad2Deg(Lat2Rad4)
+              Lon2Deg4 <-Rad2Deg(Lon2Rad4)
+            } else {#5 et #6 : on montre les fanciers ET on masque les DF
+              if(i %in% c(2,4,6)){
+                if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
+                  DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/(2-0.1))
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/(2-0.1),Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  
+                  Lat2Rad6 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/(2+0.1))
+                  Lon2Rad6 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/(2+0.1),Lat2Rad6)
+                  Lat2Deg6 <-Rad2Deg(Lat2Rad6)
+                  Lon2Deg6 <-Rad2Deg(Lon2Rad6)
+                  
+                } else {#dynvertabs
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(2-0.1))
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(2-0.1),Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  
+                  Lat2Rad6 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(2+0.1))
+                  Lon2Rad6 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/(2+0.1),Lat2Rad6)
+                  Lat2Deg6 <-Rad2Deg(Lat2Rad6)
+                  Lon2Deg6 <-Rad2Deg(Lon2Rad6)
+                  
+                }
+              }
+            }
+          } else {#pas zonefanciers
+            if(v$zonehidemiddle == FALSE){
+              Lat2Rad3 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2)
+              Lon2Rad3 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad3)
+              Lat2Deg3 <-Rad2Deg(Lat2Rad3)
+              Lon2Deg3 <-Rad2Deg(Lon2Rad3)
+            } else {
+              if(i %in% c(2,4,6)){
+                if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
+                  DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2)
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                } else {#dynvertabs
+                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2)
+                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                }
+              }
+            }
           }
         }
 
@@ -1119,26 +1197,38 @@ shinyServer(function(input, output, session) {
         if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){#dynvertabs or dynvertrel
           # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
           # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
-          if(v$zonesfanciers){
-            text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
-            text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
-          } else {
+          if(v$zonesfanciers){#On montre les fanciers ==> recalculer les positions labels et n(%) qd on masque le DF
+            if(v$zonehidemiddle == FALSE){
+              text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
+              text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+            } else {#recalculer les positions labels et n(%) qd on masque le DF
+              if(i %in% c(2,4,6)){
+                #if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
+                  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+                  text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+                #} else {#dynvertabs
+                #  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+                #  text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
+                #}
+              }
+            }
+          } else {#On montre PAS les fanciers => QUE le label = ok
             if(v$zonehidemiddle == FALSE){
               text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
             } else { # When Hide Middle Distance Label 
               if(i %in% c(2,4,6)){
                 if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
-                  DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
-                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2)
-                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
-                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
-                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  # DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
+                  # Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2)
+                  # Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  # Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  # Lon2Deg5 <-Rad2Deg(Lon2Rad5)
                   text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
                 } else {#dynvertabs
-                  Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2)
-                  Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
-                  Lat2Deg5 <-Rad2Deg(Lat2Rad5)
-                  Lon2Deg5 <-Rad2Deg(Lon2Rad5)
+                  # Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2)
+                  # Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
+                  # Lat2Deg5 <-Rad2Deg(Lat2Rad5)
+                  # Lon2Deg5 <-Rad2Deg(Lon2Rad5)
                   text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
                 }
               }
@@ -1168,11 +1258,16 @@ shinyServer(function(input, output, session) {
     #cat("cv$ymin", cv$ymin, "\n")
     #cat("cv$ymax", cv$ymax, "\n")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,lforce="e",col="white",myborder=0)#mar = c(0,0,0,0)
-    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]))
-    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white")
+    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]),"\n")#par('usr') = max and min of axis values
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white") #utilité ? rect bleu l'override ..
     rect(cv$xmin,  cv$ymin, cv$xmax, cv$ymax, col = "lightblue")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,col="white",lforce="e",add = TRUE,myborder=0)#mar = c(0,0,0,0),lforce="e"
+    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]),"\n")
+    #points(par('usr')[1],par('usr')[4],pch=20,col='red',cex=20)
+    #points(par('usr')[1],par('usr')[3],pch=20,col='red',cex=20)
+    #rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "red")
     #map.axes() 
+    # TODO = set par(mar, mai, etc with par('usr') values)
     #plot(BE_ADMIN_PROVINCE, add = TRUE, border="black")#, lwd = 3
     if(v$beladmin != "none"){
       #list_one[!list_one$letters %in% list_two$letters2,]
