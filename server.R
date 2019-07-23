@@ -15,7 +15,6 @@
 # Sys.setlocale("LC_ALL", "fr_FR.UTF-8")#to be sure that accents in text will be allowed in plots
 #TODO : séparer localisation des lieux de lâcher de calcul de distance : vider coordonées de référence => forcer l'encodage de coordonées
 #TODO : Réorganiser l'interface pour "forcer l'encodage des coordonnées ?" Ou Visualiser à droite et calcul de distance à gauche ? Ou l'inverse ?
-#TODO : ligne 196 voir si data doit être conditionné à coordonnées perso colombier
 #TODO : ajouter les lieux suivants http://www.colombophiliefr.com/Dossiers/GPS/lieux_lacher.htm
 #TODO : importation de fichiers langues pour les select : reactive ou observe : il y a les deux dans le code : uniformiser
 library(shiny)
@@ -202,6 +201,8 @@ shinyServer(function(input, output, session) {
     Min<-((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100)
     Sec<-((Sexa/100-floor(Sexa/100))*100)
     Dec<-Deg+(Min/60)+(Sec/3600)
+    #par(paste(Deg," | ",Min, " | ", Sec," | ",Dec, "\n"))
+    # ATTENTION : les coordonnées WGS c'est pas linéaire : 4 00 00 direct en dessous c'est pas 3 99 99 mais 3 59 59 car Min et Sec sont en base 60 !!!!!
     return(Dec)
   }
   
@@ -485,7 +486,7 @@ shinyServer(function(input, output, session) {
     return(Rad2Deg(atan((sin(lon2-lon1)*cos(lat2))/(cos(lat1)*sin(lat2)-sin(lat1)*cos(lat2)*cos(lon1-lon2)))))
   }
   # sign of Ang in degrees are not trasnformed in Radians in the same way if the detination is in NE, SE, SW or NW of origin
-  # TODO : try to optimise that computation to avoid this +180
+  # TODO : try to optimise that computation to avoid this +180 : see Deg2Rad2Deg.txt
   AngDeg2RadLoft2Dest<-function(loftcoord,destcoord,AngDeg){
     if(loftcoord$x >= destcoord$x){ # Est or West
       if(AngDeg<0){ # Notrh or South
@@ -573,7 +574,7 @@ shinyServer(function(input, output, session) {
           text(Lon2Deg[120],Lat2Deg[120],srt=60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)#angle 0 is vertical in a map, not horizontal as in common geometry ! http://www.ats.ucla.edu/stat/r/faq/angled_labels.htm
           text(Lon2Deg[240],Lat2Deg[240],srt=-60, labels = paste(round(Km[i]*DistUnitFact,0),v$distunit,sep=" "), pos=3,cex=0.8,col=Color)
         } else { #Arc
-          lines(c(Lon2Deg),c(Lat2Deg), col=Color, lty=2)
+          lines(c(Lon2Deg),c(Lat2Deg), col=Color)#, lty=2
         }
       }
     }
@@ -756,7 +757,6 @@ shinyServer(function(input, output, session) {
           if(i %in% c(2,4,6)){
             if(v$zonehidemiddle == FALSE) {
               lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
-              #plot(c(Lon2Deg1,Lat2Deg1),c(Lon2Deg2,Lat2Deg2),lty=2,col=Color,type='l',add=TRUE)#no = add not valid for plot
             }
           } else {
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
@@ -775,14 +775,9 @@ shinyServer(function(input, output, session) {
           fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
         }
         # calculer les angles avec lieux de lâcher (ici les ditances sont pas nécéssaires car zones 2014 ou 2015 sont en profondeurs)
-        #fanciers$angledeg <- NA
         fanciers$anglerad <- NA
-        #fanciers$Km <- NA
         for(i in 1:nrow(fanciers)){ #add angle to data
-          #fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
           fanciers[i,]$anglerad<-Deg2Rad(angleDeg(Coords[2],Coords[1],fanciers[i,]$longitude,fanciers[i,]$latitude))
-          #calculer les distances de chaque fancier avec lieu de lâcher
-          #fanciers[i,]$Km <- getDistanceInMeters(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude)/1000 #(lon1,lat1,lon2,lat2)
         }
         nfanciersbyzones<-c()
         pcfanciersbyzones<-c()
@@ -810,20 +805,6 @@ shinyServer(function(input, output, session) {
       AngRadLines <- AngRad #backup AngRad used to lines to plot labels when great distance only
       AngRad <- Deg2Rad(AngDeg)
       for(i in 1:6){
-        # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
-        # Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
-        # 
-        # Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
-        # Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
-        # 
-        # Lat2Deg1 <-Rad2Deg(Lat2Rad1)
-        # Lon2Deg1 <-Rad2Deg(Lon2Rad1)
-        # 
-        # Lat2Deg2 <-Rad2Deg(Lat2Rad2)
-        # Lon2Deg2 <-Rad2Deg(Lon2Rad2)
-        # 
-        # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
-        # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
         if(v$zones=="2015"){
           midDistCoef<-2
         } else {#2014
@@ -914,11 +895,9 @@ shinyServer(function(input, output, session) {
         fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
       }
       # calculer les angles avec lieux de lâcher (ici les ditances sont pas nécéssaires car zones 2014 ou 2015 sont en profondeurs)
-      #fanciers$angledeg <- NA
       fanciers$anglerad <- NA
       fanciers$Km <- NA
       for(i in 1:nrow(fanciers)){ #add angle to data
-        #fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
         fanciers[i,]$anglerad<-Deg2Rad(angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude))
         if(v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
           #calculer les distances de chaque fancier avec lieu de lâcher
@@ -932,38 +911,11 @@ shinyServer(function(input, output, session) {
         AngRad<-seq(from=AngleRadMin,to=AngleRadMax,length.out=7)
       }
       if(v$zones=="dynvertrel" || v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
-        # if(v$fanciers =="anvers1553"){
-        #   fanciers <- read.csv("data/fanciers-belgium-anvers-1553.csv", sep=",", dec=".")
-        # }
-        # if(v$fanciers=="liege1580"){
-        #   fanciers <- read.csv("data/fanciers-belgium-liege-1580.csv", sep=",", dec=".")
-        # }
-        # if(v$fanciers=="liege535"){
-        #   fanciers <- read.csv("data/fanciers-belgium-liege-535.csv", sep=",", dec=".")
-        # }
-        # calculer les angles des fanciers
-        # fanciers$angledeg <- NA
-        # fanciers$anglerad <- NA
-        # fanciers$Km <- NA
-        # for(i in 1:nrow(fanciers)){ #add angle to data
-        #   fanciers[i,]$angledeg<-angleDeg(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude) #(lon1,lat1,lon2,lat2))
-        #   fanciers[i,]$anglerad<-Deg2Rad(fanciers[i,]$angledeg)
-        #   if(v$zones=="dynvertcircrel2"){
-        #     #calculer les distances de chaque fancier avec lieu de lâcher
-        #     fanciers[i,]$Km <- getDistanceInMeters(Coords$x,Coords$y,fanciers[i,]$longitude,fanciers[i,]$latitude)/1000 #(lon1,lat1,lon2,lat2)
-        #   }
-        # }
-        # # les classer par ordre croissant
-        # fanciers<-fanciers[with(fanciers, order(anglerad)),] 
-        # fanciers$rank <- NA
-        # fanciers$rank <- 1:nrow(fanciers)
         # calculer les rangs et déterminer les limites des 100/6 % des fanciers concernés
         AngRad<-c()
         AngRad<-c(AngRad,AngleRadMin)
         for(a in 1:5){
           AngRad<-c(AngRad,(fanciers[floor(nrow(fanciers)*(a/6)),]$anglerad+fanciers[ceiling(nrow(fanciers)*(a/6)),]$anglerad)/2)#% pas égaux quand nrow(fanciers) n'est pas un multiple de 6
-          #AngRad<-c(AngRad,fanciers[ceiling(nrow(fanciers)*(a/6)),]$anglerad)#16.68% puis 16.61%
-          #AngRad<-c(AngRad,fanciers[floor(nrow(fanciers)*(a/6)),]$anglerad)#16.68% puis 16.61%
         }
         AngRad<-c(AngRad,AngleRadMax)
       }
@@ -1039,25 +991,25 @@ shinyServer(function(input, output, session) {
           if(i %in% c(2,4,6)){
             if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
               if(v$zonehidemiddle == FALSE){
-              lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
+                lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),lty=2,col=Color)
               }
             }
           } else {#i=1,3,5,7
             lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),col=Color)
           }
         }
+        if(v$zones == "dynvertcircrel" && i %in% c(1,3,5)){
+          plotDist(Coords$y,Coords$x,v$zonecirccut,"#666666",Rad2Deg(AngRad[i]),Rad2Deg(AngRad[i+2]))
+        }
         if((v$zones=="dynvertcircrel2") && i %in% c(1,3,5)){# Pour tous les angles sauf le dernier, dessiner l'arc de l'angle jusqu'à l'angle suivant
           # Entre l'angle et l'angle suivant : sélectionner les coordonnées du sample, calculer leur distance, et en trouver la médiane qu'on file à l'arc
           subfanciers<-subset(fanciers, anglerad >= AngRad[i] & anglerad < AngRad[i+2])
-          #cat(paste("i=",i,"; nrow(subfanciers)=",nrow(subfanciers)),"AngRad[i]=",AngRad[i]," median(Km)=",length(subfanciers$Km)," | ")
           KmLabels<-c(KmLabels,median(subfanciers$Km))
           plotDist(Coords$y,Coords$x,median(subfanciers$Km),"#666666",Rad2Deg(AngRad[i]),Rad2Deg(AngRad[i+2]))# TODO
         }
       }
       AngRadLines<-AngRad #Backup of AngRad for lines to plot great distance labels at the same angle that lines on middle distance when midle distance is hided
-      #cat(KmLabels)
-      # #Plot labels
-      #AngRad<-AngRad[2:7]
+      #Plot labels
       Deltas<-c()
       if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){
         for(i in 2:7){
@@ -1092,7 +1044,6 @@ shinyServer(function(input, output, session) {
       j<-c(0)
       for(i in steps){
         if(v$zones=="dynvertcircrel" || v$zones=="dynvertcircrel2"){
-          #KmLabel<-c(KmLabels[i]-(KmLabels[i]-Km[1])*0.15,KmLabels[i]+(Km[2]-KmLabels[i])*0.15)
           if(v$zones=="dynvertcircrel2"){
             KmLabel<-c(KmLabels[i]-15,KmLabels[i]+15)
           } else {
@@ -1119,11 +1070,6 @@ shinyServer(function(input, output, session) {
           } 
 
         } else { # when not dynvertcircrel2 or dynvertcircrel2 : so when dynvertabs or dynvertrel
-          # Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[1])
-          # Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[1],Lat2Rad1)
-          # 
-          # Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad[i],Km[2])
-          # Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad[i],Km[2],Lat2Rad2)
           
           if(v$zonesfanciers){#3 et #4 c'est quand on montre le DF. #5 et #§ c'est quand on masque le DF -> on montre que le fond
             if(v$zonehidemiddle == FALSE){#3 et #4
@@ -1189,27 +1135,15 @@ shinyServer(function(input, output, session) {
           }
         }
 
-        # Lat2Deg1 <-Rad2Deg(Lat2Rad1)
-        # Lon2Deg1 <-Rad2Deg(Lon2Rad1)
-        # 
-        # Lat2Deg2 <-Rad2Deg(Lat2Rad2)
-        # Lon2Deg2 <-Rad2Deg(Lon2Rad2)
         if(v$zones!="dynvertcircrel" && v$zones!="dynvertcircrel2"){#dynvertabs or dynvertrel
-          # text(Lon2Deg1,Lat2Deg1,labels= labels[i],col=Color)
-          # text(Lon2Deg2,Lat2Deg2,labels= labels[i],col=Color)
           if(v$zonesfanciers){#On montre les fanciers ==> recalculer les positions labels et n(%) qd on masque le DF
             if(v$zonehidemiddle == FALSE){
               text(Lon2Deg3,Lat2Deg3,labels= labels[i],col=Color)
               text(Lon2Deg4,Lat2Deg4,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
             } else {#recalculer les positions labels et n(%) qd on masque le DF
               if(i %in% c(2,4,6)){
-                #if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
-                  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
-                  text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
-                #} else {#dynvertabs
-                #  text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
-                #  text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
-                #}
+                text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
+                text(Lon2Deg6,Lat2Deg6,labels=paste(nfanciersbyzones[i],"(",pcfanciersbyzones[i],"%)",sep=''),col=Color)
               }
             }
           } else {#On montre PAS les fanciers => QUE le label = ok
@@ -1218,17 +1152,8 @@ shinyServer(function(input, output, session) {
             } else { # When Hide Middle Distance Label 
               if(i %in% c(2,4,6)){
                 if(v$zones=="dynvertrel"){# TODO : if dynvertrel : recalculer l'écart entre lignes pleines pour remettra label plus au milieu
-                  # DeltasVertRel<-(AngRadLines[i+1]-AngRadLines[i-1])/2
-                  # Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2)
-                  # Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i-1]+DeltasVertRel,Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
-                  # Lat2Deg5 <-Rad2Deg(Lat2Rad5)
-                  # Lon2Deg5 <-Rad2Deg(Lon2Rad5)
                   text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
                 } else {#dynvertabs
-                  # Lat2Rad5 <- getLatFromAngleDistance(Lat1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2)
-                  # Lon2Rad5 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRadLines[i],Km[1]+(Km[2]-Km[1])/2,Lat2Rad5)
-                  # Lat2Deg5 <-Rad2Deg(Lat2Rad5)
-                  # Lon2Deg5 <-Rad2Deg(Lon2Rad5)
                   text(Lon2Deg5,Lat2Deg5,labels= labels[i],col=Color)
                 }
               }
@@ -1247,37 +1172,202 @@ shinyServer(function(input, output, session) {
       }
     }
     
+    AsSexa <-function(Sexa) {
+      Deg<-floor(Sexa/10000)
+      Min<-round(((floor(Sexa/100)/100-floor(floor(Sexa/100)/100))*100),0)
+      for(i in 1:length(Min)) {
+        if(Min[i]==60){
+          Min[i]<-0
+          Deg[i]<-Deg[i]+1
+        } else {
+          if(Min[i]>60){
+            Min[i]<-59
+          }
+        }
+      }
+      Sec<-round(((Sexa/100-floor(Sexa/100))*100),1)
+      for(i in 1:length(Sec)){
+        if(Sec[i]==60){
+          Sec[i]<-0
+          Min[i]<-Min[i]+1
+        } else {
+          if(Sec[i]>60){
+            Sec[i]<-59
+          }
+        }
+      }
+      return(Deg*10000+Min*100+Sec)
+    }
+    
+    #WGS84 are Sexagecimal : but numeric input is in base 10 : here is the function to force these inputs to work as if they where in Sexagesimal
+    WGS84FieldsNames<-c('MLatMax', 'MLatMin', 'MLonMax', 'MLonMin',"z2020Lat","z2020NLon1","z2020NLon2","z2020SLon1","z2020SLon2")
+    WGS84FieldsValues<-c()
+    for(k in 1:length(WGS84FieldsNames)){
+      WGS84FieldsValues<-c(WGS84FieldsValues,input[[WGS84FieldsNames[k]]])
+    }
+    observeEvent(WGS84FieldsValues, {
+      Sexa <- WGS84FieldsValues
+      SexaCorrected<-AsSexa(Sexa)
+      for(i in 1:length(Sexa)){
+        if(SexaCorrected[i] != Sexa[i]){
+          updateNumericInput(session, WGS84FieldsNames[i], value = SexaCorrected[i])
+        }
+      }
+    })
+    
+    AngDeg2RadSectorsSouth<-function(AngDeg){#AngDeg = 0 = North #AngDeg > 0 = North-> Est -> South #AngDeg <0 = North -> West ->South
+      if(AngDeg < 0){ # Est or West
+        if(AngDeg < -90){ # Notrh or South
+          AngRad <- Deg2Rad(AngDeg)
+        } else {
+          AngRad <- Deg2Rad(AngDeg+180)
+        }
+      } else {
+        if(AngDeg > 90){# Notrh or South
+          AngRad <- Deg2Rad(AngDeg)
+        } else {
+          AngRad <- Deg2Rad(AngDeg+180)
+        }
+      }
+      return(AngRad)
+    }
+    # TODO : voir Deg2Rad2Deg.txt
+    AngDeg2RadSectorsNorth<-function(AngDeg){#AngDeg = 0 = North #AngDeg > 0 = North-> Est -> South #AngDeg <0 = North -> West ->South
+      if(AngDeg < 0){ # Est or West
+        if(AngDeg < -90){ # Notrh or South
+          AngRad <- Deg2Rad(AngDeg+180)
+        } else {
+          AngRad <- Deg2Rad(AngDeg)
+        }
+      } else {
+        if(AngDeg > 90){# Notrh or South
+          AngRad <- Deg2Rad(AngDeg+180)
+        } else {
+          AngRad <- Deg2Rad(AngDeg)
+        }
+      }
+      return(AngRad)
+    }
+    
+    plotZonesRFCB2020Sectors <- function(Coords,AngRad,Km){#,DKm,Color
+      Lat1Rad <- Deg2Rad(Coords[1])#Latitude of the center of the circle in radians#From degrees to radians rad= deg*(pi/180)
+      Lon1Rad <- Deg2Rad(Coords[2])#Longitude of the center of the circle in radians
+      
+      DKm<-5
+      Color<-'black'
+      Kms <- seq(Km[1],Km[2],by=DKm)
+      if(!Km[2] %in% Kms){
+        Kms<-c(Kms,Km[2])
+      }
+      
+      for(j in 1:(length(Kms)-1)){
+        Lat2Rad1 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j])
+        Lon2Rad1 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j],Lat2Rad1)
+        
+        Lat2Rad2 <- getLatFromAngleDistance(Lat1Rad,AngRad,Kms[j+1])
+        Lon2Rad2 <- getLonFromAngleDistance(Lat1Rad,Lon1Rad,AngRad,Kms[j+1],Lat2Rad2)
+        
+        Lat2Deg1 <-Rad2Deg(Lat2Rad1)
+        Lon2Deg1 <-Rad2Deg(Lon2Rad1)
+        
+        Lat2Deg2 <-Rad2Deg(Lat2Rad2)
+        Lon2Deg2 <-Rad2Deg(Lon2Rad2)
+        
+        lines(c(Lon2Deg1,Lon2Deg2),c(Lat2Deg1,Lat2Deg2),type="l",col=Color)
+      }
+
+    }
+    
+    getZonesRFCB2020SectorDist <- function(data, Lat, Lon, angledeg) {#data must have x, y anglerad et KM names
+      # For the Km : take Belgium coordinates, compute angles form center, and then subset coordinates that have the same angle that the one set here, then compute distance
+      for(i in 1:nrow(data)){ #add angle to data
+        data[i,]$anglerad<-Deg2Rad(angleDeg(Sexa2Dec(Lon),Sexa2Dec(Lat),data[i,]$x,data[i,]$y))
+        data[i,]$Km <- floor(getDistanceInMeters(Sexa2Dec(Lon),Sexa2Dec(Lat),data[i,]$x,data[i,]$y)/1000) #(lon1,lat1,lon2,lat2)
+      }
+      subset<-subset(data, anglerad >= Deg2Rad(angledeg-1) & anglerad <= Deg2Rad(angledeg+1))
+      return(min(subset$Km))#min : stop at first met boundary #max : stop at last met boundary
+    }
+    
+    plotZonesRFCB2020 <- function(){# Sones S1 S2 S3 (Sud et secteurs 1 2 3), et N1, N2, N3 (Nord, 1 2 3)
+      # Soit les secteurs sont perpendiculaires : c'était le cas avant et c'est le cas de la plupart de lignes commentées ici
+      # Soit les secteurs sont à angle constant (pas plus de sens que perpendiculaire)
+      # Soit les secteurs snt une projection depuis Limoges, comme les zones 2015
+      # Donc 2 situations : Angle constant (dont 90° n'est qu'une valeur possible) soit une projection : faisons déjà à angle constant car si c'est pour une projection autant passer aux zones dynamiques. En plus il reste un slot dans le tableau de valeurs pour y glisser l'angle ;-)
+      BelgiumMapData<-map("world2Hires","Belgium",resolution=0,plot=FALSE)
+      BelgiumCoords<-list()
+      BelgiumCoords$x<-BelgiumMapData$x[!is.na(BelgiumMapData$x)]
+      BelgiumCoords$y<-BelgiumMapData$y[!is.na(BelgiumMapData$y)]
+      BelgiumCoords$anglerad <- NA
+      BelgiumCoords$Km <- NA
+      BelgiumCoordData<-as.data.frame(BelgiumCoords)
+      
+      #cat(v$z2020NLat1)
+      subset<-subset(BelgiumCoordData, y >= Sexa2Dec(v$z2020Lat)-0.01 & y <= Sexa2Dec(v$z2020Lat)+0.01)
+      rightsubset<-subset(subset, x<=min(subset$x)+((max(subset$x)-min(subset$x))/3))#select coordinates of the rigth third of the country :to avoir bar to go throw comins-warneton
+      leftsubset<-subset(subset, x>=max(subset$x)-((max(subset$x)-min(subset$x))/3))#select coordinates of the left third of the country :to avoir bar to go throw foeron
+      x <-seq(from =max(rightsubset$x), to =min(leftsubset$x), length.out=100)
+      for(i in 2:length(x) ){
+        lines(c(x[i-1],x[i]),c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020Lat)))#separateur horizontal
+      }
+      #Nord
+      subset<-subset(BelgiumCoordData, y >= Sexa2Dec(v$z2020Lat))
+      NordBel<-subset #BU for angle/distances computations
+      text(x=min(subset$x)+(Sexa2Dec(v$z2020NLon1)-min(subset$x))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N1")
+      text(x=Sexa2Dec(v$z2020NLon1)+(Sexa2Dec(v$z2020NLon2)-Sexa2Dec(v$z2020NLon1))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N2")
+      text(x=Sexa2Dec(v$z2020NLon2)+(max(subset$x)-Sexa2Dec(v$z2020NLon2))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N3")
+      # subset<-subset(BelgiumCoordData, x >= Sexa2Dec(v$z2020NLon1)-0.01 & x <= Sexa2Dec(v$z2020NLon1)+0.01)
+      # y <-seq(from =Sexa2Dec(v$z2020Lat), to =max(subset$y), length.out=100)
+      # for(i in 2:length(y) ){
+      #   lines(c(Sexa2Dec(v$z2020NLon1),Sexa2Dec(v$z2020NLon1)),c(y[i-1],y[i]))#separateur vertical
+      # }
+      plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020NLon1)),AngDeg2RadSectorsNorth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(NordBel,v$z2020Lat, v$z2020NLon1, v$z2020Angle)))
+
+      
+      # subset<-subset(BelgiumCoordData, x >= Sexa2Dec(v$z2020NLon2)-0.01 & x <= Sexa2Dec(v$z2020NLon2)+0.01)
+      # y <-seq(from =Sexa2Dec(v$z2020Lat), to =max(subset$y), length.out=100)
+      # for(i in 2:length(y) ){
+      #   lines(c(Sexa2Dec(v$z2020NLon2),Sexa2Dec(v$z2020NLon2)),c(y[i-1],y[i]))#separateur vertical
+      # }
+      plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020NLon2)),AngDeg2RadSectorsNorth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(NordBel,v$z2020Lat, v$z2020NLon2, v$z2020Angle)))
+      
+      #Sud
+      subset<-subset(BelgiumCoordData, y <= Sexa2Dec(v$z2020Lat))
+      SudBel<-subset #BU for angle/distances computations
+      text(x=min(subset$x)+(Sexa2Dec(v$z2020SLon1)-min(subset$x))/2,y=Sexa2Dec(v$z2020Lat)-(Sexa2Dec(v$z2020Lat)-min(BelgiumCoords$y))/30,labels="S1")
+      text(x=Sexa2Dec(v$z2020SLon1)+(Sexa2Dec(v$z2020SLon2)-Sexa2Dec(v$z2020SLon1))/2,y=Sexa2Dec(v$z2020Lat)-(Sexa2Dec(v$z2020Lat)-min(BelgiumCoords$y))/30,labels="S2")
+      text(x=Sexa2Dec(v$z2020SLon2)+(max(subset$x)-Sexa2Dec(v$z2020SLon2))/2,y=Sexa2Dec(v$z2020Lat)-(Sexa2Dec(v$z2020Lat)-min(BelgiumCoords$y))/30,labels="S3")
+      
+      # subset<-subset(BelgiumCoordData, x >= Sexa2Dec(v$z2020SLon1)-0.01 & x <= Sexa2Dec(v$z2020SLon1)+0.01)
+      # y <-seq(from =min(subset$y), to =Sexa2Dec(v$z2020Lat), length.out=100)
+      # for(i in 2:length(y) ){
+      #   lines(c(Sexa2Dec(v$z2020SLon1),Sexa2Dec(v$z2020SLon1)),c(y[i-1],y[i]))#separateur vertical
+      # }
+      #plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020SLon1)),Deg2Rad(v$z2020Angle-180))
+      plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020SLon1)),AngDeg2RadSectorsSouth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(SudBel,v$z2020Lat, v$z2020SLon1, v$z2020Angle)))
+      
+      # subset<-subset(BelgiumCoordData, x >= Sexa2Dec(v$z2020SLon2)-0.01 & x <= Sexa2Dec(v$z2020SLon2)+0.01)
+      # y <-seq(from =min(subset$y), to =Sexa2Dec(v$z2020Lat), length.out=100)
+      # for(i in 2:length(y) ){
+      #   lines(c(Sexa2Dec(v$z2020SLon2),Sexa2Dec(v$z2020SLon2)),c(y[i-1],y[i]))#separateur vertical
+      # }
+      #plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020SLon2)),Deg2Rad(v$z2020Angle-180))
+      plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020SLon2)),AngDeg2RadSectorsSouth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(SudBel,v$z2020Lat, v$z2020SLon2, v$z2020Angle)))
+    }
+    
+    
     v<-getInputValues()
     cv<-getComputedValues()
-    #cat(par("xpd")[1])
-    par(xpd=FALSE)#censé empécher de plotter en dehors de la sone de plot ...
-    par(xaxt="n",yaxt="n",mar = c(0,0,0,0))#mar = c(0,0,0,0),mai = c(0,0,0,0),oma = c(0,0,0,0),omi = c(0,0,0,0),bg="red",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax)   ,xlim=c(par("usr")[1],par("usr")[2]),ylim=c(par("usr")[3],par("usr")[4])
+    #par(xpd=FALSE)#avoid plot ouside of plot limit, but work in download image but not in plot rendered in Shiny
+    par(xpd=FALSE,xaxt="n",yaxt="n",mar = c(0,0,0,0))#mar = c(0,0,0,0),mai = c(0,0,0,0),oma = c(0,0,0,0),omi = c(0,0,0,0),bg="red",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax)   ,xlim=c(par("usr")[1],par("usr")[2]),ylim=c(par("usr")[3],par("usr")[4])
     # https://stat.ethz.ch/pipermail/r-help/2003-May/033971.html : to set background color for oceans, i must set the map twice and draw a rectangle inside the plot between
-    #cat("cv$xmin", cv$xmin, "\n")
-    #cat("cv$xmax", cv$xmax, "\n")
-    #cat("cv$ymin", cv$ymin, "\n")
-    #cat("cv$ymax", cv$ymax, "\n")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,lforce="e",col="white",myborder=0)#mar = c(0,0,0,0)
-    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]),"\n")#par('usr') = max and min of axis values
     rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "white") #utilité ? rect bleu l'override ..
     rect(cv$xmin,  cv$ymin, cv$xmax, cv$ymax, col = "lightblue")
     map('worldHires', xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),fill=TRUE,col="white",lforce="e",add = TRUE,myborder=0)#mar = c(0,0,0,0),lforce="e"
-    #cat(paste(par("usr")[1],"|", par("usr")[3],"|", par("usr")[2],"|", par("usr")[4]),"\n")
-    #points(par('usr')[1],par('usr')[4],pch=20,col='red',cex=20)
-    #points(par('usr')[1],par('usr')[3],pch=20,col='red',cex=20)
-    #rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col = "red")
-    #map.axes() 
-    # TODO = set par(mar, mai, etc with par('usr') values)
-    #plot(BE_ADMIN_PROVINCE, add = TRUE, border="black")#, lwd = 3
+
     if(v$beladmin != "none"){
-      #list_one[!list_one$letters %in% list_two$letters2,]
-      # https://stackoverflow.com/questions/33112082/removing-data-from-one-dataframe-that-exists-in-another-dataframe-r
-      #idée = prendre data region et soustraire frontière pour pas overlay de maps
-      #gadm0 <-readRDS("data/gadm/gadm36_BEL_0_sp.rds")
-      gadmX <-readRDS(paste("data/gadm/gadm36_BEL_",v$beladmin,"_sp.rds",sep=''))
-      #plot(gadm, add=TRUE,border= "gray",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax))#col => couleur de fond (fill), border => couleur des traits
+      gadmX <-readRDS(paste("data/gadm/gadm36_BEL_",v$beladmin,"_sp_interiors.rds",sep=''))
       map(gadmX,add=TRUE,col="gray",xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),lforce="e")#lforce : avec xlim et y lim : assure qu'on ne plotte pas en dehors des limites
-      #map('worldHires', "belgium",col="black",lwd = 1,add = TRUE,xlim=c(cv$xmin,cv$xmax),ylim=c(cv$ymin,cv$ymax),lforce="e")#,myborder=0
     }
     if(v$zonesfanciers){
       if(v$fanciers=="anvers1553"){
@@ -1311,6 +1401,9 @@ shinyServer(function(input, output, session) {
         a6 <- 36.117411637631
         plotZonesRFCB(c(45.5191666667,1.2052777778),c(a0,a1,a2,a3,a4,a5,a6),c(535,725),20,"black")
       }
+      if(v$zones=='2020'){
+        plotZonesRFCB2020()
+      }
       if(v$training){
         plotDist(cv$LatDec,cv$LonDec,v$trainingdistance,"#666666")
       }
@@ -1338,14 +1431,6 @@ shinyServer(function(input, output, session) {
         text(coords,labels,cex=1,pos=4)
         if(v$zones =="dynvertabs" || v$zones == "dynvertrel" || v$zones == "dynvertcircrel" || v$zones == "dynvertcircrel2" ){
           plotZonesDyn(coords,20,"black")#"#666666"
-          if(v$zones == "dynvertcircrel"){
-            plotDist(cv$coords$Lat[i],cv$coords$Lon[i],v$zonecirccut,"black")#"#666666"
-          }
-          if(v$zones == "dynvertcircrel2"){
-            # Déterminer pour chaque zone la distance de chaque amateur
-            # Puis en prendre le max et le min, et la médiane : 
-            # plotArc à distance de la médiane de angle à gauche jusque angle à droite
-          }
         }
       }
       if(v$training){
@@ -1364,16 +1449,7 @@ shinyServer(function(input, output, session) {
       if(v$kms){maintownslabels<-paste(maintownslabels,as.character(cv$maintowns$Km),collapse = NULL,sep=' ')}
       text(maintownscoords,maintownslabels,cex=1,pos=4)
     }
-#     if(v$perso){
-#       persocoords<-mapproject(perso$Lon,perso$Lat)
-#       points(persocoords,pch=20,col='blue',cex=1)
-#       
-#       #Labels of perso locations
-#       persolabels<-paste("",sep="")
-#       if(v$labels){persolabels<-paste(persolabels,as.character(cv$perso$Ville),collapse = NULL,sep=' ')}
-#       if(v$kms){persolabels<-paste(persolabels,as.character(cv$perso$Km),collapse = NULL,sep=' ')}
-#       text(persocoords,persolabels,cex=1,pos=4)
-#     }
+    
     #Add licence
     rasterImage(cc,cv$xmin,cv$ymin,cv$xmin+((cv$xmax-cv$xmin)*0.1),cv$ymin+((cv$ymax-cv$ymin)*0.03))#cv$xmin+2.5,cv$ymin+0.35
     text(cv$xmin+((cv$xmax-cv$xmin)*0.1),(cv$ymin+((cv$ymax-cv$ymin)*0.03)*0.45),paste("CC-BY Grégoire Vincke",sep=""),pos=4,cex=1)
@@ -1399,10 +1475,6 @@ shinyServer(function(input, output, session) {
 output$uiPanelTitle <- renderUI({
   tr("Title")
 })
-
-# output$uiTitle <- renderUI({#TitlePanel must be set inside renderUI() and not in ui.R titlePanel(uiOutput("uiTitle")) to avoid that html tags are included in the HTML title of the page
-#   titlePanel(tr("Title"))
-# })
 
 output$uiSBlanguage<- renderUI({
   strong(HTML(paste(tr("Language"),":",sep=" ")))
@@ -1435,21 +1507,13 @@ output$uiSBlocationsbottom <- renderUI({
     HTML('<hr style="border:1px solid #ccc;"/>'),
     selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
     conditionalPanel(condition = "input.mapzones == 'man'",
-                     HTML(tr("Coords")),
-                      tags$table(
-                        tags$tr(tags$td(),tags$td(strong("Min")),tags$td(HTML("&nbsp;")),tags$td(strong("Max"))),
-                        tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","490000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","518000",min = -900000, max = 900000, step=1000))),
-                        tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","7000",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","80000",min = -1800000, max = 1800000, step=1000)))
-                      )
-                     ),
-  #     h5(HTML("Type de pigeons concernés")),
-  #     selectInput("pigeons", "",
-  #                 list("Tous" = "all",
-  #                      "Pigeonneaux" = "P", 
-  #                      "Yearlings" = "Y",
-  #                      "Vieux" = "V",
-  #                      "Vieux & Yearlings"="VY"
-  #                 )),
+       HTML(tr("Coords")),
+        tags$table(
+          tags$tr(tags$td(),tags$td(strong("Min")),tags$td(HTML("&nbsp;")),tags$td(strong("Max"))),
+          tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","490000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","518000",min = -900000, max = 900000, step=1000))),
+          tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","7000",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","80000",min = -1800000, max = 1800000, step=1000)))
+        )
+       ),
   HTML('<hr style="border:1px solid #ccc;"/>')
   ))
 })
@@ -1468,8 +1532,7 @@ output$uiSBdistances <- renderUI({
 
 output$uiSBdistancesb <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all")#,                  
-                  #HTML('<hr style="border:1px solid #ccc;"/>')
+    selectInput("racedist", strong(tr("SortDist")),choices=getRacedistances(),selectize=FALSE,selected="all")
   ))
 })
 output$uiSBunit <- renderUI({
@@ -1481,15 +1544,13 @@ output$uiSBround <- renderUI({
 
 output$uiSBtraining <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-                  h4(HTML(tr("PigeonTraining"))),
-                  checkboxInput("training", label = tr("ComputeTrainingLocation"), value = FALSE),
-                  conditionalPanel(condition = "input.training",
-                    sliderInput("trainingdistance", label = strong(tr("TrainingDistance")), min = 10, max = 150, value = 40, step=5),
-                    selectInput(inputId="trainingmethods",label=strong(HTML(paste(tr("TrainingComputationMethods")," :",sep=""))),choices=getTrainingComputationMethods(),selected="mean",selectize=FALSE)
-                  #                  strong(HTML(tr("RaceTime"))),
-                  #                  tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
-                  )
+    HTML('<hr style="border:1px solid #ccc;"/>'),
+    h4(HTML(tr("PigeonTraining"))),
+    checkboxInput("training", label = tr("ComputeTrainingLocation"), value = FALSE),
+    conditionalPanel(condition = "input.training",
+      sliderInput("trainingdistance", label = strong(tr("TrainingDistance")), min = 10, max = 150, value = 40, step=5),
+      selectInput(inputId="trainingmethods",label=strong(HTML(paste(tr("TrainingComputationMethods")," :",sep=""))),choices=getTrainingComputationMethods(),selected="mean",selectize=FALSE)
+    )
   ))
 })
 output$uiSBtrainingCoords <- renderText({
@@ -1514,33 +1575,33 @@ output$uiSBtrainingCoords <- renderText({
 
 output$uiSBsimul <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-                  h4(HTML(tr("PigeonLocation"))),
-                  checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
-                  conditionalPanel(condition = "input.locsim",
-                    sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
-                                max = 2200, value = c(800, 1200)),
-                    strong(HTML(tr("RaceTime"))),
-                    tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
-                  )
+      HTML('<hr style="border:1px solid #ccc;"/>'),
+      h4(HTML(tr("PigeonLocation"))),
+      checkboxInput("locsim", label = tr("ShowPigeonLocationSimulation"), value = FALSE),
+      conditionalPanel(condition = "input.locsim",
+        sliderInput("speed", label = strong(tr("PigeonsSpeed")), min = 400, 
+                    max = 2200, value = c(800, 1200)),
+        strong(HTML(tr("RaceTime"))),
+        tags$table(tags$tr(tags$td(numericInput("days", tr("Days"), 0,min = 0, max = 5, step=1)),tags$td(numericInput("hours", tr("Hours"), 0,min = 0, max = 23, step=1)),tags$td(numericInput("minutes", tr("Minutes"), 0,min = 0, max = 59, step=1))))  
+      )
   ))
 })
 
 output$uiSBdloutput <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-                  h4(HTML(tr("DownLoadMap"))),
-                  radioButtons("dlFileType",paste(tr('FileType'),':',sep=" "),choices =c('png','svg','eps')),
-                  conditionalPanel(condition = "input.dlFileType == 'png'",
-                                   sliderInput("dlFileSizePx", paste(tr('DimImgPx'),':',sep=" "), 
-                                               min=600, max=4000, value=800, step=100)),
-                  conditionalPanel(condition = "input.dlFileType == 'svg' | input.dlFileType == 'eps'",
-                                   sliderInput("dlFileSizeIn", paste(tr('DimImgIn'),':',sep=" "), 
-                                               min=6, max=40, value=8, step=1)),
-                  downloadButton('dlMap', tr("DownLoadMap")),
-                  h4(HTML(tr("DownLoadData"))),
-                  downloadButton('dlData', tr("DownLoadDataCSV"))
-           ))
+      HTML('<hr style="border:1px solid #ccc;"/>'),
+      h4(HTML(tr("DownLoadMap"))),
+      radioButtons("dlFileType",paste(tr('FileType'),':',sep=" "),choices =c('png','svg','eps')),
+      conditionalPanel(condition = "input.dlFileType == 'png'",
+                       sliderInput("dlFileSizePx", paste(tr('DimImgPx'),':',sep=" "), 
+                                   min=600, max=4000, value=800, step=100)),
+      conditionalPanel(condition = "input.dlFileType == 'svg' | input.dlFileType == 'eps'",
+                       sliderInput("dlFileSizeIn", paste(tr('DimImgIn'),':',sep=" "), 
+                                   min=6, max=40, value=8, step=1)),
+      downloadButton('dlMap', tr("DownLoadMap")),
+      h4(HTML(tr("DownLoadData"))),
+      downloadButton('dlData', tr("DownLoadDataCSV"))
+   ))
 })
 
 output$dlMap <-downloadHandler(
@@ -1568,30 +1629,30 @@ output$dlData <- downloadHandler(
 
 output$uiSBshow <- renderUI({
   fluidRow(column(12,"",#Use fluidRow and column 12 to have environment where severals ui stuffs can be defined instead od use uiOutput for each of them
-                  #h4(tr("Zones")),
-                  #checkboxInput("displayzones", label = tr("DisplayZones"), value = FALSE),
-                  #conditionalPanel(condition = "input.displayzones",
-                    #checkboxInput("zones2015", label = tr("Zones2015"), value = FALSE),
-                    #checkboxInput("zones2014", label = tr("Zones2014"), value = FALSE),
-                    #checkboxInput("zonesdyn", label = tr("ZonesDyn"), value = FALSE),
-                    
-                      selectInput(inputId="zones",label=strong(HTML(paste(tr("Zones"),":",sep=" "))),choices=getRacingzones(),selected="none",selectize=FALSE),
-                      #checkboxInput("zonesdynrel", label = tr("ZonesDynRel"), value = FALSE),
-                      conditionalPanel(condition = "input.zones == 'dynvertcircrel'",
-                                       numericInput("zonecirccut","Limite","550",min = 250, max = 1250, step=5, width = 5)
-                      ),
-                      conditionalPanel(condition = "input.zones != 'none'",
-                        checkboxInput("zonehidemiddle", label = tr("HideMiddleDistanceSubdivisions"), value = FALSE),
-                        selectInput(inputId="fanciers",label=strong(HTML(paste(tr("FanciersDataset"),":",sep=" "))),choices=getMappedfanciers(),selected="anvers1553",selectize=FALSE),
-                        checkboxInput("zonesfanciers", label = tr("DisplayFanciers"), value = FALSE)
-                        ),
-                  selectInput(inputId="beladmin",label=strong(HTML(paste(tr("BelAdminZones"),":",sep=" "))),choices=getBelAdmin(),selected="none",selectize=FALSE),
-                  #),
-                  HTML('<hr style="border:1px solid #ccc;"/>'),
-                  h4(tr("Display")),
-                  checkboxInput("maintowns", label = tr("MainTowns"), value = FALSE),
-                  #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
-                  HTML('<hr style="border:1px solid #ccc;"/>')   
+        selectInput(inputId="zones",label=strong(HTML(paste(tr("Zones"),":",sep=" "))),choices=getRacingzones(),selected="none",selectize=FALSE),
+        conditionalPanel(condition = "input.zones == 'dynvertcircrel'",
+          numericInput("zonecirccut","Limite","550",min = 250, max = 1250, step=5, width = 5)
+        ),
+        conditionalPanel(condition = "input.zones == '2020'",
+           HTML(tr("Coords")),
+           tags$table(
+             tags$tr(tags$td(strong(tr("NorthSouthLimit"))),tags$td(numericInput("z2020Lat","","504600",min = 493000, max = 900000, step=100)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
+             tags$tr(tags$td(strong(tr("SectorsAngle"))),tags$td(numericInput("z2020Angle","","25",min = -180, max = 180, step=1)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
+             tags$tr(tags$td(strong(tr("NorthSectorsLimits"))),tags$td(numericInput("z2020NLon1","","35800",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020NLon2","","45200",min = 23200, max = 62400, step=100))),
+             tags$tr(tags$td(strong(tr("SouthSectorsLimits"))),tags$td(numericInput("z2020SLon1","","42300",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020SLon2", "","51700",min = 23200, max = 62400, step=100)))
+           )
+        ),
+        conditionalPanel(condition = "input.zones != 'none'",
+          checkboxInput("zonehidemiddle", label = tr("HideMiddleDistanceSubdivisions"), value = FALSE),
+          selectInput(inputId="fanciers",label=strong(HTML(paste(tr("FanciersDataset"),":",sep=" "))),choices=getMappedfanciers(),selected="anvers1553",selectize=FALSE),
+          checkboxInput("zonesfanciers", label = tr("DisplayFanciers"), value = FALSE)
+          ),
+    selectInput(inputId="beladmin",label=strong(HTML(paste(tr("BelAdminZones"),":",sep=" "))),choices=getBelAdmin(),selected="none",selectize=FALSE),
+    HTML('<hr style="border:1px solid #ccc;"/>'),
+    h4(tr("Display")),
+    checkboxInput("maintowns", label = tr("MainTowns"), value = FALSE),
+    #checkboxInput("perso", label = "Lieux perso (en développement)", value = FALSE),
+    HTML('<hr style="border:1px solid #ccc;"/>')   
   ))
 })
 

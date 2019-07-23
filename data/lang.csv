@@ -84,3 +84,7 @@ TrainingDistance	Distance d'entrainement	Training distance	Opleiding op afstand
 TrainingComputationMethods	Méthodes de calcul	Computation methods	Berekeningsmethoden
 TrainingCoordinates	Coordonnées du lieux de lâcher d'entrainement	Training location coordinates	Trainingslocatie coördinaten
 BelAdminZones	Zones administratives de la Belgique	Administrative areas of Belgium	Administratieve gebieden van België
+NorthSouthLimit	Limite Nord-Sud	North-South limit	Noord-Zuid limiet
+NorthSectorsLimits	Limites des secteurs Nord	Limits of North Sectors	Grenzen van Noord-sectoren
+SouthSectorsLimits	Limites des secteurs Sud 	Limits of South Sectors	Grenzen van Zuid-sectoren
+SectorsAngle	Angle des limites des secteurs	Sector Boundary Angle	Sectorgrenshoek
