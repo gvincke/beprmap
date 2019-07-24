@@ -48,7 +48,7 @@ input[type="number"] {
 #Lon, #Lat, #PLon, #PLat {
   max-width: 100px;
 }
-#MLatMax, #MLatMin, #MLonMax, #MLonMin, #z2020Lat, #z2020NLon1,#z2020NLon2,#z2020SLon1,#z2020SLon2{
+#MLatMax, #MLatMin, #MLonMax, #MLonMin, #z2020Lat, #z2020NLon1,#z2020NLon2,#z2020NLon3,#z2020SLon1,#z2020SLon2{
   width: 90px;
 }
 #zonecirccut {

@@ -1314,7 +1314,8 @@ shinyServer(function(input, output, session) {
       NordBel<-subset #BU for angle/distances computations
       text(x=min(subset$x)+(Sexa2Dec(v$z2020NLon1)-min(subset$x))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N1")
       text(x=Sexa2Dec(v$z2020NLon1)+(Sexa2Dec(v$z2020NLon2)-Sexa2Dec(v$z2020NLon1))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N2")
-      text(x=Sexa2Dec(v$z2020NLon2)+(max(subset$x)-Sexa2Dec(v$z2020NLon2))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N3")
+      text(x=Sexa2Dec(v$z2020NLon2)+(Sexa2Dec(v$z2020NLon3)-Sexa2Dec(v$z2020NLon2))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N3")
+      text(x=Sexa2Dec(v$z2020NLon3)+(max(subset$x)-Sexa2Dec(v$z2020NLon3))/2,y=Sexa2Dec(v$z2020Lat)+(max(BelgiumCoords$y)-Sexa2Dec(v$z2020Lat))/20,labels="N4")
       # subset<-subset(BelgiumCoordData, x >= Sexa2Dec(v$z2020NLon1)-0.01 & x <= Sexa2Dec(v$z2020NLon1)+0.01)
       # y <-seq(from =Sexa2Dec(v$z2020Lat), to =max(subset$y), length.out=100)
       # for(i in 2:length(y) ){
@@ -1329,6 +1330,8 @@ shinyServer(function(input, output, session) {
       #   lines(c(Sexa2Dec(v$z2020NLon2),Sexa2Dec(v$z2020NLon2)),c(y[i-1],y[i]))#separateur vertical
       # }
       plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020NLon2)),AngDeg2RadSectorsNorth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(NordBel,v$z2020Lat, v$z2020NLon2, v$z2020Angle)))
+      
+      plotZonesRFCB2020Sectors(c(Sexa2Dec(v$z2020Lat),Sexa2Dec(v$z2020NLon3)),AngDeg2RadSectorsNorth(v$z2020Angle),c(0,getZonesRFCB2020SectorDist(NordBel,v$z2020Lat, v$z2020NLon3, v$z2020Angle)))
       
       #Sud
       subset<-subset(BelgiumCoordData, y <= Sexa2Dec(v$z2020Lat))
@@ -1636,10 +1639,10 @@ output$uiSBshow <- renderUI({
         conditionalPanel(condition = "input.zones == '2020'",
            HTML(tr("Coords")),
            tags$table(
-             tags$tr(tags$td(strong(tr("NorthSouthLimit"))),tags$td(numericInput("z2020Lat","","504600",min = 493000, max = 900000, step=100)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
-             tags$tr(tags$td(strong(tr("SectorsAngle"))),tags$td(numericInput("z2020Angle","","25",min = -180, max = 180, step=1)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
-             tags$tr(tags$td(strong(tr("NorthSectorsLimits"))),tags$td(numericInput("z2020NLon1","","35800",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020NLon2","","45200",min = 23200, max = 62400, step=100))),
-             tags$tr(tags$td(strong(tr("SouthSectorsLimits"))),tags$td(numericInput("z2020SLon1","","42300",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020SLon2", "","51700",min = 23200, max = 62400, step=100)))
+             tags$tr(tags$td(strong(tr("NorthSouthLimit"))),tags$td(numericInput("z2020Lat","","504600",min = 493000, max = 900000, step=100)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
+             tags$tr(tags$td(strong(tr("SectorsAngle"))),tags$td(numericInput("z2020Angle","","25",min = -180, max = 180, step=1)),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;")),tags$td(HTML("&nbsp;"))),
+             tags$tr(tags$td(strong(tr("NorthSectorsLimits"))),tags$td(numericInput("z2020NLon1","","31300",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020NLon2","","40400",min = 23200, max = 62400, step=100)),tags$td(numericInput("z2020NLon3","","45200",min = 23200, max = 62400, step=100))),
+             tags$tr(tags$td(strong(tr("SouthSectorsLimits"))),tags$td(numericInput("z2020SLon1","","42300",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")),tags$td(numericInput("z2020SLon2", "","51700",min = 23200, max = 62400, step=100)),tags$td(HTML("&nbsp;")))
            )
         ),
         conditionalPanel(condition = "input.zones != 'none'",
