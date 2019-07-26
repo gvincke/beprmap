@@ -7,4 +7,4 @@ dynvertabs	Zones dynamiques (découpe verticale, espacement standard)	Dynamic zo
 dynvertrel	Zones dynamiques (découpe verticale, espacement relatif)	Dynamic zones (vertical cut, relative spacing)	Dynamische zones (verticale snede, relatieve afstand)
 dynvertcircrel	Zones dynamiques (découpe verticale et circulaire, espacement relatif)	Dynamic zones (vertical and circular cut, relative spacing)	Dynamische zones (verticaal en rond snijden,  relatieve afstand)
 dynvertcircrel2	Zones dynamiques (découpe verticale et circulaire, espacement et profondeur relatifs)	Dynamic zones (vertical and circular cut, relative spacing and depth)	Dynamische zones (verticaal en rond snijden,  relatieve afstand en diepte)
-
+dyncircvertrel	Zones dynamiques (découpe relative en profondeur puis verticale)	Dynamic zones (relative depth and then vertical cut)	Dynamische zones (relatieve diepte en vervolgens verticale snede)
