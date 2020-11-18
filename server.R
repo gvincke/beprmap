@@ -18,6 +18,7 @@
 #TODO : ajouter les lieux suivants http://www.colombophiliefr.com/Dossiers/GPS/lieux_lacher.htm
 #TODO : importation de fichiers langues pour les select : reactive ou observe : il y a les deux dans le code : uniformiser
 library(shiny)
+library(DT)
 library(maps)
 library(mapproj)
 library(mapdata)
@@ -260,17 +261,21 @@ shinyServer(function(input, output, session) {
     if(v$selection=="rfcbnatint17"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,18,22,43,52,53,57,74,76,94,101,102))}#+18 Carcassonne -39 gueret -49 La Souteraine  -64 Montluçon -70 Narbonne
     if(v$selection=="rfcbnatint18"){coords<-subset(coords,Id %in% c(2,6,10,13,16,17,18,22,43,52,53,57,74,76,94,101,102, 39,63,70,4))}#+39 Montelimar +63 Gueret +70 Narbonne +4 Angoulème
     if(v$selection=="rfcbnatint19"){coords<-subset(coords,Id %in% c(c(105,13,22,97,64,42,6),c(53,102,17,63,61,8,52,89,101),c(74,2,10,94,57,70,76)))}
+    if(v$selection=="rfcbnatint20"){coords<-subset(coords,Id %in% c(c(6,14,22,39,49,200),c(8,16,17,43,53,63,89,101,102),c(2,10,57,70,74,76,94)))}
     
     if(v$selection=="rfcbnatintdf15"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49,42))}
     if(v$selection=="rfcbnatintdf16"){coords<-subset(coords,Id %in% c(13,22,39,64,6,49))}#42 issoudun not in 2016
     if(v$selection=="rfcbnatintdf17"){coords<-subset(coords,Id %in% c(13,22,6))}#-39 gueret -64 Montluçon -49 La Souteraine
     if(v$selection=="rfcbnatintdf19"){coords<-subset(coords,Id %in% c(105,13,22,97,64,42,6))}
+    if(v$selection=="rfcbnatintdf20"){coords<-subset(coords,Id %in% c(6,14,22,39,49,200))}
     if(v$selection=="rfcbnatintf"){coords<-subset(coords,Id %in% c(53,102,17,63,61,16,43,101,52))}
     if(v$selection=="rfcbnatintf17"){coords<-subset(coords,Id %in% c(53,102,17,16,43,101,52))}#-61 Montauban -63 Montélimar
     if(v$selection=="rfcbnatintf19"){coords<-subset(coords,Id %in% c(53,102,17,63,61,8,52,89,101))}
+    if(v$selection=="rfcbnatintf20"){coords<-subset(coords,Id %in% c(8,16,17,43,53,63,89,101,102))}
     if(v$selection=="rfcbnatintgf"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
     if(v$selection=="rfcbnatintgf17"){coords<-subset(coords,Id %in% c(74,2,10,94,57,76,18))}#+18 Carcassonne -70 Narbonne
     if(v$selection=="rfcbnatintgf19"){coords<-subset(coords,Id %in% c(74,2,10,94,57,70,76))}
+    if(v$selection=="rfcbnatintgf20"){coords<-subset(coords,Id %in% c(2,10,57,70,74,76,94))}
     if(v$selection=="rfcbbeloff"){coords<-subset(coords,Id %in% c(79,59,139,140,55))}
     if(v$selection=="rfcbbeltour"){coords<-subset(coords,Id %in% c(141,142,143,144,145,146,147,148,149,150,7))}
     if(v$selection=="rfcbdivers"){coords<-subset(coords,Id %in% c(151,152,153,154,28,25,32,155,156,37,157,158,159,40,160,161,162,163,56,164,165,166,167,168,169,169,170,171,172,173,174,175,176,177,95,108,178,109,179,180,181))}
@@ -286,6 +291,7 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itawc17"){coords<-subset(coords,Id %in% c(14,71,64,23,105))}
     if(v$selection=="itawc18"){coords<-subset(coords,Id %in% c(14,71,105,48))}#64,23,
     if(v$selection=="itawc19"){coords<-subset(coords,Id %in% c(6,71,64,105,48))}#-14 Bourges -23 Chateauroux +6Argenton (+4 Angouleme annulé)
+    if(v$selection=="itawc20"){coords<-subset(coords,Id %in% c(14,48,104))}#-26 Clermont-Ferrand
     
     if(v$selection=="itfedesp"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106,14,46,105,152,167,2,6,10,13,16,17,22,39,42,43,49,52,53,57,61,63,64,70,76,94,101,102))}
     if(v$selection=="itcentand15"){coords<-subset(coords,Id %in% c(15,25,31,59,80,85,90,91,99,106))}
@@ -313,7 +319,8 @@ shinyServer(function(input, output, session) {
     if(v$selection=="itgcf17"){coords<-subset(coords,Id %in% c(31,99,47,91,84,54,38,95,c(14,71,64,23,105)))}#+AWC 2017
     if(v$selection=="itham"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="itmef"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
-    if(v$selection=="ithav"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
+    if(v$selection=="ithav15"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,105,13,46))}
+    if(v$selection=="ithav20"){coords<-subset(coords,Id %in% c(31,38,54,73,85,91,99,c(14,48,104)))}#+AWC2020 (-Clertmont Ferrand)
     if(v$selection=="itcin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
     if(v$selection=="itdin"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58,19,26,192))}
     if(v$selection=="itflo"){coords<-subset(coords,Id %in% c(95,103,50,88,47,44,58))}
@@ -1547,6 +1554,8 @@ shinyServer(function(input, output, session) {
       }
     }
     
+
+    
     v<-getInputValues()
     cv<-getComputedValues()
     #par(xpd=FALSE)#avoid plot ouside of plot limit, but work in download image but not in plot rendered in Shiny
@@ -1627,6 +1636,7 @@ shinyServer(function(input, output, session) {
         if(v$zones == 'dyncircvertrel'){
           plotZonesDynCircVertRel(coords)
         }
+
       }
       if(v$training){
         trainingangle<-getTrainingAngle(mycoord,cv$coords)
@@ -1660,10 +1670,11 @@ shinyServer(function(input, output, session) {
     print(plotMap())
   )
 
-  output$Datas = renderDataTable({
+  output$Datas <- DT::renderDataTable({
     v<-getInputValues()
     cv<-getComputedValues()
-    cv$datatoshow
+    data<-cv$datatoshow
+    datatable(data,options=list(columnDefs = list(list(visible=FALSE, targets=c(0)))))#datatable is from DT package and options = to hide #id of the row displayed
   })
 
 #UI
@@ -1698,7 +1709,7 @@ output$uiSBlocationsbottom <- renderUI({
     tags$table(tags$tr(tags$td(textInput("PLat", tr("NorthN"),"" )),tags$td(HTML("&nbsp;")),tags$td(textInput("PLon", tr("EastE"),"" )))),
     HTML('<hr style="border:1px dashed #ccc;"/>'),
     checkboxInput("labels", label = HTML(tr("ShowNames")), value = TRUE),
-    checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = TRUE),
+    checkboxInput("flightlines", label = HTML(tr("ShowFlight")), value = FALSE),
     HTML('<hr style="border:1px solid #ccc;"/>'),
     selectInput(inputId="mapzones",label=strong(HTML(paste(tr("MappedZone")," :",sep=""))),choices=getMappedzones(),selected="befres",selectize=FALSE),
     conditionalPanel(condition = "input.mapzones == 'man'",
@@ -1873,7 +1884,7 @@ output$uiMain <- renderUI({
               ),
               tabPanel(
                 tr("Datas"),
-                dataTableOutput('Datas'),
+                DT::dataTableOutput('Datas'),
                 value=2
               ),
               tabPanel(

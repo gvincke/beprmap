@@ -11,16 +11,20 @@ rfcbnatint16	RFCB : Councours (inter)nationaux 2016	RFCB : (Inter)national races
 rfcbnatint17	RFCB : Councours (inter)nationaux 2017	RFCB : (Inter)national races 2017	KBDB : (Inter)nationals races 2017
 rfcbnatint18	RFCB : Councours (inter)nationaux 2018	RFCB : (Inter)national races 2018	KBDB : (Inter)nationals races 2018
 rfcbnatint19	RFCB : Councours (inter)nationaux 2019	RFCB : (Inter)national races 2019	KBDB : (Inter)nationals races 2019
-rfcbnatintdf15	RFCB : Concours (inter)nationaux (Demi-Fond) 2015	RFCB : (Inter)national races (middle distance) 2015	KBDB : (Inter)nationals races (Halve Fond) 2015
-rfcbnatintdf16	RFCB : Concours (inter)nationaux (Demi-Fond) 2016	RFCB : (Inter)national races (middle distance) 2016	KBDB : (Inter)nationals races (Halve Fond) 2016
-rfcbnatintdf17	RFCB : Concours (inter)nationaux (Demi-Fond) 2017	RFCB : (Inter)national races (middle distance) 2017	KBDB : (Inter)nationals races (Halve Fond) 2017
-rfcbnatintdf19	RFCB : Concours (inter)nationaux (Demi-Fond) 2019	RFCB : (Inter)national races (middle distance) 2019	KBDB : (Inter)nationals races (Halve Fond) 2019
-rfcbnatintf	RFCB : Concours (inter)nationaux (Fond) 2015-2016	RFCB : (Inter)national races (long distance) 2015-2016	KBDB : (Inter)nationals races (Fond) 2015-2016
-rfcbnatintf17	RFCB : Concours (inter)nationaux (Fond) 2017	RFCB : (Inter)national races (long distance) 2017	KBDB : (Inter)nationals races (Fond) 2017
-rfcbnatintf19	RFCB : Concours (inter)nationaux (Fond) 2019	RFCB : (Inter)national races (long distance) 2019	KBDB : (Inter)nationals races (Fond) 2019
+rfcbnatint20	RFCB : Councours (inter)nationaux 2020	RFCB : (Inter)national races 2020	KBDB : (Inter)nationals races 2020
+rfcbnatintdf15	RFCB : Concours nationaux (Demi-Fond) 2015	RFCB : National races (middle distance) 2015	KBDB : Nationals races (Halve Fond) 2015
+rfcbnatintdf16	RFCB : Concours nationaux (Demi-Fond) 2016	RFCB : National races (middle distance) 2016	KBDB : Nationals races (Halve Fond) 2016
+rfcbnatintdf17	RFCB : Concours nationaux (Demi-Fond) 2017	RFCB : National races (middle distance) 2017	KBDB : Nationals races (Halve Fond) 2017
+rfcbnatintdf19	RFCB : Concours nationaux (Demi-Fond) 2019	RFCB : National races (middle distance) 2019	KBDB : Nationals races (Halve Fond) 2019
+rfcbnatintdf20	RFCB : Concours nationaux (Demi-Fond) 2020	RFCB : National races (middle distance) 2020	KBDB : Nationals races (Halve Fond) 2020
+rfcbnatintf	RFCB : Concours nationaux (Fond) 2015-2016	RFCB : National races (long distance) 2015-2016	KBDB : Nationals races (Fond) 2015-2016
+rfcbnatintf17	RFCB : Concours nationaux (Fond) 2017	RFCB : National races (long distance) 2017	KBDB : Nationals races (Fond) 2017
+rfcbnatintf19	RFCB : Concours nationaux (Fond) 2019	RFCB : National races (long distance) 2019	KBDB : Nationals races (Fond) 2019
+rfcbnatintf20	RFCB : Concours nationaux (Fond) 2020	RFCB : National races (long distance) 2020	KBDB : Nationals races (Fond) 2020
 rfcbnatintgf	RFCB : Concours (inter)nationaux (Grand-Fond) 2015-2016 	RFCB : (Inter)national races (extra long distance) 2015-2016	KBDB : (Inter)nationals races (Groot Fond) 2015-2016
 rfcbnatintgf17	RFCB : Concours (inter)nationaux (Grand-Fond) 2017 	RFCB : (Inter)national races (extra long distance) 2017	KBDB : (Inter)nationals races (Groot Fond) 2017
 rfcbnatintgf19	RFCB : Concours (inter)nationaux (Grand-Fond) 2019 	RFCB : (Inter)national races (extra long distance) 2019	KBDB : (Inter)nationals races (Groot Fond) 2019
+rfcbnatintgf20	RFCB : Concours (inter)nationaux (Grand-Fond) 2020 	RFCB : (Inter)national races (extra long distance) 2020	KBDB : (Inter)nationals races (Groot Fond) 2020
 rfcbdivers	RFCB : Divers	RFCB : Various	KBDB : Divers
 awch	AWC : Province du Hainaut	AWC : Province of Hainaut	AWC : Provincie Henegouwen
 awcbw	AWC : Province du Brabant-Wallon	AWC : Province of Walloon Brabant	AWC : Provincie Waals-Brabant
@@ -33,6 +37,7 @@ itawc16	Itinéraire : AWC 2016	Itinerary : AWC 2016	Reisroute : AWC 2016
 itawc17	Itinéraire : AWC 2017	Itinerary : AWC 2017	Reisroute : AWC 2017
 itawc18	Itinéraire : AWC 2018	Itinerary : AWC 2018	Reisroute : AWC 2018
 itawc19	Itinéraire : AWC 2019	Itinerary : AWC 2019	Reisroute : AWC 2019
+itawc20	Itinéraire : AWC 2020	Itinerary : AWC 2020	Reisroute : AWC 2020
 itcentand15	Itinéraire : Andenne 2015	Itinerary : Andenne 2015	Reisroute : Andenne 2015
 itcentand16	Itinéraire : Andenne 2016	Itinerary : Andenne 2016	Reisroute : Andenne 2016
 itcentand17	Itinéraire : Andenne 2017	Itinerary : Andenne 2017	Reisroute : Andenne 2017
@@ -48,10 +53,12 @@ itaf17	Itinéraire : Forville 2017	Itinerary : Forville 2017	Reisroute : Forvill
 itaf18	Itinéraire : Forville 2018	Itinerary : Forville 2018	Reisroute : Forville 2018
 itaf19	Itinéraire : Forville 2019	Itinerary : Forville 2019	Reisroute : Forville 2019
 itham	Itinéraire : Hamoir 2015	Itinerary : Hamoir 2015	Reisroute : Hamoir 2015
-ithav	Itinéraire : Havelange 2015	Itinerary : Havelange 2015	Reisroute : Havelange 2015
+ithav15	Itinéraire : Havelange 2015	Itinerary : Havelange 2015	Reisroute : Havelange 2015
+ithav20	Itinéraire : Havelange 2020	Itinerary : Havelange 2020	Reisroute : Havelange 2020
 itlr19	Itinéraire : Le Renouveau 2019	Itinerary : Le Renouveau 2019	Reisroute : Le Renouveau 2019
 itmef	Itinéraire : Marche en Famenne 2015	Itinerary : Marche en Famenne 2015	Reisroute : Marche en Famenne 2015
 itdh	Itinéraire : Derby Hainaut 2015	Itinerary : Derby Hainaut 2015	Reisroute : Derby Hainaut 2015
+itac20	Itinéraire : Association du Condroz 2020	Itinerary : Association of Condroz 2020	Reisroute : Vereniging van Condroz 2020
 itfedesp	Itinéraire : Fédération de l'Espoir 2015	Itinerary : Espoir Fédération 2015	Reisroute : Espoir Federatie 2015
 itgcf16	Itinéraire : Groupement Condroz - Famenne 2016	Itinerary : Condroz - Famenne Group 2016	Reisroute : Condroz - Famenne Group 2016
 itgcf17	Itinéraire : Groupement Condroz - Famenne 2017	Itinerary : Condroz - Famenne Group 2017	Reisroute : Condroz - Famenne Group 2017
