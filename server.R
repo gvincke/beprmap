@@ -1716,8 +1716,8 @@ output$uiSBlocationsbottom <- renderUI({
        HTML(tr("Coords")),
         tags$table(
           tags$tr(tags$td(),tags$td(strong("Min")),tags$td(HTML("&nbsp;")),tags$td(strong("Max"))),
-          tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","490000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","518000",min = -900000, max = 900000, step=1000))),
-          tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","7000",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","80000",min = -1800000, max = 1800000, step=1000)))
+          tags$tr(tags$td(strong(tr("NorthN"))),tags$td(numericInput("MLatMin","","421000",min = -900000, max = 900000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLatMax","","514000",min = -900000, max = 900000, step=1000))),
+          tags$tr(tags$td(strong(tr("EastE"))),tags$td(numericInput("MLonMin","","-49000",min = -1800000, max = 1800000, step=1000)),tags$td(HTML("&nbsp;")),tags$td(numericInput("MLonMax", "","82000",min = -1800000, max = 1800000, step=1000)))
         )
        ),
   HTML('<hr style="border:1px solid #ccc;"/>')
